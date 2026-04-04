@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace AnlageverzeichnisAppWPF
@@ -36,7 +37,7 @@ namespace AnlageverzeichnisAppWPF
         public DocumentHeader header;
 
         [ObservableProperty]
-        public List<dataEntryLine> dataEntryLines = [];
+        public ObservableCollection<dataEntryLine> dataEntryLines = [];
 
         public AnlageverzeichnisDocument( string companyName, string companyCityAndZipCode, int currentlyWorkedOnYear)
         {

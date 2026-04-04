@@ -9,7 +9,7 @@ namespace AnlageverzeichnisAppWPF
     public partial class dataEntryLine : ObservableObject
     {
         [ObservableProperty]
-        private string objectDescriptionText = "Gegenstandsbeschreibung";
+        private string objectDescriptionText = "";
 
         [ObservableProperty]
         public int monthOfPurchase = 1;
@@ -18,25 +18,25 @@ namespace AnlageverzeichnisAppWPF
         public int yearOfPurchase = 1900;
         
         [ObservableProperty]
-        public int priceAtPurchase_Cents = 0;
+        public Int64 priceAtPurchase_Cents = 0;
         
         [ObservableProperty]
-        protected int? enterOrLeaveAmount_Cents;
+        protected Int64? enterOrLeaveAmount_Cents;
         
         [ObservableProperty]
-        protected int accumulatedDepreciation_Cents  = 0;
+        protected Int64 accumulatedDepreciation_Cents  = 0;
         
         [ObservableProperty]
         public int depreciationPercentage_0P1Pct  = 0;
         
         [ObservableProperty]
-        protected int currentYearDepreciationAmount_Cents  = 0;
+        protected Int64 currentYearDepreciationAmount_Cents  = 0;
         
         [ObservableProperty]
-        protected int currentYearObjectValue_Cents  = 0;
+        protected Int64 currentYearObjectValue_Cents  = 0;
         
         [ObservableProperty]
-        protected int previousYearObjectValue_Cents  = 0;
+        protected Int64 previousYearObjectValue_Cents  = 0;
 
         [ObservableProperty]
         public bool isHeading  = false;
@@ -46,6 +46,11 @@ namespace AnlageverzeichnisAppWPF
         
         [ObservableProperty]
         public bool displayAsMemorialValue  = false;
+
+        public dataEntryLine(int currentYear)
+        {
+            YearOfPurchase = currentYear; // to allow the data entry mask using this later to always default to the current year for each entry line
+        }
 
         public void calculateDerivedFields(int currentYear)
         {
@@ -74,18 +79,25 @@ namespace AnlageverzeichnisAppWPF
             // handle the current year deprecation amount
             if (currentYear == YearOfPurchase)
             {
-                CurrentYearDepreciationAmount_Cents = PriceAtPurchase_Cents * 1000 / DepreciationPercentage_0P1Pct * (12 - MonthOfPurchase + 1) / 12;
+                CurrentYearDepreciationAmount_Cents = ((PriceAtPurchase_Cents * 1000 / DepreciationPercentage_0P1Pct)/1000) * (12 - MonthOfPurchase + 1) / 12;
                 // because in the 1st year the cents must be chosen such that the remaining value is a whole euros value
-                int centsThisYear = CurrentYearDepreciationAmount_Cents % 100; 
+                Int64 centsThisYear = CurrentYearDepreciationAmount_Cents % 100; 
                 CurrentYearDepreciationAmount_Cents -= centsThisYear;
-                int centsPurchasePrice = PriceAtPurchase_Cents % 100;
+                Int64 centsPurchasePrice = PriceAtPurchase_Cents % 100;
                 CurrentYearDepreciationAmount_Cents += centsPurchasePrice;
             }
             else
             {
-                CurrentYearDepreciationAmount_Cents = PriceAtPurchase_Cents * 1000 / DepreciationPercentage_0P1Pct;
-                int centsThisYear = CurrentYearDepreciationAmount_Cents % 100;
-                CurrentYearDepreciationAmount_Cents -= centsThisYear;
+                if (DepreciationPercentage_0P1Pct > 0)
+                {
+                    CurrentYearDepreciationAmount_Cents = (PriceAtPurchase_Cents * 1000 / DepreciationPercentage_0P1Pct)/1000;
+                    Int64 centsThisYear = CurrentYearDepreciationAmount_Cents % 100;
+                    CurrentYearDepreciationAmount_Cents -= centsThisYear;
+                }
+                else
+                {
+                    throw new NoNullAllowedException();
+                }
             }
 
             // handle the accumulated deprecation amount 

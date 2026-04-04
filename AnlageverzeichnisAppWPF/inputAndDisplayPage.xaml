@@ -6,11 +6,13 @@
       xmlns:local="clr-namespace:AnlageverzeichnisAppWPF"
       xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
       mc:Ignorable="d" 
-      d:DesignHeight="400" d:DesignWidth="800"
+      d:DesignHeight="400" d:DesignWidth="940"
       Title="Eingabe und Anzeigemakse">
     
     <Page.Resources>
-        <local:CentsToDecimalConverter x:Key="CentsToDecimalConverter" />
+        <local:CentsToEuroStringConverter x:Key="CentsToEuroString" />
+        <local:TenthPctToPercentageString x:Key="TenthPctToPercentageString" />
+        <local:InverseBooleanConverter x:Key="InverseBool" />
     </Page.Resources>
 
     <Grid
@@ -37,18 +39,21 @@
                 Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}" 
                 Grid.Column="0"
                 Margin="0,0,5,0"
+                IsEnabled="False"
             />
             <TextBox
                 Name="companyCityAndZipCodeTextBox"
                 Text="{Binding CompanyCityAndZipCode, UpdateSourceTrigger=PropertyChanged}" 
                 Grid.Column="1"
                 Margin="0,0,5,0"
+                IsEnabled="False"
             />
             <TextBox
                 Name="currentlyWorkedOnYearTextBox"
                 Text="{Binding CurrentlyWorkedOnYear, UpdateSourceTrigger=PropertyChanged}" 
                 Grid.Column="2"
                 Margin="0,0,5,0"
+                IsEnabled="False" 
             />
             <Button 
                 Name = "saveButton"
@@ -66,46 +71,109 @@
         </Grid>
         
         <!-- 2nd row ## data display -->
-        <Grid>
-            <!-- to be filled -->    
+        <Grid
+            Grid.Row="1"
+            Margin="0,5,0,5"
+            >
+            <!-- to be filled -->
+            <DataGrid ItemsSource="{Binding Document.DataEntryLines}"
+                  AutoGenerateColumns="False"
+                  HeadersVisibility="Column"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="True"
+                  CanUserResizeRows="False"
+                  IsReadOnly="False"
+                  CanUserSortColumns="False"
+                  GridLinesVisibility="None">
+
+                <DataGrid.Columns>
+
+                    <!-- 1st column stretches -->
+                    <DataGridTextColumn Header="Gegenstand"
+                            Binding="{Binding ObjectDescriptionText}"
+                            Width="2.5*" />
+
+                    <!-- Monat/Jahr combined -->
+                    <DataGridTemplateColumn Header="MM/JJ" Width="0.6*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding MonthOfPurchase}" />
+                                    <TextBlock Text="/"/>
+                                    <TextBlock Text="{Binding YearOfPurchase}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="€ Hist."
+                            Binding="{Binding PriceAtPurchase_Cents, Converter={StaticResource CentsToEuroString}}"
+                            Width="*" />
+
+                    <DataGridTextColumn Header="€ Zu/Ab"
+                            Binding="{Binding EnterOrLeaveAmount_Cents, Converter={StaticResource CentsToEuroString}}"
+                            Width="*" />
+
+                    <DataGridTextColumn Header="€ Kum."
+                            Binding="{Binding AccumulatedDepreciation_Cents, Converter={StaticResource CentsToEuroString}}"
+                            Width="1*" />
+
+                    <DataGridTextColumn Header="% GJ Abschr."
+                            Binding="{Binding DepreciationPercentage_0P1Pct, Converter={StaticResource TenthPctToPercentageString}}"
+                            Width="1.1*" />
+
+                    <DataGridTextColumn Header="€ GJ Abschr."
+                            Binding="{Binding CurrentYearDepreciationAmount_Cents, Converter={StaticResource CentsToEuroString}}"
+                            Width="*" />
+
+                    <DataGridTextColumn Header="€ Akt."
+                            Binding="{Binding CurrentYearObjectValue_Cents, Converter={StaticResource CentsToEuroString}}"
+                            Width="*" />
+
+                    <DataGridTextColumn Header="€ VJ"
+                            Binding="{Binding PreviousYearObjectValue_Cents, Converter={StaticResource CentsToEuroString}}"
+                            Width="*" />
+
+                </DataGrid.Columns>
+            </DataGrid>
+
         </Grid>
         
         <!-- 3rd row ## data entry mask -->
         <Grid
             Grid.Row="2"
-            Margin="5"
+            Margin="0,5,0,5"
             DataContext="{Binding CurrentlyEditedLine}"
             >
             <Grid.RowDefinitions>
-                <RowDefinition></RowDefinition>
-                <RowDefinition></RowDefinition>
-                <RowDefinition></RowDefinition>
-                <RowDefinition></RowDefinition>
+                <RowDefinition Height="1.5*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="0.7*"/>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <TextBlock
                 Grid.Row="0"
                 Grid.Column="0"
                 VerticalAlignment="Stretch"
-                Height="100"
+                Margin="0,0,0,0"
                 HorizontalAlignment="Stretch"
-                TextAlignment="Center"
+                TextAlignment="Left"
                 >
-                Gegenstands- <LineBreak/>
-                beschreibung
+                Gegenstandsbeschreibung
             </TextBlock>
             <TextBlock
                 Grid.Row="0"
                 Grid.Column="1"
                 VerticalAlignment="Stretch"
-                Height="100"
+                Margin="0,0,0,0"
                 HorizontalAlignment="Stretch"
                 TextAlignment="Center"
                 >
@@ -116,7 +184,6 @@
                 Grid.Row="0"
                 Grid.Column="2"
                 VerticalAlignment="Stretch"
-                Height="100"
                 HorizontalAlignment="Stretch"
                 TextAlignment="Center"
                 >
@@ -127,7 +194,6 @@
                 Grid.Row="0"
                 Grid.Column="3"
                 VerticalAlignment="Stretch"
-                Height="100"
                 HorizontalAlignment="Stretch"
                 TextAlignment="Center"
                 >
@@ -138,7 +204,6 @@
                 Grid.Row="0"
                 Grid.Column="4"
                 VerticalAlignment="Stretch"
-                Height="100"
                 HorizontalAlignment="Stretch"
                 TextAlignment="Center"
                 >
@@ -150,19 +215,20 @@
                 Grid.Row ="0"
                 Grid.Column="5"
                 VerticalAlignment="Center"
-                Height="100"
                 HorizontalAlignment="Stretch"
                 HorizontalContentAlignment="Center"
-                Content="Eintrag übernehmen"
+                Content="Eintrag übernehmen (F11,*)"
                 Click="applyLineButton_Click"
             />
             <TextBox
+                Name="objectDescriptionTextBox"
                 Grid.Row="1"
                 Grid.Column="0"
                 Grid.RowSpan="3"
                 Margin="0,0,5,0"
                 HorizontalScrollBarVisibility="Auto"
                 VerticalScrollBarVisibility="Visible"
+                PreviewKeyDown="objectDescriptionTextBox_PreviewKeyDown"
                 Text="{Binding ObjectDescriptionText, UpdateSourceTrigger=PropertyChanged}"
             />
             <xctk:IntegerUpDown
@@ -172,6 +238,9 @@
                 Minimum="1"
                 Maximum="12"
                 Increment="1"
+                PreviewKeyDown="NumericTextBoxes_PreviewKeyDown"
+                KeyDown="NumericTextBoxes_KeyDown"
+                IsEnabled ="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 Value="{Binding MonthOfPurchase, UpdateSourceTrigger=PropertyChanged}"
             />
             <xctk:IntegerUpDown
@@ -179,50 +248,64 @@
                 Grid.Column="2"
                 Margin="0,0,5,0"
                 Minimum="1900"
-                Maximum="2200"
+                Maximum="{Binding DataContext.Document.Header.CurrentlyWorkedOnYear, RelativeSource={RelativeSource AncestorType=Page}}"
                 Increment="1"
-                Value="{Binding YearOfPurchase, UpdateSourceTrigger=PropertyChanged}"
+                PreviewKeyDown="NumericTextBoxes_PreviewKeyDown"
+                KeyDown="NumericTextBoxes_KeyDown"
+                IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
+                Value="{Binding YearOfPurchase, 
+                        UpdateSourceTrigger=PropertyChanged}"
             />
             <TextBox
+                Name="priceAtPurchaseTextBox"
                 Grid.Row="1"
                 Grid.Column="3"
                 Margin="0,0,5,0"
-                
-                Text ="{Binding PriceAtPurchase_Cents,
-                        Converter={StaticResource CentsToDecimalConverter},
+                PreviewKeyDown="NumericTextBoxes_PreviewKeyDown"
+                KeyDown="NumericTextBoxes_KeyDown"
+                GotFocus="TextBox_GotFocus"
+                PreviewMouseLeftButtonDown="TextBox_PreviewMouseLeftButtonDown"
+                IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
+                Text ="{Binding PriceAtPurchase_Cents, 
+                        Converter={StaticResource CentsToEuroString},
                         UpdateSourceTrigger=PropertyChanged}"
                 
             />
-            <!-- the below may not work as intended-->
-            <xctk:IntegerUpDown
+            <TextBox
+                Name="deprecationPercentageTextBox"
                 Grid.Row="1"
                 Grid.Column="4"
                 Margin="0,0,5,0"
-                Minimum="0"
-                Maximum="10000000"
-                Increment="100"
-                
-               Value="{Binding DepreciationPercentage_0P1Pct,
+                PreviewKeyDown="NumericTextBoxes_PreviewKeyDown"
+                KeyDown="NumericTextBoxes_KeyDown"
+                GotFocus="TextBox_GotFocus"
+                PreviewMouseLeftButtonDown="TextBox_PreviewMouseLeftButtonDown"
+                IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
+                Text="{Binding DepreciationPercentage_0P1Pct,
+                       Converter={StaticResource TenthPctToPercentageString},
                        UpdateSourceTrigger=PropertyChanged}"
-                FormatString="F2"
             />
-            <!--until here-->
             <CheckBox
+                Name="isHeadingCheckBox"
                 Grid.Row="1"
                 Grid.Column="5"
-                Content="Nur Überschrift"
+                Content="Nur Überschrift (F10)"
                 IsChecked="{Binding IsHeading}"
             />
             <CheckBox
+                Name="isLeavingThisYearCheckBox"
                 Grid.Row="2"
                 Grid.Column="5"
-                Content="Abgang in diesem Jahr"
+                Content="Abgang in diesem Jahr (-)"
+                IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 IsChecked="{Binding IsLeavingThisYear}"
             />
             <CheckBox
+                Name="displayAsMemorialValueCheckbox"
                 Grid.Row="3"
                 Grid.Column="5"
-                Content="Auf Erinnerungswert setzen"
+                Content="Auf Erinnerungswert setzen (E)"
+                IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 IsChecked="{Binding DisplayAsMemorialValue}"
             />
         </Grid>

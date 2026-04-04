@@ -37,29 +37,28 @@ namespace AnlageverzeichnisAppWPF
         private void createButton_Click(object sender, RoutedEventArgs e)
         {
             var saveDialog = new SaveFileDialog();
-            do
+            
+            saveDialog.DefaultExt = ".json";
+            saveDialog.AddExtension = true;
+            saveDialog.Filter = ".json | JSON Dateien";
+            if (
+                    (saveDialog.ShowDialog() == true)
+                  &&(saveDialog.FileName != "")
+               )
             {
-                saveDialog.DefaultExt = ".json";
-                saveDialog.AddExtension = true;
-                saveDialog.Filter = ".json | JSON Dateien";
-                saveDialog.ShowDialog();
-                if(saveDialog.FileName == "")
-                { 
-                    MessageBox.Show("Ein Dateiname ist erforderlich; bitte noch mal probieren", "Fehler - kein Dateiname", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else
+                var document = new AnlageverzeichnisDocument((AnlageverzeichnisDocument.DocumentHeader)(this.DataContext));
+                using (var outfile = new StreamWriter(saveDialog.FileName))
                 {
-                    // no error -- the loop can be left by the outer condition
+                    outfile.Write(JsonSerializer.Serialize<AnlageverzeichnisDocument>(document));
                 }
-            }
-            while (saveDialog.FileName == "");
-            var document = new AnlageverzeichnisDocument((AnlageverzeichnisDocument.DocumentHeader)(this.DataContext));
-            using (var outfile = new StreamWriter(saveDialog.FileName))
-            {
-                outfile.Write(JsonSerializer.Serialize<AnlageverzeichnisDocument>(document));
-            }
 
-            NavigationService.Navigate(new inputAndDisplayPage(document, saveDialog.FileName));
+                NavigationService.Navigate(new inputAndDisplayPage(document, saveDialog.FileName));
+            }
+            else
+            {
+                MessageBox.Show("Keine Datei gewählt -- Anlageverzeichnis anlage abgebrochen", "Keine Datei", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
         }
     }
 }
