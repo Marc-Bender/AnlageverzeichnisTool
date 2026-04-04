@@ -4,21 +4,64 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:AnlageverzeichnisAppWPF"
+      xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
       mc:Ignorable="d" 
       d:DesignHeight="400" d:DesignWidth="800"
-      Name="inputAndDisplayPageInstance"
       Title="Eingabe und Anzeigemakse">
+    
+    <Page.Resources>
+        <local:CentsToDecimalConverter x:Key="CentsToDecimalConverter" />
+    </Page.Resources>
 
-    <Grid>
+    <Grid
+        Margin="5"
+        >
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.5*"></RowDefinition>
+            <RowDefinition Height="0.25*"></RowDefinition>
             <RowDefinition Height="2*"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <!-- 1st row ## company name, zip code, city and year -->
-        <Grid>
+        <Grid
+            DataContext="{Binding Document.Header}"
+            >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
             <TextBox
-                Text="{Binding ElementName=inputAndDisplayPageInstance, Path=Tag.header.companyName}" 
+                Name="companyNameTextBox"
+                Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}" 
+                Grid.Column="0"
+                Margin="0,0,5,0"
+            />
+            <TextBox
+                Name="companyCityAndZipCodeTextBox"
+                Text="{Binding CompanyCityAndZipCode, UpdateSourceTrigger=PropertyChanged}" 
+                Grid.Column="1"
+                Margin="0,0,5,0"
+            />
+            <TextBox
+                Name="currentlyWorkedOnYearTextBox"
+                Text="{Binding CurrentlyWorkedOnYear, UpdateSourceTrigger=PropertyChanged}" 
+                Grid.Column="2"
+                Margin="0,0,5,0"
+            />
+            <Button 
+                Name = "saveButton"
+                Content="Speichern"
+                Grid.Column="3"
+                Click="saveButton_Click"
+                Margin="0,0,5,0"
+            />
+            <Button 
+                Name = "reloadButton"
+                Content="neu laden"
+                Grid.Column="4"
+                Click="reloadButton_Click"
             />
         </Grid>
         
@@ -30,6 +73,8 @@
         <!-- 3rd row ## data entry mask -->
         <Grid
             Grid.Row="2"
+            Margin="5"
+            DataContext="{Binding CurrentlyEditedLine}"
             >
             <Grid.RowDefinitions>
                 <RowDefinition></RowDefinition>
@@ -56,6 +101,130 @@
                 Gegenstands- <LineBreak/>
                 beschreibung
             </TextBlock>
+            <TextBlock
+                Grid.Row="0"
+                Grid.Column="1"
+                VerticalAlignment="Stretch"
+                Height="100"
+                HorizontalAlignment="Stretch"
+                TextAlignment="Center"
+                >
+                Anschaffungs- <LineBreak/>
+                monat
+            </TextBlock>
+            <TextBlock
+                Grid.Row="0"
+                Grid.Column="2"
+                VerticalAlignment="Stretch"
+                Height="100"
+                HorizontalAlignment="Stretch"
+                TextAlignment="Center"
+                >
+                Anschaffungs- <LineBreak/>
+                jahr
+            </TextBlock>
+            <TextBlock
+                Grid.Row="0"
+                Grid.Column="3"
+                VerticalAlignment="Stretch"
+                Height="100"
+                HorizontalAlignment="Stretch"
+                TextAlignment="Center"
+                >
+                Anschaffungs- <LineBreak/>
+                wert
+            </TextBlock>
+            <TextBlock
+                Grid.Row="0"
+                Grid.Column="4"
+                VerticalAlignment="Stretch"
+                Height="100"
+                HorizontalAlignment="Stretch"
+                TextAlignment="Center"
+                >
+                Abschreibungs- <LineBreak/>
+                prozentsatz
+            </TextBlock>
+            <Button
+                Name="applyLineButton"
+                Grid.Row ="0"
+                Grid.Column="5"
+                VerticalAlignment="Center"
+                Height="100"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                Content="Eintrag übernehmen"
+                Click="applyLineButton_Click"
+            />
+            <TextBox
+                Grid.Row="1"
+                Grid.Column="0"
+                Grid.RowSpan="3"
+                Margin="0,0,5,0"
+                HorizontalScrollBarVisibility="Auto"
+                VerticalScrollBarVisibility="Visible"
+                Text="{Binding ObjectDescriptionText, UpdateSourceTrigger=PropertyChanged}"
+            />
+            <xctk:IntegerUpDown
+                Grid.Row="1"
+                Grid.Column="1"
+                Margin="0,0,5,0"
+                Minimum="1"
+                Maximum="12"
+                Increment="1"
+                Value="{Binding MonthOfPurchase, UpdateSourceTrigger=PropertyChanged}"
+            />
+            <xctk:IntegerUpDown
+                Grid.Row="1"
+                Grid.Column="2"
+                Margin="0,0,5,0"
+                Minimum="1900"
+                Maximum="2200"
+                Increment="1"
+                Value="{Binding YearOfPurchase, UpdateSourceTrigger=PropertyChanged}"
+            />
+            <TextBox
+                Grid.Row="1"
+                Grid.Column="3"
+                Margin="0,0,5,0"
+                
+                Text ="{Binding PriceAtPurchase_Cents,
+                        Converter={StaticResource CentsToDecimalConverter},
+                        UpdateSourceTrigger=PropertyChanged}"
+                
+            />
+            <!-- the below may not work as intended-->
+            <xctk:IntegerUpDown
+                Grid.Row="1"
+                Grid.Column="4"
+                Margin="0,0,5,0"
+                Minimum="0"
+                Maximum="10000000"
+                Increment="100"
+                
+               Value="{Binding DepreciationPercentage_0P1Pct,
+                       UpdateSourceTrigger=PropertyChanged}"
+                FormatString="F2"
+            />
+            <!--until here-->
+            <CheckBox
+                Grid.Row="1"
+                Grid.Column="5"
+                Content="Nur Überschrift"
+                IsChecked="{Binding IsHeading}"
+            />
+            <CheckBox
+                Grid.Row="2"
+                Grid.Column="5"
+                Content="Abgang in diesem Jahr"
+                IsChecked="{Binding IsLeavingThisYear}"
+            />
+            <CheckBox
+                Grid.Row="3"
+                Grid.Column="5"
+                Content="Auf Erinnerungswert setzen"
+                IsChecked="{Binding DisplayAsMemorialValue}"
+            />
         </Grid>
     </Grid>
 </Page>

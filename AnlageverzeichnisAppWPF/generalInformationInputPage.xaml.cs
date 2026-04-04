@@ -1,6 +1,8 @@
-﻿using Microsoft.Win32;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -23,6 +25,7 @@ namespace AnlageverzeichnisAppWPF
     {
         public generalInformationInputPage()
         {
+            DataContext = new AnlageverzeichnisDocument.DocumentHeader();
             InitializeComponent();
         }
 
@@ -50,21 +53,13 @@ namespace AnlageverzeichnisAppWPF
                 }
             }
             while (saveDialog.FileName == "");
-
-            var applicationContext = new AnlageverzeichnisDocument(
-                                            companyNameTextBox.Text, 
-                                            companyCityAndZipCodeTextB.Text, 
-                                            int.Parse(currentlyWorkedOnYearTextBox.Text)
-                                            );
+            var document = new AnlageverzeichnisDocument((AnlageverzeichnisDocument.DocumentHeader)(this.DataContext));
             using (var outfile = new StreamWriter(saveDialog.FileName))
             {
-                outfile.Write(JsonSerializer.Serialize<AnlageverzeichnisDocument>(applicationContext));
+                outfile.Write(JsonSerializer.Serialize<AnlageverzeichnisDocument>(document));
             }
 
-            var inputAndDisplayPage = new inputAndDisplayPage();
-            inputAndDisplayPage.Tag = applicationContext;
-
-            NavigationService.Navigate(inputAndDisplayPage);
+            NavigationService.Navigate(new inputAndDisplayPage(document, saveDialog.FileName));
         }
     }
 }

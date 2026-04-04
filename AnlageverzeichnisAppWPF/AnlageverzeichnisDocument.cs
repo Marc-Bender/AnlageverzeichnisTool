@@ -1,30 +1,62 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace AnlageverzeichnisAppWPF
 {
-    public class AnlageverzeichnisDocument
+    public partial class AnlageverzeichnisDocument : ObservableObject
     {
-        public class Header
+        public partial class DocumentHeader : ObservableObject
         {
-            public string companyName { get; set; }
-            public string companyCityAndZipCode { get; set; }
-            public int currentlyWorkedOnYear { get; set; }
-            public Header(string companyName, string companyCityAndZipCode, int currentlyWorkedOnYear)
+            [ObservableProperty]
+            private string companyName = "Mustermann Fabrikations GmbH";
+            [ObservableProperty]
+            private string companyCityAndZipCode = "12345 Bad Musterhausen";
+            [ObservableProperty]
+            private int currentlyWorkedOnYear = 2020;
+
+            public DocumentHeader(string companyName, string companyCityAndZipCode, int currentlyWorkedOnYear)
             {
-                this.companyName = companyName;
-                this.companyCityAndZipCode = companyCityAndZipCode;
-                this.currentlyWorkedOnYear = currentlyWorkedOnYear;
+                //must use uppercase members to not break bindings!
+                this.CompanyName = companyName;
+                this.CompanyCityAndZipCode = companyCityAndZipCode;
+                this.CurrentlyWorkedOnYear = currentlyWorkedOnYear;
+            }
+
+            public DocumentHeader()
+            {
+                this.CompanyName = "Mustermann Fabrikations GmbH";
+                this.CompanyCityAndZipCode = "12345 Bad Musterhausen";
+                this.CurrentlyWorkedOnYear = 2020;
             }
         }
 
-        public Header header { get; set; }
-        public List<dataEntryLine> dataEntryLines { get; set; } = [];
+        [ObservableProperty]
+        public DocumentHeader header;
+
+        [ObservableProperty]
+        public List<dataEntryLine> dataEntryLines = [];
 
         public AnlageverzeichnisDocument( string companyName, string companyCityAndZipCode, int currentlyWorkedOnYear)
         {
-            this.header = new Header(companyName, companyCityAndZipCode, currentlyWorkedOnYear);
+            this.Header = new DocumentHeader(companyName, companyCityAndZipCode, currentlyWorkedOnYear);
+        }
+
+        public AnlageverzeichnisDocument()
+        {
+            this.Header = new DocumentHeader();
+        }
+
+        public AnlageverzeichnisDocument(DocumentHeader header)
+        {
+            this.Header = header;
+        }
+
+        public void migrateToNextYear() // will change the datastructure inplace
+        {
+            this.Header.CurrentlyWorkedOnYear++;
+
         }
     }
 }

@@ -1,30 +1,55 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
 namespace AnlageverzeichnisAppWPF
 {
-    public class dataEntryLine
+    public partial class dataEntryLine : ObservableObject
     {
-        public string? objectDescriptionText { get; set; } = null;
-        public int monthOfPurchase { get; set; } = 1;
-        public int yearOfPurchase { get; set; }
-        public int priceAtPurchase_Cents { get; set; }
-        protected int? enterOrLeaveAmount_Cents { get; set; }
-        protected int accumulatedDepreciation_Cents { get; set; } = 0;
-        public int depreciationPercentage_0P1Pct { get; set; } = 0;
-        protected int currentYearDepreciationAmount_Cents { get; set; } = 0;
-        protected int currentYearObjectValue_Cents { get; set; } = 0;
-        protected int previousYearObjectValue_Cents { get; set; } = 0;
+        [ObservableProperty]
+        private string objectDescriptionText = "Gegenstandsbeschreibung";
 
-        public bool isHeading { get; set; } = false;
-        public bool isLeavingThisYear { get; set; } = false;
-        public bool displayAsMemorialValue { get; set; } = false;
+        [ObservableProperty]
+        public int monthOfPurchase = 1;
+        
+        [ObservableProperty]
+        public int yearOfPurchase = 1900;
+        
+        [ObservableProperty]
+        public int priceAtPurchase_Cents = 0;
+        
+        [ObservableProperty]
+        protected int? enterOrLeaveAmount_Cents;
+        
+        [ObservableProperty]
+        protected int accumulatedDepreciation_Cents  = 0;
+        
+        [ObservableProperty]
+        public int depreciationPercentage_0P1Pct  = 0;
+        
+        [ObservableProperty]
+        protected int currentYearDepreciationAmount_Cents  = 0;
+        
+        [ObservableProperty]
+        protected int currentYearObjectValue_Cents  = 0;
+        
+        [ObservableProperty]
+        protected int previousYearObjectValue_Cents  = 0;
+
+        [ObservableProperty]
+        public bool isHeading  = false;
+        
+        [ObservableProperty]
+        public bool isLeavingThisYear  = false;
+        
+        [ObservableProperty]
+        public bool displayAsMemorialValue  = false;
 
         public void calculateDerivedFields(int currentYear)
         {
-            if (isHeading == true)
+            if (IsHeading == true)
             {
                 return; 
             }
@@ -35,42 +60,42 @@ namespace AnlageverzeichnisAppWPF
 
             // handle the enter and leave amount
             if(
-                    (currentYear == yearOfPurchase)
-                  ||(isLeavingThisYear == true)
+                    (currentYear == YearOfPurchase)
+                  ||(IsLeavingThisYear == true)
               )
             {
-                enterOrLeaveAmount_Cents = priceAtPurchase_Cents;
+                EnterOrLeaveAmount_Cents = PriceAtPurchase_Cents;
             }
             else
             {
-                enterOrLeaveAmount_Cents = null;
+                EnterOrLeaveAmount_Cents = null;
             }
 
             // handle the current year deprecation amount
-            if (currentYear == yearOfPurchase)
+            if (currentYear == YearOfPurchase)
             {
-                currentYearDepreciationAmount_Cents = priceAtPurchase_Cents * 1000 / depreciationPercentage_0P1Pct * (12 - monthOfPurchase + 1) / 12;
+                CurrentYearDepreciationAmount_Cents = PriceAtPurchase_Cents * 1000 / DepreciationPercentage_0P1Pct * (12 - MonthOfPurchase + 1) / 12;
                 // because in the 1st year the cents must be chosen such that the remaining value is a whole euros value
-                int centsThisYear = currentYearDepreciationAmount_Cents % 100; 
-                currentYearDepreciationAmount_Cents -= centsThisYear;
-                int centsPurchasePrice = priceAtPurchase_Cents % 100;
-                currentYearDepreciationAmount_Cents += centsPurchasePrice;
+                int centsThisYear = CurrentYearDepreciationAmount_Cents % 100; 
+                CurrentYearDepreciationAmount_Cents -= centsThisYear;
+                int centsPurchasePrice = PriceAtPurchase_Cents % 100;
+                CurrentYearDepreciationAmount_Cents += centsPurchasePrice;
             }
             else
             {
-                currentYearDepreciationAmount_Cents = priceAtPurchase_Cents * 1000 / depreciationPercentage_0P1Pct;
-                int centsThisYear = currentYearDepreciationAmount_Cents % 100;
-                currentYearDepreciationAmount_Cents -= centsThisYear;
+                CurrentYearDepreciationAmount_Cents = PriceAtPurchase_Cents * 1000 / DepreciationPercentage_0P1Pct;
+                int centsThisYear = CurrentYearDepreciationAmount_Cents % 100;
+                CurrentYearDepreciationAmount_Cents -= centsThisYear;
             }
 
             // handle the accumulated deprecation amount 
-            if (currentYear == yearOfPurchase)
+            if (currentYear == YearOfPurchase)
             {
-                accumulatedDepreciation_Cents = currentYearDepreciationAmount_Cents;
+                AccumulatedDepreciation_Cents = CurrentYearDepreciationAmount_Cents;
             }
             else
             {
-                accumulatedDepreciation_Cents += currentYearDepreciationAmount_Cents;
+                AccumulatedDepreciation_Cents += CurrentYearDepreciationAmount_Cents;
             }
 
         }

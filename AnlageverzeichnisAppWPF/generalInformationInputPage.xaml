@@ -28,7 +28,8 @@
             Margin="3"
             VerticalAlignment="Center" 
             HorizontalAlignment="Stretch" 
-            HorizontalContentAlignment="Right">
+            HorizontalContentAlignment="Right"
+            >
             Firmenname
         </Label>
         <TextBox
@@ -36,10 +37,11 @@
             Grid.Row="0" 
             Grid.Column="1" 
             Margin="5"
-            VerticalAlignment="Center">
-            Mustermann Fabrikations GmbH
-        </TextBox>
-        
+            VerticalAlignment="Center"
+            Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
+            />
+
+
         <!-- 2nd row -->
         <Label 
             Grid.Row="1" 
@@ -51,14 +53,15 @@
             Ort der Firma
         </Label>
         <TextBox 
-            Name="companyCityAndZipCodeTextB"
+            Name="companyCityAndZipCodeTextBox"
             Grid.Row="1" 
             Grid.Column="1" 
             Margin="5"
-            VerticalAlignment="Center">
-            12345 Bad Musterhausen
-        </TextBox>
-        
+            VerticalAlignment="Center"
+            Text="{Binding CompanyCityAndZipCode, UpdateSourceTrigger=PropertyChanged}"
+            />
+
+
         <!-- 3rd row -->
         <Label 
             Grid.Row="2" 
@@ -75,10 +78,11 @@
             Grid.Row="2" 
             Grid.Column="1" 
             Margin="5"
-            VerticalAlignment="Center">
-            2020
-        </TextBox>
-        
+            VerticalAlignment="Center"
+            Text="{Binding CurrentlyWorkedOnYear, UpdateSourceTrigger=PropertyChanged}"
+            />
+
+
         <!-- 4th row is spacer -->
         
         <!-- 5th row -->
