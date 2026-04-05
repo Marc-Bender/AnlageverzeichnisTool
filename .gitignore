@@ -1,0 +1,9 @@
+﻿################################################################################
+# Diese .gitignore-Datei wurde von Microsoft(R) Visual Studio automatisch erstellt.
+################################################################################
+
+/AnlageverzeichnisApp/.vs
+/AnlageverzeichnisApp
+/AnlageverzeichnisAppWPF/.vs
+/AnlageverzeichnisAppWPF/bin/Debug/net10.0-windows
+/AnlageverzeichnisAppWPF/obj
