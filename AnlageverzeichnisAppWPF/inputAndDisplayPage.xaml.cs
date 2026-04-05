@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Reflection.Metadata;
+using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
@@ -54,8 +56,10 @@ namespace AnlageverzeichnisAppWPF
             this.filename = fileName; // so that we have a way of memorizing where the file is stored that had been created in the general information input page
             InitializeComponent();
         }
-
-        private void saveButton_Click(object sender, RoutedEventArgs e)
+        public ICommand SaveCommand => new RelayCommand(Save);
+        public ICommand ReloadCommand => new RelayCommand(Reload);
+        public ICommand ApplyCommand => new RelayCommand(Apply);
+        private void Save()
         {
             using (var outfile = new StreamWriter(this.filename))
             {
@@ -68,7 +72,7 @@ namespace AnlageverzeichnisAppWPF
             MessageBox.Show("Gespeichert!", "", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private void reloadButton_Click(object sender, RoutedEventArgs e)
+        private void Reload()
         {
             using (var infile = new StreamReader(this.filename))
             {
@@ -78,10 +82,10 @@ namespace AnlageverzeichnisAppWPF
                 }
             }
 
-            MessageBox.Show("Gespeichert!", "", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Auf gespeicherten Zustand zurückgesetzt!", "", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private void applyLineButton_Click(object sender, RoutedEventArgs e)
+        private void Apply()
         {
             if (this.DataContext is inputAndDisplayPageViewModel vm)
             {
@@ -99,7 +103,12 @@ namespace AnlageverzeichnisAppWPF
                 objectDescriptionTextBox.Focus();
             }
         }
+        private void saveButton_Click(object sender, RoutedEventArgs e) => Save();
 
+        private void reloadButton_Click(object sender, RoutedEventArgs e) => Reload();
+
+        private void applyLineButton_Click(object sender, RoutedEventArgs e) => Apply();
+        
         private void objectDescriptionTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if(this.DataContext is inputAndDisplayPageViewModel vm)
@@ -111,13 +120,6 @@ namespace AnlageverzeichnisAppWPF
                 {
                     vm.CurrentlyEditedLine.IsHeading = !vm.CurrentlyEditedLine.IsHeading;
                     e.Handled = true; 
-                }
-                else if (
-                            (e.Key == Key.F11)
-                         || (e.SystemKey == Key.F11)
-                        )
-                {
-                    applyLineButton_Click(sender, e);
                 }
             }
         }
@@ -148,31 +150,81 @@ namespace AnlageverzeichnisAppWPF
                     case Key.Multiply:
                     {
                         e.Handled = true;
-                        applyLineButton_Click(sender, e);
+                        Apply();
+                    }
+                    break;
+                    case Key.Divide:
+                    {
+                        e.Handled = true;
+                        this.yearOfPurchaseNumberBox.Focus();
                     }
                     break;
                 }
             }
         }
-        private void NumericTextBoxes_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void monthOfPurchaseTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Divide)
+            {
+                e.Handled = true;
+                yearOfPurchaseNumberBox.Focus();
+                return;
+            }
+
+            NumericTextBoxesCommonBehaviors_PreviewKeyDown(sender, e);
+        }
+        private void yearOfPurchaseTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (
+                    (e.Key == Key.Tab)
+                 && (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift) == false) // only on "forward" tab get to price field
+               )
+            {
+                e.Handled = true;
+                priceAtPurchaseTextBox.Focus();
+                return;
+            }
+            else if (
+                        (e.Key == Key.Tab)
+                     && (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift) == true) // on "backwards" tab go to month field instead
+                    )
+            {
+                e.Handled = true;
+                monthOfPurchaseNumberBox.Focus();
+                return;
+            }
+            NumericTextBoxesCommonBehaviors_PreviewKeyDown(sender, e);
+        }
+
+        private void priceAtPurchaseTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (
+                   (e.Key == Key.Tab)
+                && (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift) == true) // on "backwards" tab go to year field instead of month... 
+               )
+            {
+                e.Handled = true;
+                yearOfPurchaseNumberBox.Focus();
+                return;
+            }
+            NumericTextBoxesCommonBehaviors_PreviewKeyDown(sender, e);
+        }
+
+        private void deprecationPercentageTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            NumericTextBoxesCommonBehaviors_PreviewKeyDown(sender, e);
+        }
+        private void NumericTextBoxesCommonBehaviors_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                e.Handled = true; // mask the comma from being typed as typing the comma is not needed with the existing value converters inplace
-                                  // Move focus to next control (same behavior as Tab)
+                e.Handled = true;
+                // Move focus to next control (same behavior as Tab)
                 TraversalRequest request = new TraversalRequest(FocusNavigationDirection.Next);
                 (Keyboard.FocusedElement as UIElement)?.MoveFocus(request);
             }
-            else if (
-                        (e.Key == Key.F11)
-                     || (e.SystemKey == Key.F11)
-                    )
-            {
-                applyLineButton_Click(sender, e);
-            }
-
-
         }
+
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -191,6 +243,15 @@ namespace AnlageverzeichnisAppWPF
                 e.Handled = true;
                 textbox.Focus();
             }
+        }
+
+        private void CheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            // need to handle like this for esp. w/ the refresh for the change to actually propagate to both the data behind and the UI to update accordingly
+            dataEntryLinesDataGrid.BeginEdit();
+            dataEntryLinesDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
+
+            dataEntryLinesDataGrid.Items.Refresh();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,13 +28,15 @@ namespace AnlageverzeichnisAppWPF
         }
         private void newButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Navigate(new generalInformationInputPage());
+            var generalInformationPage = new generalInformationInputPage();
+            generalInformationPage.Tag = this.Tag;
+            NavigationService.Navigate(generalInformationPage);
         }
 
         private void newFromPreviousButton_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "*.json | JSON-Dateien";
+            dialog.Filter = "JSON-Dateien | *.json";
             if (
                     (dialog.ShowDialog() == true)
                   &&(dialog.FileName != "")
@@ -42,7 +45,6 @@ namespace AnlageverzeichnisAppWPF
                 using (var outfile = new StreamReader(dialog.FileName))
                 {
                     var document = JsonSerializer.Deserialize<AnlageverzeichnisDocument>(outfile.ReadToEnd());
-                    var inputAndDisplayPage = new inputAndDisplayPage();
                     if (document is not null)
                     {
                         document.migrateToNextYear();
@@ -52,7 +54,15 @@ namespace AnlageverzeichnisAppWPF
                         MessageBox.Show("Interner Fehler: parsen von alter Datei lieferte NULL", "Interner Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-                    inputAndDisplayPage.Tag = document;
+                    var inputAndDisplayPage = new inputAndDisplayPage(document, dialog.FileName);
+                    inputAndDisplayPage.Tag = this.Tag;
+                    if(this.Tag is MainWindowViewModel mwvm)
+                    {
+                        mwvm.ActivePageSaveCommand = inputAndDisplayPage.SaveCommand;
+                        mwvm.ActivePageReloadCommand = inputAndDisplayPage.ReloadCommand;
+                        mwvm.ActivePageApplyCommand = inputAndDisplayPage.ApplyCommand;
+                    }
+                    NavigationService.Navigate(inputAndDisplayPage);
                 }
             }
             
@@ -60,6 +70,35 @@ namespace AnlageverzeichnisAppWPF
 
         private void loadButton_Click(object sender, RoutedEventArgs e)
         {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "JSON-Dateien | *.json";
+            if (
+                    (dialog.ShowDialog() == true)
+                  && (dialog.FileName != "")
+               )
+            {
+                using (var outfile = new StreamReader(dialog.FileName))
+                {
+                    var document = JsonSerializer.Deserialize<AnlageverzeichnisDocument>(outfile.ReadToEnd());
+                    if (document is not null)
+                    {
+                        var inputAndDisplayPage = new inputAndDisplayPage(document, dialog.FileName);
+                        inputAndDisplayPage.Tag = this.Tag;
+                        if (this.Tag is MainWindowViewModel mwvm)
+                        {
+                            mwvm.ActivePageSaveCommand = inputAndDisplayPage.SaveCommand;
+                            mwvm.ActivePageReloadCommand = inputAndDisplayPage.ReloadCommand;
+                            mwvm.ActivePageApplyCommand = inputAndDisplayPage.ApplyCommand;
+                        }
+                        NavigationService.Navigate(inputAndDisplayPage);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Interner Fehler: parsen von zu öffnender Datei lieferte NULL", "Interner Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+            }
 
         }
     }

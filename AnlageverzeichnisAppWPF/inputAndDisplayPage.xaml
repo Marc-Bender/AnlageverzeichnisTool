@@ -13,6 +13,29 @@
         <local:CentsToEuroStringConverter x:Key="CentsToEuroString" />
         <local:TenthPctToPercentageString x:Key="TenthPctToPercentageString" />
         <local:InverseBooleanConverter x:Key="InverseBool" />
+        <local:BoolInverseToVisibilityConverter x:Key="InverseBoolVisibility" />
+        <local:BoldHeadingsConverter x:Key="BoldHeadings" />
+        
+        <DataTemplate x:Key="HeadingCheckBoxTemplate">
+            <CheckBox 
+                IsChecked="{Binding IsHeading, Mode=TwoWay}" 
+                Click="CheckBox_Click"
+            />
+        </DataTemplate>
+        <DataTemplate x:Key="IsLeavingThisYearCheckBoxTemplate">
+            <CheckBox 
+                IsChecked="{Binding IsLeavingThisYear, Mode=TwoWay}" 
+                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}"
+                Click="CheckBox_Click"
+            />
+        </DataTemplate>
+        <DataTemplate x:Key="DisplayAsMemorialValueCheckBoxTemplate">
+            <CheckBox 
+                IsChecked="{Binding DisplayAsMemorialValue, Mode=TwoWay}" 
+                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}"
+                Click="CheckBox_Click"
+            />
+        </DataTemplate>
     </Page.Resources>
 
     <Grid
@@ -57,14 +80,14 @@
             />
             <Button 
                 Name = "saveButton"
-                Content="Speichern"
+                Content="Speichern (Strg+S)"
                 Grid.Column="3"
                 Click="saveButton_Click"
                 Margin="0,0,5,0"
             />
             <Button 
                 Name = "reloadButton"
-                Content="neu laden"
+                Content="neu laden (F5)"
                 Grid.Column="4"
                 Click="reloadButton_Click"
             />
@@ -76,7 +99,9 @@
             Margin="0,5,0,5"
             >
             <!-- to be filled -->
-            <DataGrid ItemsSource="{Binding Document.DataEntryLines}"
+            <DataGrid 
+                  Name="dataEntryLinesDataGrid"
+                  ItemsSource="{Binding Document.DataEntryLines}"
                   AutoGenerateColumns="False"
                   HeadersVisibility="Column"
                   CanUserAddRows="False"
@@ -85,13 +110,23 @@
                   IsReadOnly="False"
                   CanUserSortColumns="False"
                   GridLinesVisibility="None">
-
                 <DataGrid.Columns>
 
                     <!-- 1st column stretches -->
-                    <DataGridTextColumn Header="Gegenstand"
-                            Binding="{Binding ObjectDescriptionText}"
-                            Width="2.5*" />
+                    <DataGridTemplateColumn 
+                        Header="Gegenstand"
+                        Width="2.5*" 
+                        >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock 
+                                    Text="{Binding ObjectDescriptionText}"
+                                    FontWeight="{Binding IsHeading, Converter={StaticResource BoldHeadings}}"
+                                />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+
+                    </DataGridTemplateColumn>
 
                     <!-- Monat/Jahr combined -->
                     <DataGridTemplateColumn Header="MM/JJ" Width="0.6*">
@@ -106,33 +141,109 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="€ Hist."
-                            Binding="{Binding PriceAtPurchase_Cents, Converter={StaticResource CentsToEuroString}}"
-                            Width="*" />
+                    <DataGridTemplateColumn 
+                        Header="€ Hist."
+                        Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock 
+                                    Text="{Binding PriceAtPurchase_Cents, Converter={StaticResource CentsToEuroString}}"
+                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="€ Zu/Ab"
-                            Binding="{Binding EnterOrLeaveAmount_Cents, Converter={StaticResource CentsToEuroString}}"
-                            Width="*" />
+                    <DataGridTemplateColumn 
+                        Header="€ Zu/Ab"
+                        Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock 
+                                    Text="{Binding EnterOrLeaveAmount_Cents, Converter={StaticResource CentsToEuroString}}"
+                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="€ Kum."
-                            Binding="{Binding AccumulatedDepreciation_Cents, Converter={StaticResource CentsToEuroString}}"
-                            Width="1*" />
+                    <DataGridTemplateColumn 
+                            Header="€ Kum."
+                            Width="1*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock 
+                                    Text="{Binding AccumulatedDepreciation_Cents, Converter={StaticResource CentsToEuroString}}"
+                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="% GJ Abschr."
-                            Binding="{Binding DepreciationPercentage_0P1Pct, Converter={StaticResource TenthPctToPercentageString}}"
-                            Width="1.1*" />
+                    <DataGridTemplateColumn Header="% GJ Abschr."
+                            Width="1.1*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock 
+                                    Text="{Binding DepreciationPercentage_0P1Pct, Converter={StaticResource TenthPctToPercentageString}}"
+                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="€ GJ Abschr."
-                            Binding="{Binding CurrentYearDepreciationAmount_Cents, Converter={StaticResource CentsToEuroString}}"
-                            Width="*" />
+                    <DataGridTemplateColumn Header="€ GJ Abschr."
+                            Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock 
+                                    Text="{Binding CurrentYearDepreciationAmount_Cents, Converter={StaticResource CentsToEuroString}}"
+                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="€ Akt."
-                            Binding="{Binding CurrentYearObjectValue_Cents, Converter={StaticResource CentsToEuroString}}"
-                            Width="*" />
+                    <DataGridTemplateColumn Header="€ Akt."
+                            Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock 
+                                    Text="{Binding CurrentYearObjectValue_Cents, Converter={StaticResource CentsToEuroString}}"
+                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="€ VJ"
-                            Binding="{Binding PreviousYearObjectValue_Cents, Converter={StaticResource CentsToEuroString}}"
-                            Width="*" />
+                    <DataGridTemplateColumn
+                            Header="€ VJ"
+                            Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock 
+                                    Text="{Binding PreviousYearObjectValue_Cents, Converter={StaticResource CentsToEuroString}}"
+                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn
+                            Header="Ü"
+                            Width="0.25*"
+                            CellTemplate = "{StaticResource HeadingCheckBoxTemplate}"
+                            CellEditingTemplate="{StaticResource HeadingCheckBoxTemplate}"
+                        >
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn
+                            Header="-"
+                            Width="0.25*"
+                            CellTemplate="{StaticResource IsLeavingThisYearCheckBoxTemplate}"
+                            CellEditingTemplate="{StaticResource IsLeavingThisYearCheckBoxTemplate}"
+                        >
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn
+                            Header="E"
+                            Width="0.25*"
+                            CellTemplate="{StaticResource DisplayAsMemorialValueCheckBoxTemplate}"
+                            CellEditingTemplate="{StaticResource DisplayAsMemorialValueCheckBoxTemplate}"
+                        >
+                    </DataGridTemplateColumn>
 
                 </DataGrid.Columns>
             </DataGrid>
@@ -229,29 +340,37 @@
                 HorizontalScrollBarVisibility="Auto"
                 VerticalScrollBarVisibility="Visible"
                 PreviewKeyDown="objectDescriptionTextBox_PreviewKeyDown"
+                TabIndex="0"
                 Text="{Binding ObjectDescriptionText, UpdateSourceTrigger=PropertyChanged}"
             />
             <xctk:IntegerUpDown
+                Name="monthOfPurchaseNumberBox"
                 Grid.Row="1"
                 Grid.Column="1"
                 Margin="0,0,5,0"
                 Minimum="1"
                 Maximum="12"
                 Increment="1"
-                PreviewKeyDown="NumericTextBoxes_PreviewKeyDown"
+                PreviewKeyDown="monthOfPurchaseTextBox_PreviewKeyDown"
                 KeyDown="NumericTextBoxes_KeyDown"
+                TabIndex="1"
                 IsEnabled ="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 Value="{Binding MonthOfPurchase, UpdateSourceTrigger=PropertyChanged}"
             />
+            <!--setting tabindex to -1 to make it not reachable by tab; this makes the next element after the month the purchase price and allows for a 
+            even quicker navigation through the entry mask if the tab key is emulated with enter. explicitly need to handle the / key when in the month field to get to the year as intuitive replacement 
+            in the offchance one needs to get there anyways -->
             <xctk:IntegerUpDown
+                Name="yearOfPurchaseNumberBox"
                 Grid.Row="1"
                 Grid.Column="2"
                 Margin="0,0,5,0"
                 Minimum="1900"
                 Maximum="{Binding DataContext.Document.Header.CurrentlyWorkedOnYear, RelativeSource={RelativeSource AncestorType=Page}}"
                 Increment="1"
-                PreviewKeyDown="NumericTextBoxes_PreviewKeyDown"
+                PreviewKeyDown="yearOfPurchaseTextBox_PreviewKeyDown"
                 KeyDown="NumericTextBoxes_KeyDown"
+                TabIndex="-1"
                 IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 Value="{Binding YearOfPurchase, 
                         UpdateSourceTrigger=PropertyChanged}"
@@ -261,10 +380,11 @@
                 Grid.Row="1"
                 Grid.Column="3"
                 Margin="0,0,5,0"
-                PreviewKeyDown="NumericTextBoxes_PreviewKeyDown"
+                PreviewKeyDown="priceAtPurchaseTextBox_PreviewKeyDown"
                 KeyDown="NumericTextBoxes_KeyDown"
                 GotFocus="TextBox_GotFocus"
                 PreviewMouseLeftButtonDown="TextBox_PreviewMouseLeftButtonDown"
+                TabIndex="2"
                 IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 Text ="{Binding PriceAtPurchase_Cents, 
                         Converter={StaticResource CentsToEuroString},
@@ -276,10 +396,11 @@
                 Grid.Row="1"
                 Grid.Column="4"
                 Margin="0,0,5,0"
-                PreviewKeyDown="NumericTextBoxes_PreviewKeyDown"
+                PreviewKeyDown="deprecationPercentageTextBox_PreviewKeyDown"
                 KeyDown="NumericTextBoxes_KeyDown"
                 GotFocus="TextBox_GotFocus"
                 PreviewMouseLeftButtonDown="TextBox_PreviewMouseLeftButtonDown"
+                TabIndex="3"
                 IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 Text="{Binding DepreciationPercentage_0P1Pct,
                        Converter={StaticResource TenthPctToPercentageString},
@@ -290,6 +411,7 @@
                 Grid.Row="1"
                 Grid.Column="5"
                 Content="Nur Überschrift (F10)"
+                TabIndex="4"
                 IsChecked="{Binding IsHeading}"
             />
             <CheckBox
@@ -297,6 +419,7 @@
                 Grid.Row="2"
                 Grid.Column="5"
                 Content="Abgang in diesem Jahr (-)"
+                TabIndex="5"
                 IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 IsChecked="{Binding IsLeavingThisYear}"
             />
@@ -305,6 +428,7 @@
                 Grid.Row="3"
                 Grid.Column="5"
                 Content="Auf Erinnerungswert setzen (E)"
+                TabIndex="6"
                 IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 IsChecked="{Binding DisplayAsMemorialValue}"
             />

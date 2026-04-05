@@ -47,6 +47,11 @@ namespace AnlageverzeichnisAppWPF
         [ObservableProperty]
         public bool displayAsMemorialValue  = false;
 
+        public dataEntryLine()
+        {
+            // needed for easy json deserialize only! otherwise the constructor with parameters would be used and the deserializer fails!
+        }
+
         public dataEntryLine(int currentYear)
         {
             YearOfPurchase = currentYear; // to allow the data entry mask using this later to always default to the current year for each entry line

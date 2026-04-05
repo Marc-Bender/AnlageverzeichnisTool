@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -11,15 +12,28 @@ using System.Windows.Shapes;
 
 namespace AnlageverzeichnisAppWPF
 {
+    public partial class MainWindowViewModel : ObservableObject
+    {
+        [ObservableProperty]
+        private ICommand? activePageSaveCommand;
+        [ObservableProperty]
+        private ICommand? activePageReloadCommand;
+        [ObservableProperty]
+        private ICommand? activePageApplyCommand;
+    }
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+
         public MainWindow()
         {
+            this.DataContext = new MainWindowViewModel();
             InitializeComponent();
-            mainFrame.Navigate(new modeSelectorPage());
+            var modeSelectorPage = new modeSelectorPage();
+            modeSelectorPage.Tag = this.DataContext;
+            mainFrame.Navigate(modeSelectorPage);
         }
     }
 }

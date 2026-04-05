@@ -40,7 +40,7 @@ namespace AnlageverzeichnisAppWPF
             
             saveDialog.DefaultExt = ".json";
             saveDialog.AddExtension = true;
-            saveDialog.Filter = ".json | JSON Dateien";
+            saveDialog.Filter = "JSON-Dateien | *.json";
             if (
                     (saveDialog.ShowDialog() == true)
                   &&(saveDialog.FileName != "")
@@ -51,8 +51,15 @@ namespace AnlageverzeichnisAppWPF
                 {
                     outfile.Write(JsonSerializer.Serialize<AnlageverzeichnisDocument>(document));
                 }
-
-                NavigationService.Navigate(new inputAndDisplayPage(document, saveDialog.FileName));
+                var inputAndDisplayPage = new inputAndDisplayPage(document, saveDialog.FileName);
+                inputAndDisplayPage.Tag = this.Tag;
+                if (this.Tag is MainWindowViewModel mwvm)
+                {
+                    mwvm.ActivePageSaveCommand = inputAndDisplayPage.SaveCommand;
+                    mwvm.ActivePageReloadCommand = inputAndDisplayPage.ReloadCommand;
+                    mwvm.ActivePageApplyCommand = inputAndDisplayPage.ApplyCommand;
+                }
+                NavigationService.Navigate(inputAndDisplayPage);
             }
             else
             {

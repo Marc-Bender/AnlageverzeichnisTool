@@ -5,8 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AnlageverzeichnisAppWPF"
         mc:Ignorable="d"
-        Title="Anlageverzeichnis" Height="450" Width="800"
+        Title="Anlageverzeichnis" Height="450" Width="940"
         >
+    <Window.InputBindings>
+        <KeyBinding Key="S"
+                    Modifiers="Control"
+                    Command="{Binding ActivePageSaveCommand}" />
+        <!-- F5 needs explicit empty-modifier because otherwise the hot key would not work (also "none" does not work either because it is not a valid modifier option) !-->
+        <KeyBinding Key="F5"
+                    Modifiers="" 
+                    Command="{Binding ActivePageReloadCommand}" />
+        <!-- F11 needs explicit empty-modifier because otherwise the hot key would not work (also "none" does not work either because it is not a valid modifier option) !-->
+        <KeyBinding Key="F11"
+                    Modifiers="" 
+                    Command="{Binding ActivePageApplyCommand}" />
+    </Window.InputBindings>
+
     <Grid>
         <Frame 
             x:Name="mainFrame"
