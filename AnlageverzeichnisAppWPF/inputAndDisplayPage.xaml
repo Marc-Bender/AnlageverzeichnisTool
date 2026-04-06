@@ -14,7 +14,9 @@
         <local:TenthPctToPercentageString x:Key="TenthPctToPercentageString" />
         <local:InverseBooleanConverter x:Key="InverseBool" />
         <local:BoolInverseToVisibilityConverter x:Key="InverseBoolVisibility" />
+        <local:BoolToVisibilityConverter x:Key="BoolVisibility" />
         <local:BoldHeadingsConverter x:Key="BoldHeadings" />
+        <local:EditingToBackgroundConverter x:Key="EditingBackground" />
         
         <DataTemplate x:Key="HeadingCheckBoxTemplate">
             <CheckBox 
@@ -36,13 +38,47 @@
                 Click="CheckBox_Click"
             />
         </DataTemplate>
+        <DataTemplate x:Key="ObjectDescriptionTextTextBoxTemplate">
+                <TextBox
+                    Text="{Binding ObjectDescriptionText}"
+                    FontWeight="{Binding IsHeading, Converter={StaticResource BoldHeadings}}"
+                    Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                    BorderThickness="0"
+                    IsHitTestVisible="True"
+                    Focusable="True"
+                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                    />
+        </DataTemplate>
+        <DataTemplate x:Key="monthYearTextBoxTemplate">
+            <StackPanel Orientation="Horizontal">
+                <TextBox
+                    Text="{Binding MonthOfPurchase}" 
+                    Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                    BorderThickness="0"
+                    IsHitTestVisible="True"
+                    Focusable="True"
+                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                />
+                <TextBlock
+                    Text="/"
+                />
+                <TextBox
+                    Text="{Binding YearOfPurchase}" 
+                    Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                    BorderThickness="0"
+                    IsHitTestVisible="True"
+                    Focusable="True"
+                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                />
+            </StackPanel>
+        </DataTemplate>
     </Page.Resources>
 
     <Grid
         Margin="5"
         >
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.25*"></RowDefinition>
+            <RowDefinition Height="0.35*"></RowDefinition>
             <RowDefinition Height="2*"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
@@ -63,6 +99,7 @@
                 Grid.Column="0"
                 Margin="0,0,5,0"
                 IsEnabled="False"
+                VerticalAlignment="Top"
             />
             <TextBox
                 Name="companyCityAndZipCodeTextBox"
@@ -70,6 +107,7 @@
                 Grid.Column="1"
                 Margin="0,0,5,0"
                 IsEnabled="False"
+                VerticalAlignment="Top"
             />
             <TextBox
                 Name="currentlyWorkedOnYearTextBox"
@@ -77,20 +115,39 @@
                 Grid.Column="2"
                 Margin="0,0,5,0"
                 IsEnabled="False" 
+                VerticalAlignment="Top"
             />
-            <Button 
-                Name = "saveButton"
-                Content="Speichern (Strg+S)"
+            <Grid
                 Grid.Column="3"
-                Click="saveButton_Click"
-                Margin="0,0,5,0"
-            />
-            <Button 
-                Name = "reloadButton"
-                Content="neu laden (F5)"
-                Grid.Column="4"
-                Click="reloadButton_Click"
-            />
+                Grid.ColumnSpan="2"
+            >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Button 
+                    Name = "saveButton"
+                    Content="Speichern (Strg+S)"
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    Click="saveButton_Click"
+                />
+                <Button 
+                    Name = "reloadButton"
+                    Content="neu laden (F5)"
+                    Grid.Column="1"
+                    Grid.Row="0"
+                    Click="reloadButton_Click"
+                />
+                <CheckBox
+                    Grid.Row="1"
+                    Content="Expertenmodus"    
+                />
+            </Grid>
         </Grid>
         
         <!-- 2nd row ## data display -->
@@ -98,7 +155,6 @@
             Grid.Row="1"
             Margin="0,5,0,5"
             >
-            <!-- to be filled -->
             <DataGrid 
                   Name="dataEntryLinesDataGrid"
                   ItemsSource="{Binding Document.DataEntryLines}"
@@ -116,29 +172,19 @@
                     <DataGridTemplateColumn 
                         Header="Gegenstand"
                         Width="2.5*" 
+                        CellTemplate="{StaticResource ObjectDescriptionTextTextBoxTemplate}"
+                        CellEditingTemplate="{StaticResource ObjectDescriptionTextTextBoxTemplate}"
                         >
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock 
-                                    Text="{Binding ObjectDescriptionText}"
-                                    FontWeight="{Binding IsHeading, Converter={StaticResource BoldHeadings}}"
-                                />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
 
                     </DataGridTemplateColumn>
 
                     <!-- Monat/Jahr combined -->
-                    <DataGridTemplateColumn Header="MM/JJ" Width="0.6*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding MonthOfPurchase}" />
-                                    <TextBlock Text="/"/>
-                                    <TextBlock Text="{Binding YearOfPurchase}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn 
+                        Header="MM/JJ" 
+                        Width="0.6*"
+                        CellTemplate="{StaticResource monthYearTextBoxTemplate}"
+                        CellEditingTemplate="{StaticResource monthYearTextBoxTemplate}"
+                        >
                     </DataGridTemplateColumn>
 
                     <DataGridTemplateColumn 
@@ -255,6 +301,7 @@
             Grid.Row="2"
             Margin="0,5,0,5"
             DataContext="{Binding CurrentlyEditedLine}"
+            Visibility="{Binding IsExpertModeEnabled, Converter={StaticResource InverseBoolVisibility}}"
             >
             <Grid.RowDefinitions>
                 <RowDefinition Height="1.5*"></RowDefinition>
@@ -431,6 +478,18 @@
                 TabIndex="6"
                 IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 IsChecked="{Binding DisplayAsMemorialValue}"
+            />
+        </Grid>
+        <!-- 3rd row ## Expert mode mask; only a "new entry" button because all entries can be done in the table... -->
+        <Grid
+            Grid.Row="2"
+            Margin="0,5,0,5"
+            Visibility="{Binding IsExpertModeEnabled, Converter={StaticResource BoolVisibility}}"
+            >
+            <Button
+                Name="newEntryButton"
+                Content="Neuer Entrag"
+                
             />
         </Grid>
     </Grid>

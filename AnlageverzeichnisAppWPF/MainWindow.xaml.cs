@@ -30,6 +30,8 @@ namespace AnlageverzeichnisAppWPF
         public MainWindow()
         {
             this.DataContext = new MainWindowViewModel();
+            NavigationCommands.Refresh.InputGestures.Clear(); // to free up F5 and alike for my own usage
+
             InitializeComponent();
             var modeSelectorPage = new modeSelectorPage();
             modeSelectorPage.Tag = this.DataContext;

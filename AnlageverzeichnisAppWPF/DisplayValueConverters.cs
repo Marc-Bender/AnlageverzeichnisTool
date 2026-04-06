@@ -77,6 +77,19 @@ namespace AnlageverzeichnisAppWPF
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => !(bool)value;
     }
+    public class BoolToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool b = value is bool v && v;
+            return b ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value;
+        }
+    }
     public class BoolInverseToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -96,6 +109,19 @@ namespace AnlageverzeichnisAppWPF
         {
             bool b = value is bool v && v;
                 return b ? FontWeights.Bold : FontWeights.Normal;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value;
+        }
+    }
+    public class EditingToBackgroundConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool b = value is bool v && v;
+                return b ? "White": "Transparent";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

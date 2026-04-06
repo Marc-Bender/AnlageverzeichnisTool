@@ -26,6 +26,8 @@ namespace AnlageverzeichnisAppWPF
         private AnlageverzeichnisDocument document = new();
         [ObservableProperty]
         private dataEntryLine currentlyEditedLine;
+        [ObservableProperty]
+        private bool isExpertModeEnabled;
 
         public inputAndDisplayPageViewModel()
         {
@@ -252,6 +254,11 @@ namespace AnlageverzeichnisAppWPF
             dataEntryLinesDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
 
             dataEntryLinesDataGrid.Items.Refresh();
+        }
+
+        private void TextBox_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            dataEntryLinesDataGrid.BeginEdit();
         }
     }
 }
