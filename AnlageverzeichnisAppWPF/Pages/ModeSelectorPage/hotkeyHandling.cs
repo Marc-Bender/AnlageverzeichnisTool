@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -8,19 +7,11 @@ using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace AnlageverzeichnisAppWPF
 {
-    /// <summary>
-    /// Interaktionslogik für modeSelectorPage.xaml
-    /// </summary>
     public partial class modeSelectorPage : Page
     {
         public ICommand NewCommand => new RelayCommand(newFunction);
@@ -61,21 +52,13 @@ namespace AnlageverzeichnisAppWPF
             NavigationService.Navigate(generalInformationPage);
         }
 
-        public modeSelectorPage()
-        {
-            InitializeComponent();
-            this.Loaded += (_, __) => registerHotkeys();
-            this.Unloaded += (_, __) => unregisterHotkeys();
-        }
-        private void newButton_Click(object sender, RoutedEventArgs e) => newFunction();
-        private void newFromPreviousButton_Click(object sender, RoutedEventArgs e) => newFromExistingFunction();
         private void newFromExistingFunction()
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter = "JSON-Dateien | *.json";
             if (
                     (dialog.ShowDialog() == true)
-                  &&(dialog.FileName != "")
+                  && (dialog.FileName != "")
                )
             {
                 using (var outfile = new StreamReader(dialog.FileName))
@@ -95,10 +78,9 @@ namespace AnlageverzeichnisAppWPF
                     NavigationService.Navigate(inputAndDisplayPage);
                 }
             }
-            
+
         }
 
-        private void loadButton_Click(object sender, RoutedEventArgs e) => openFunction();
         private void openFunction()
         {
             OpenFileDialog dialog = new OpenFileDialog();
@@ -126,5 +108,6 @@ namespace AnlageverzeichnisAppWPF
             }
 
         }
+
     }
 }

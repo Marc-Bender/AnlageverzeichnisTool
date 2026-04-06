@@ -2,13 +2,13 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup />
   <ItemGroup>
-    <Compile Update="generalInformationInputPage.xaml.cs">
+    <Compile Update="Pages\GeneralInformationPage\generalInformationInputPage.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="inputAndDisplayPage.xaml.cs">
+    <Compile Update="Pages\InputAndDisplayPage\inputAndDisplayPage.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="modeSelectorPage.xaml.cs">
+    <Compile Update="Pages\ModeSelectorPage\modeSelectorPage.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
