@@ -6,6 +6,7 @@
       xmlns:local="clr-namespace:AnlageverzeichnisAppWPF"
       xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
       mc:Ignorable="d" 
+      Focusable="True"
       d:DesignHeight="400" d:DesignWidth="940"
       Title="Eingabe und Anzeigemakse">
     
@@ -18,7 +19,56 @@
         <local:BoldHeadingsConverter x:Key="BoldHeadings" />
         <local:EditingToBackgroundConverter x:Key="EditingBackground" />
         <local:YearsTo0P1PctConverter x:Key="YearsTo0P1Pct" />
-        
+
+        <DataTemplate x:Key="ObjectDescriptionTextTextBoxTemplate">
+                <TextBox
+                    Text="{Binding ObjectDescriptionText}"
+                    FontWeight="{Binding IsHeading, Converter={StaticResource BoldHeadings}}"
+                    Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                    IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                    BorderThickness="0"
+                    IsHitTestVisible="True"
+                    Focusable="True"
+                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                    />
+        </DataTemplate>
+        <DataTemplate x:Key="monthYearTextBoxTemplate">
+            <StackPanel Orientation="Horizontal">
+                <TextBox
+                    Text="{Binding MonthOfPurchase}" 
+                    Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                    IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                    BorderThickness="0"
+                    IsHitTestVisible="True"
+                    Focusable="True"
+                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                />
+                <TextBlock
+                    Text="/"
+                />
+                <TextBox
+                    Text="{Binding YearOfPurchase}" 
+                    Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                    IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                    BorderThickness="0"
+                    IsHitTestVisible="True"
+                    Focusable="True"
+                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Key="priceAtPurchaseCentsTextBoxTemplate">
+            <TextBox
+                Text="{Binding PriceAtPurchase_Cents, Converter={StaticResource CentsToEuroString}}"
+                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
+                Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                BorderThickness="0"
+                IsHitTestVisible="True"
+                Focusable="True"
+                PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+            />
+        </DataTemplate>
         <DataTemplate x:Key="HeadingCheckBoxTemplate">
             <CheckBox 
                 IsChecked="{Binding IsHeading, Mode=TwoWay}" 
@@ -38,40 +88,6 @@
                 Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}"
                 Click="CheckBox_Click"
             />
-        </DataTemplate>
-        <DataTemplate x:Key="ObjectDescriptionTextTextBoxTemplate">
-                <TextBox
-                    Text="{Binding ObjectDescriptionText}"
-                    FontWeight="{Binding IsHeading, Converter={StaticResource BoldHeadings}}"
-                    Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
-                    BorderThickness="0"
-                    IsHitTestVisible="True"
-                    Focusable="True"
-                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
-                    />
-        </DataTemplate>
-        <DataTemplate x:Key="monthYearTextBoxTemplate">
-            <StackPanel Orientation="Horizontal">
-                <TextBox
-                    Text="{Binding MonthOfPurchase}" 
-                    Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
-                    BorderThickness="0"
-                    IsHitTestVisible="True"
-                    Focusable="True"
-                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
-                />
-                <TextBlock
-                    Text="/"
-                />
-                <TextBox
-                    Text="{Binding YearOfPurchase}" 
-                    Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
-                    BorderThickness="0"
-                    IsHitTestVisible="True"
-                    Focusable="True"
-                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
-                />
-            </StackPanel>
         </DataTemplate>
     </Page.Resources>
 
@@ -201,30 +217,20 @@
                         Width="2.5*" 
                         CellTemplate="{StaticResource ObjectDescriptionTextTextBoxTemplate}"
                         CellEditingTemplate="{StaticResource ObjectDescriptionTextTextBoxTemplate}"
-                        >
-
-                    </DataGridTemplateColumn>
-
+                    />
                     <!-- Monat/Jahr combined -->
                     <DataGridTemplateColumn 
                         Header="MM/JJJJ" 
                         Width="0.7*"
                         CellTemplate="{StaticResource monthYearTextBoxTemplate}"
                         CellEditingTemplate="{StaticResource monthYearTextBoxTemplate}"
-                        >
-                    </DataGridTemplateColumn>
-
+                    />
                     <DataGridTemplateColumn 
                         Header="€ Hist."
-                        Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock 
-                                    Text="{Binding PriceAtPurchase_Cents, Converter={StaticResource CentsToEuroString}}"
-                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                        Width="*"
+                        CellTemplate="{StaticResource priceAtPurchaseCentsTextBoxTemplate}"
+                        CellEditingTemplate="{StaticResource priceAtPurchaseCentsTextBoxTemplate}"
+                    />
 
                     <DataGridTemplateColumn 
                         Header="€ Zu/Ab"

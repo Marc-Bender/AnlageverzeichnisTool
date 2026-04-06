@@ -3,7 +3,8 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:AnlageverzeichnisAppWPF"
+      xmlns:local="clr-namespace:AnlageverzeichnisAppWPF" 
+      xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
       mc:Ignorable="d"
       d:DesignHeight="420" d:DesignWidth="800"
       Title="Generelle Informationen">
@@ -39,6 +40,7 @@
             Margin="5"
             VerticalAlignment="Center"
             Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
+            GotFocus="TextBoxes_GotFocus"
             />
 
 
@@ -59,6 +61,7 @@
             Margin="5"
             VerticalAlignment="Center"
             Text="{Binding CompanyCityAndZipCode, UpdateSourceTrigger=PropertyChanged}"
+            GotFocus="TextBoxes_GotFocus"
             />
 
 
@@ -72,14 +75,17 @@
             HorizontalContentAlignment="Right">
             Bearbeitetes Jahr
         </Label>
-        <TextBox
-            PreviewTextInput="currentlyWorkedOnYearTextBox_PreviewTextInput"
-            Name="currentlyWorkedOnYearTextBox"
-            Grid.Row="2" 
-            Grid.Column="1" 
-            Margin="5"
-            VerticalAlignment="Center"
-            Text="{Binding CurrentlyWorkedOnYear, UpdateSourceTrigger=PropertyChanged}"
+        <xctk:IntegerUpDown
+                Name="monthOfPurchaseNumberBox"
+                Grid.Row="2"
+                Grid.Column="1"
+                Margin="5"
+                Minimum="1900"
+                Maximum="2200"
+                Increment="1"
+                Value="{Binding CurrentlyWorkedOnYear, UpdateSourceTrigger=PropertyChanged}"
+                HorizontalAlignment="Left"
+                GotFocus="TextBoxes_GotFocus"
             />
 
 

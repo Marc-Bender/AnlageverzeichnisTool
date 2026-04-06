@@ -303,8 +303,13 @@ namespace AnlageverzeichnisAppWPF
         {
             if(e.Key == Key.Escape)
             {
-                dataEntryMaskGrid.IsEnabled = true;
-                objectDescriptionTextBox.Focus();
+                e.Handled = true;
+                dataEntryLinesDataGrid.CommitEdit();
+                Keyboard.Focus(this);
+                Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            Keyboard.Focus(objectDescriptionTextBox);
+                        }), System.Windows.Threading.DispatcherPriority.Background);
             }
         }
     }

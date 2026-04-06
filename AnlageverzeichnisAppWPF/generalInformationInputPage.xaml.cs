@@ -27,6 +27,7 @@ namespace AnlageverzeichnisAppWPF
         {
             DataContext = new AnlageverzeichnisDocument.DocumentHeader();
             InitializeComponent();
+            this.Loaded += (_, __) => { companyNameTextBox.Focus();};
         }
 
         private void currentlyWorkedOnYearTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -59,6 +60,14 @@ namespace AnlageverzeichnisAppWPF
             {
                 MessageBox.Show("Keine Datei gewählt -- Anlageverzeichnis anlage abgebrochen", "Keine Datei", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
+            }
+        }
+
+        private void TextBoxes_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if(sender is TextBox textbox)
+            {
+                textbox.SelectAll();
             }
         }
     }
