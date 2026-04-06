@@ -67,8 +67,94 @@
                 IsHitTestVisible="True"
                 Focusable="True"
                 PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                HorizontalContentAlignment="Right"
             />
         </DataTemplate>
+        
+        <DataTemplate x:Key="enterOrLeaveAmountCentsTextBoxTemplate">
+            <TextBox
+                Text="{Binding EnterOrLeaveAmount_Cents, Converter={StaticResource CentsToEuroString}}"
+                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
+                Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                BorderThickness="0"
+                IsHitTestVisible="True"
+                Focusable="True"
+                PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                HorizontalContentAlignment="Right"
+            />
+        </DataTemplate>
+        
+        <DataTemplate x:Key="accumulatedDeprecationCentsTextBoxTemplate">
+            <TextBox
+                Text="{Binding AccumulatedDepreciation_Cents, Converter={StaticResource CentsToEuroString}}"
+                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
+                Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                BorderThickness="0"
+                IsHitTestVisible="True"
+                Focusable="True"
+                PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                HorizontalContentAlignment="Right"
+           />
+        </DataTemplate>
+        
+        <DataTemplate x:Key="deprecationPercentageTextBoxTemplate">
+            <TextBox
+                Text="{Binding DepreciationPercentage_0P1Pct, Converter={StaticResource TenthPctToPercentageString}}"
+                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}"
+                Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                BorderThickness="0"
+                IsHitTestVisible="True"
+                Focusable="True"
+                PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                HorizontalContentAlignment="Right"
+            />
+        </DataTemplate>
+        
+        <DataTemplate x:Key="currentYearDeprecationAmountCentsTextBoxTemplate">
+            <TextBox
+                Text="{Binding CurrentYearDepreciationAmount_Cents, Converter={StaticResource CentsToEuroString}}"
+                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
+                Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                BorderThickness="0"
+                IsHitTestVisible="True"
+                Focusable="True"
+                PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                HorizontalContentAlignment="Right"
+            />
+        </DataTemplate>
+    
+        <DataTemplate x:Key="currentYearObjectValueTextBoxTemplate">
+            <TextBox
+                Text="{Binding CurrentYearObjectValue_Cents, Converter={StaticResource CentsToEuroString}}"
+                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
+                Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                BorderThickness="0"
+                IsHitTestVisible="True"
+                Focusable="True"
+                PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                HorizontalContentAlignment="Right"
+            />
+        </DataTemplate>
+        
+        <DataTemplate x:Key="previousYearObjectValueTextBoxTemplate">
+            <TextBox
+                Text="{Binding PreviousYearObjectValue_Cents, Converter={StaticResource CentsToEuroString}}"
+                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
+                Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                BorderThickness="0"
+                IsHitTestVisible="True"
+                Focusable="True"
+                PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                HorizontalContentAlignment="Right"
+            />
+        </DataTemplate>
+
         <DataTemplate x:Key="HeadingCheckBoxTemplate">
             <CheckBox 
                 IsChecked="{Binding IsHeading, Mode=TwoWay}" 
@@ -234,72 +320,46 @@
 
                     <DataGridTemplateColumn 
                         Header="€ Zu/Ab"
-                        Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock 
-                                    Text="{Binding EnterOrLeaveAmount_Cents, Converter={StaticResource CentsToEuroString}}"
-                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                        Width="*"
+                        CellTemplate="{StaticResource enterOrLeaveAmountCentsTextBoxTemplate}"
+                        CellEditingTemplate="{StaticResource enterOrLeaveAmountCentsTextBoxTemplate}"
+                    />
 
                     <DataGridTemplateColumn 
-                            Header="€ Kum."
-                            Width="1*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock 
-                                    Text="{Binding AccumulatedDepreciation_Cents, Converter={StaticResource CentsToEuroString}}"
-                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                        Header="€ Kum."
+                        Width="1*"
+                        CellTemplate="{StaticResource accumulatedDeprecationCentsTextBoxTemplate}"    
+                        CellEditingTemplate="{StaticResource accumulatedDeprecationCentsTextBoxTemplate}"    
+                    />
 
-                    <DataGridTemplateColumn Header="% GJ Abschr."
-                            Width="1.1*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock 
-                                    Text="{Binding DepreciationPercentage_0P1Pct, Converter={StaticResource TenthPctToPercentageString}}"
-                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
 
-                    <DataGridTemplateColumn Header="€ GJ Abschr."
-                            Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock 
-                                    Text="{Binding CurrentYearDepreciationAmount_Cents, Converter={StaticResource CentsToEuroString}}"
-                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn 
+                        Header="% GJ Abschr."
+                        Width="1.1*"
+                        CellTemplate="{StaticResource deprecationPercentageTextBoxTemplate}"
+                        CellEditingTemplate="{StaticResource deprecationPercentageTextBoxTemplate}"
+                    />
 
-                    <DataGridTemplateColumn Header="€ Akt."
-                            Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock 
-                                    Text="{Binding CurrentYearObjectValue_Cents, Converter={StaticResource CentsToEuroString}}"
-                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn 
+                        Header="€ GJ Abschr."
+                        Width="*"
+                        CellTemplate="{StaticResource currentYearDeprecationAmountCentsTextBoxTemplate}"
+                        CellEditingTemplate="{StaticResource currentYearDeprecationAmountCentsTextBoxTemplate}"
+                    />
+
+                    <DataGridTemplateColumn 
+                        Header="€ Akt."
+                        Width="*"
+                        CellTemplate="{StaticResource currentYearObjectValueTextBoxTemplate}"
+                        CellEditingTemplate="{StaticResource currentYearObjectValueTextBoxTemplate}"
+                    />
 
                     <DataGridTemplateColumn
-                            Header="€ VJ"
-                            Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock 
-                                    Text="{Binding PreviousYearObjectValue_Cents, Converter={StaticResource CentsToEuroString}}"
-                                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                        Header="€ VJ"
+                        Width="*"
+                        CellTemplate="{StaticResource previousYearObjectValueTextBoxTemplate}"
+                        CellEditingTemplate="{StaticResource previousYearObjectValueTextBoxTemplate}"
+                    />
 
                     <DataGridTemplateColumn
                             Header="Ü"
