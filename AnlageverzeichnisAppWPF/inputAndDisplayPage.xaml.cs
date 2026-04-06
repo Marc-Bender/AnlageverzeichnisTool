@@ -20,27 +20,6 @@ using System.Windows.Shapes;
 
 namespace AnlageverzeichnisAppWPF
 {
-    public partial class inputAndDisplayPageViewModel : ObservableObject
-    {
-        [ObservableProperty]
-        private AnlageverzeichnisDocument document = new();
-        [ObservableProperty]
-        private dataEntryLine currentlyEditedLine;
-        [ObservableProperty]
-        private bool isExpertModeEnabled;
-
-        public inputAndDisplayPageViewModel()
-        {
-            this.CurrentlyEditedLine = new dataEntryLine(Document.Header.CurrentlyWorkedOnYear);
-        }
-
-        public inputAndDisplayPageViewModel(AnlageverzeichnisDocument document)
-        {
-            this.Document = document;
-            this.CurrentlyEditedLine = new dataEntryLine(Document.Header.CurrentlyWorkedOnYear);
-        }
-    }
-
     /// <summary>
     /// Interaktionslogik für inputAndDisplayPage.xaml
     /// </summary>

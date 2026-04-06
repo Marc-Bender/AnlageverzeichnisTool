@@ -12,21 +12,6 @@ using System.Windows.Shapes;
 
 namespace AnlageverzeichnisAppWPF
 {
-    public partial class MainWindowViewModel : ObservableObject
-    {
-        [ObservableProperty]
-        private ICommand? activePageSaveCommand;
-        [ObservableProperty]
-        private ICommand? activePageReloadCommand;
-        [ObservableProperty]
-        private ICommand? activePageApplyCommand;
-        [ObservableProperty]
-        private ICommand? activePageNewCommand;
-        [ObservableProperty]
-        private ICommand? activePageOpenCommand;
-        [ObservableProperty]
-        private ICommand? activePageExistingCommand;
-    }
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
