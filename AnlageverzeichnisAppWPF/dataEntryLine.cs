@@ -67,9 +67,18 @@ namespace AnlageverzeichnisAppWPF
             {
                 // continue calculating...
             }
+            if (DepreciationPercentage_0P1Pct <= 0)
+            {
+                throw new NoNullAllowedException();
+            }
+            else
+            {
+                // not attempting to divide by zero
+            }
+
 
             // handle the enter and leave amount
-            if(
+            if (
                     (currentYear == YearOfPurchase)
                   ||(IsLeavingThisYear == true)
               )
@@ -93,16 +102,9 @@ namespace AnlageverzeichnisAppWPF
             }
             else
             {
-                if (DepreciationPercentage_0P1Pct > 0)
-                {
-                    CurrentYearDepreciationAmount_Cents = (PriceAtPurchase_Cents * 1000 / DepreciationPercentage_0P1Pct)/1000;
-                    Int64 centsThisYear = CurrentYearDepreciationAmount_Cents % 100;
-                    CurrentYearDepreciationAmount_Cents -= centsThisYear;
-                }
-                else
-                {
-                    throw new NoNullAllowedException();
-                }
+                CurrentYearDepreciationAmount_Cents = (PriceAtPurchase_Cents * 1000 / DepreciationPercentage_0P1Pct)/1000;
+                Int64 centsThisYear = CurrentYearDepreciationAmount_Cents % 100;
+                CurrentYearDepreciationAmount_Cents -= centsThisYear;
             }
 
             // handle the accumulated deprecation amount 

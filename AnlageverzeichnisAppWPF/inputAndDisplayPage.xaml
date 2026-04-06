@@ -87,16 +87,19 @@
             DataContext="{Binding Document.Header}"
             >
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="1.5*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="0.5*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             <TextBox
                 Name="companyNameTextBox"
                 Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}" 
                 Grid.Column="0"
+                Grid.Row="0"
                 Margin="0,0,5,0"
                 IsEnabled="False"
                 VerticalAlignment="Top"
@@ -104,22 +107,39 @@
             <TextBox
                 Name="companyCityAndZipCodeTextBox"
                 Text="{Binding CompanyCityAndZipCode, UpdateSourceTrigger=PropertyChanged}" 
-                Grid.Column="1"
+                Grid.Column="0"
+                Grid.Row="1"
                 Margin="0,0,5,0"
                 IsEnabled="False"
                 VerticalAlignment="Top"
             />
-            <TextBox
-                Name="currentlyWorkedOnYearTextBox"
-                Text="{Binding CurrentlyWorkedOnYear, UpdateSourceTrigger=PropertyChanged}" 
-                Grid.Column="2"
-                Margin="0,0,5,0"
-                IsEnabled="False" 
-                VerticalAlignment="Top"
-            />
+            <Grid
+                Grid.Column="1"
+                Grid.RowSpan="2"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+            >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Text="Anlageverzeichnis für das Jahr"
+                    Grid.Column="0"
+                />
+                <TextBox
+                    Name="currentlyWorkedOnYearTextBox"
+                    Text="{Binding CurrentlyWorkedOnYear, UpdateSourceTrigger=PropertyChanged}" 
+                    Grid.Column="1"
+                    Margin="0,0,5,0"
+                    IsEnabled="False" 
+                    VerticalAlignment="Top"
+                />
+            </Grid>
             <Grid
                 Grid.Column="3"
                 Grid.ColumnSpan="2"
+                Grid.RowSpan="2"
             >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -134,6 +154,7 @@
                     Content="Speichern (Strg+S)"
                     Grid.Column="0"
                     Grid.Row="0"
+                    Margin="0,0,0,5"
                     Click="saveButton_Click"
                 />
                 <Button 
@@ -141,10 +162,13 @@
                     Content="neu laden (F5)"
                     Grid.Column="1"
                     Grid.Row="0"
+                    Margin="5,0,0,5"
                     Click="reloadButton_Click"
                 />
                 <CheckBox
                     Grid.Row="1"
+                    DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Page}}"
+                    IsChecked="{Binding IsExpertModeEnabled}"
                     Content="Expertenmodus"    
                 />
             </Grid>
