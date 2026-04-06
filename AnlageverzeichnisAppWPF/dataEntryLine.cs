@@ -76,7 +76,6 @@ namespace AnlageverzeichnisAppWPF
                 // not attempting to divide by zero
             }
 
-
             // handle the enter and leave amount
             if (
                     (currentYear == YearOfPurchase)

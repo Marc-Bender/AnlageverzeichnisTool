@@ -17,6 +17,7 @@
         <local:BoolToVisibilityConverter x:Key="BoolVisibility" />
         <local:BoldHeadingsConverter x:Key="BoldHeadings" />
         <local:EditingToBackgroundConverter x:Key="EditingBackground" />
+        <local:YearsTo0P1PctConverter x:Key="YearsTo0P1Pct" />
         
         <DataTemplate x:Key="HeadingCheckBoxTemplate">
             <CheckBox 
@@ -189,7 +190,9 @@
                   CanUserResizeRows="False"
                   IsReadOnly="False"
                   CanUserSortColumns="False"
-                  GridLinesVisibility="None">
+                  GridLinesVisibility="None"
+                  PreviewKeyDown="dataEntryLinesDataGrid_PreviewKeyDown"
+            >
                 <DataGrid.Columns>
 
                     <!-- 1st column stretches -->
@@ -204,8 +207,8 @@
 
                     <!-- Monat/Jahr combined -->
                     <DataGridTemplateColumn 
-                        Header="MM/JJ" 
-                        Width="0.6*"
+                        Header="MM/JJJJ" 
+                        Width="0.7*"
                         CellTemplate="{StaticResource monthYearTextBoxTemplate}"
                         CellEditingTemplate="{StaticResource monthYearTextBoxTemplate}"
                         >
@@ -322,13 +325,16 @@
         
         <!-- 3rd row ## data entry mask -->
         <Grid
+            Name="dataEntryMaskGrid"
             Grid.Row="2"
             Margin="0,5,0,5"
             DataContext="{Binding CurrentlyEditedLine}"
             Visibility="{Binding IsExpertModeEnabled, Converter={StaticResource InverseBoolVisibility}}"
+            IsEnabled="{Binding IsKeyboardFocusWithin, ElementName=dataEntryLinesDataGrid, Converter={StaticResource InverseBool}}"
             >
             <Grid.RowDefinitions>
                 <RowDefinition Height="1.5*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
@@ -388,9 +394,21 @@
                 VerticalAlignment="Stretch"
                 HorizontalAlignment="Stretch"
                 TextAlignment="Center"
+                Visibility="{Binding IsChecked, ElementName=deprecationInYearsCheckBox, Converter={StaticResource InverseBoolVisibility}}"
                 >
                 Abschreibungs- <LineBreak/>
                 prozentsatz
+            </TextBlock>
+            <TextBlock
+                Grid.Row="0"
+                Grid.Column="4"
+                VerticalAlignment="Stretch"
+                HorizontalAlignment="Stretch"
+                TextAlignment="Center"
+                Visibility="{Binding IsChecked, ElementName=deprecationInYearsCheckBox, Converter={StaticResource BoolVisibility}}"
+                >
+                Abschreibungs- <LineBreak/>
+                dauer [Jahre]
             </TextBlock>
             <Button
                 Name="applyLineButton"
@@ -406,7 +424,7 @@
                 Name="objectDescriptionTextBox"
                 Grid.Row="1"
                 Grid.Column="0"
-                Grid.RowSpan="3"
+                Grid.RowSpan="4"
                 Margin="0,0,5,0"
                 HorizontalScrollBarVisibility="Auto"
                 VerticalScrollBarVisibility="Visible"
@@ -456,6 +474,7 @@
                 GotFocus="TextBox_GotFocus"
                 PreviewMouseLeftButtonDown="TextBox_PreviewMouseLeftButtonDown"
                 TabIndex="2"
+                HorizontalContentAlignment="Right"
                 IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 Text ="{Binding PriceAtPurchase_Cents, 
                         Converter={StaticResource CentsToEuroString},
@@ -472,11 +491,31 @@
                 GotFocus="TextBox_GotFocus"
                 PreviewMouseLeftButtonDown="TextBox_PreviewMouseLeftButtonDown"
                 TabIndex="3"
+                HorizontalContentAlignment="Right"
+                Visibility="{Binding IsChecked, ElementName=deprecationInYearsCheckBox, Converter={StaticResource InverseBoolVisibility}}"
                 IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 Text="{Binding DepreciationPercentage_0P1Pct,
                        Converter={StaticResource TenthPctToPercentageString},
                        UpdateSourceTrigger=PropertyChanged}"
             />
+            <xctk:IntegerUpDown
+                Name="deprecationYearsNumberBox"
+                Grid.Row="1"
+                Grid.Column="4"
+                Margin="0,0,5,0"
+                Minimum="1"
+                Maximum="100"
+                Increment="1"
+                PreviewKeyDown="deprecationYearsNumberBox_PreviewKeyDown"
+                KeyDown="NumericTextBoxes_KeyDown"
+                TabIndex="3"
+                Visibility="{Binding IsChecked, ElementName=deprecationInYearsCheckBox, Converter={StaticResource BoolVisibility}}"
+                IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
+                Value="{Binding DepreciationPercentage_0P1Pct,
+                        Converter={StaticResource YearsTo0P1Pct},
+                        UpdateSourceTrigger=PropertyChanged}"
+            />
+
             <CheckBox
                 Name="isHeadingCheckBox"
                 Grid.Row="1"
@@ -503,6 +542,14 @@
                 IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 IsChecked="{Binding DisplayAsMemorialValue}"
             />
+            <CheckBox
+                Name="deprecationInYearsCheckBox"
+                Grid.Row="4"
+                Grid.Column="5"
+                Content="Abschreibung in Jahren (F9)"
+                TabIndex="6"
+                IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
+            />
         </Grid>
         <!-- 3rd row ## Expert mode mask; only a "new entry" button because all entries can be done in the table... -->
         <Grid
@@ -512,7 +559,7 @@
             >
             <Button
                 Name="newEntryButton"
-                Content="Neuer Entrag"
+                Content="Neuer Entrag (Strg+N)"
                 
             />
         </Grid>

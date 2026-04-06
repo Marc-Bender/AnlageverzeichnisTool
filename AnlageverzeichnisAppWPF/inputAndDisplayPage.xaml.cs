@@ -102,6 +102,7 @@ namespace AnlageverzeichnisAppWPF
                 }
                 vm.Document.DataEntryLines.Add(vm.CurrentlyEditedLine);
                 vm.CurrentlyEditedLine = new dataEntryLine(vm.Document.Header.CurrentlyWorkedOnYear);
+                deprecationInYearsCheckBox.IsChecked = false;
                 objectDescriptionTextBox.Focus();
             }
         }
@@ -225,6 +226,13 @@ namespace AnlageverzeichnisAppWPF
                 TraversalRequest request = new TraversalRequest(FocusNavigationDirection.Next);
                 (Keyboard.FocusedElement as UIElement)?.MoveFocus(request);
             }
+            else if (
+                          (e.Key == Key.F9)
+                        ||(e.SystemKey == Key.F9)
+                    )
+            {
+                deprecationInYearsCheckBox.IsChecked = !deprecationInYearsCheckBox.IsChecked;
+            }
         }
 
 
@@ -259,6 +267,20 @@ namespace AnlageverzeichnisAppWPF
         private void TextBox_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             dataEntryLinesDataGrid.BeginEdit();
+        }
+
+        private void deprecationYearsNumberBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            NumericTextBoxesCommonBehaviors_PreviewKeyDown(sender, e);
+        }
+
+        private void dataEntryLinesDataGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Escape)
+            {
+                dataEntryMaskGrid.IsEnabled = true;
+                objectDescriptionTextBox.Focus();
+            }
         }
     }
 }

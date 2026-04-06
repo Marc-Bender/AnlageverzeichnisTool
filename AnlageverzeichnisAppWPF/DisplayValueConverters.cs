@@ -129,5 +129,28 @@ namespace AnlageverzeichnisAppWPF
             return value;
         }
     }
+    public class YearsTo0P1PctConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if(
+                    (value is int years)
+                 && (years > 0)
+              ) 
+            {
+                return 1000 / years;
+            }
+            return 1;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if(value is int deprecation0P1Pct)
+            {
+                return 1000 / deprecation0P1Pct;
+            }
+            return value;
+        }
+    }
 
 }
