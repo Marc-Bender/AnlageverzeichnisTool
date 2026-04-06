@@ -50,14 +50,39 @@ namespace AnlageverzeichnisAppWPF
         public inputAndDisplayPage()
         {
             DataContext = new inputAndDisplayPageViewModel();
+            this.Loaded += (_, __) => registerHotkeys();
+            this.Unloaded += (_, __) => unregisterHotkeys();
             InitializeComponent();
         }
         public inputAndDisplayPage(AnlageverzeichnisDocument document, string fileName)
         {
             DataContext = new inputAndDisplayPageViewModel(document);
             this.filename = fileName; // so that we have a way of memorizing where the file is stored that had been created in the general information input page
+            this.Loaded += (_, __) => registerHotkeys();
+            this.Unloaded += (_, __) => unregisterHotkeys();
             InitializeComponent();
         }
+        private void registerHotkeys()
+        {
+            if (this.Tag is MainWindowViewModel mwvm)
+            {
+                mwvm.ActivePageSaveCommand = SaveCommand;
+                mwvm.ActivePageReloadCommand = ReloadCommand;
+                mwvm.ActivePageApplyCommand = ApplyCommand;
+            }
+        }
+        
+        private void unregisterHotkeys()
+        {
+            if (this.Tag is MainWindowViewModel mwvm)
+            {
+                mwvm.ActivePageSaveCommand = null;
+                mwvm.ActivePageReloadCommand = null;
+                mwvm.ActivePageApplyCommand = null;
+            }
+
+        }
+
         public ICommand SaveCommand => new RelayCommand(Save);
         public ICommand ReloadCommand => new RelayCommand(Reload);
         public ICommand ApplyCommand => new RelayCommand(Apply);

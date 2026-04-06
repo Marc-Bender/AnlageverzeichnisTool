@@ -11,6 +11,15 @@
         <KeyBinding Key="S"
                     Modifiers="Control"
                     Command="{Binding ActivePageSaveCommand}" />
+        <KeyBinding Key="N"
+                    Modifiers="Control"
+                    Command="{Binding ActivePageNewCommand}" />
+        <KeyBinding Key="O"
+                    Modifiers="Control"
+                    Command="{Binding ActivePageOpenCommand}" />
+        <KeyBinding Key="E"
+                    Modifiers="Control"
+                    Command="{Binding ActivePageExistingCommand}" />
         <!-- F5 needs explicit empty-modifier because otherwise the hot key would not work (also "none" does not work either because it is not a valid modifier option) !-->
         <KeyBinding Key="F5"
                     Modifiers="" 

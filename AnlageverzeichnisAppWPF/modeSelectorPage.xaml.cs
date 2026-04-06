@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -22,18 +23,53 @@ namespace AnlageverzeichnisAppWPF
     /// </summary>
     public partial class modeSelectorPage : Page
     {
-        public modeSelectorPage()
+        public ICommand NewCommand => new RelayCommand(newFunction);
+        public ICommand OpenCommand => new RelayCommand(openFunction);
+        public ICommand ExistingCommand => new RelayCommand(newFromExistingFunction);
+
+        public void registerHotkeys()
         {
-            InitializeComponent();
+            // assuming the mainwindow view model is in this.tag and has already been assigned 
+            if (this.Tag is MainWindowViewModel mwvw)
+            {
+                mwvw.ActivePageNewCommand = NewCommand;
+                mwvw.ActivePageOpenCommand = OpenCommand;
+                mwvw.ActivePageExistingCommand = ExistingCommand;
+            }
         }
-        private void newButton_Click(object sender, RoutedEventArgs e)
+        public void unregisterHotkeys()
+        {
+            // assuming the mainwindow view model is in this.tag and has already been assigned 
+            if (this.Tag is MainWindowViewModel mwvw)
+            {
+                mwvw.ActivePageNewCommand = null;
+                mwvw.ActivePageOpenCommand = null;
+                mwvw.ActivePageExistingCommand = null;
+            }
+        }
+        private void newFunction()
         {
             var generalInformationPage = new generalInformationInputPage();
             generalInformationPage.Tag = this.Tag;
+            // before leaving the page remove this page's hotkeys to avoid unforseable behavior
+            if (this.Tag is MainWindowViewModel mwvw)
+            {
+                mwvw.ActivePageNewCommand = null;
+                mwvw.ActivePageOpenCommand = null;
+                mwvw.ActivePageExistingCommand = null;
+            }
             NavigationService.Navigate(generalInformationPage);
         }
 
-        private void newFromPreviousButton_Click(object sender, RoutedEventArgs e)
+        public modeSelectorPage()
+        {
+            InitializeComponent();
+            this.Loaded += (_, __) => registerHotkeys();
+            this.Unloaded += (_, __) => unregisterHotkeys();
+        }
+        private void newButton_Click(object sender, RoutedEventArgs e) => newFunction();
+        private void newFromPreviousButton_Click(object sender, RoutedEventArgs e) => newFromExistingFunction();
+        private void newFromExistingFunction()
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter = "JSON-Dateien | *.json";
@@ -56,19 +92,14 @@ namespace AnlageverzeichnisAppWPF
                     }
                     var inputAndDisplayPage = new inputAndDisplayPage(document, dialog.FileName);
                     inputAndDisplayPage.Tag = this.Tag;
-                    if(this.Tag is MainWindowViewModel mwvm)
-                    {
-                        mwvm.ActivePageSaveCommand = inputAndDisplayPage.SaveCommand;
-                        mwvm.ActivePageReloadCommand = inputAndDisplayPage.ReloadCommand;
-                        mwvm.ActivePageApplyCommand = inputAndDisplayPage.ApplyCommand;
-                    }
                     NavigationService.Navigate(inputAndDisplayPage);
                 }
             }
             
         }
 
-        private void loadButton_Click(object sender, RoutedEventArgs e)
+        private void loadButton_Click(object sender, RoutedEventArgs e) => openFunction();
+        private void openFunction()
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter = "JSON-Dateien | *.json";
@@ -84,12 +115,6 @@ namespace AnlageverzeichnisAppWPF
                     {
                         var inputAndDisplayPage = new inputAndDisplayPage(document, dialog.FileName);
                         inputAndDisplayPage.Tag = this.Tag;
-                        if (this.Tag is MainWindowViewModel mwvm)
-                        {
-                            mwvm.ActivePageSaveCommand = inputAndDisplayPage.SaveCommand;
-                            mwvm.ActivePageReloadCommand = inputAndDisplayPage.ReloadCommand;
-                            mwvm.ActivePageApplyCommand = inputAndDisplayPage.ApplyCommand;
-                        }
                         NavigationService.Navigate(inputAndDisplayPage);
                     }
                     else

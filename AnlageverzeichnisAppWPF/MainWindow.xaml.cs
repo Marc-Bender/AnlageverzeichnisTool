@@ -20,6 +20,12 @@ namespace AnlageverzeichnisAppWPF
         private ICommand? activePageReloadCommand;
         [ObservableProperty]
         private ICommand? activePageApplyCommand;
+        [ObservableProperty]
+        private ICommand? activePageNewCommand;
+        [ObservableProperty]
+        private ICommand? activePageOpenCommand;
+        [ObservableProperty]
+        private ICommand? activePageExistingCommand;
     }
     /// <summary>
     /// Interaction logic for MainWindow.xaml

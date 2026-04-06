@@ -53,12 +53,6 @@ namespace AnlageverzeichnisAppWPF
                 }
                 var inputAndDisplayPage = new inputAndDisplayPage(document, saveDialog.FileName);
                 inputAndDisplayPage.Tag = this.Tag;
-                if (this.Tag is MainWindowViewModel mwvm)
-                {
-                    mwvm.ActivePageSaveCommand = inputAndDisplayPage.SaveCommand;
-                    mwvm.ActivePageReloadCommand = inputAndDisplayPage.ReloadCommand;
-                    mwvm.ActivePageApplyCommand = inputAndDisplayPage.ApplyCommand;
-                }
                 NavigationService.Navigate(inputAndDisplayPage);
             }
             else
