@@ -34,10 +34,10 @@ namespace AnlageverzeichnisAppWPF
         }
 
         [ObservableProperty]
-        public DocumentHeader header;
+        private DocumentHeader header;
 
         [ObservableProperty]
-        public ObservableCollection<dataEntryLine> dataEntryLines = [];
+        private ObservableCollection<dataEntryLine> dataEntryLines = [];
 
         public AnlageverzeichnisDocument( string companyName, string companyCityAndZipCode, int currentlyWorkedOnYear)
         {
@@ -58,6 +58,13 @@ namespace AnlageverzeichnisAppWPF
         {
             this.Header.CurrentlyWorkedOnYear++;
 
+        }
+        public void applyCurrentYearToImportedDataEntries()
+        {
+            foreach (var line in DataEntryLines)
+            {
+                line.currentYear = this.Header.CurrentlyWorkedOnYear;
+            }
         }
     }
 }

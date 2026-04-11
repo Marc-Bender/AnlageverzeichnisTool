@@ -153,4 +153,26 @@ namespace AnlageverzeichnisAppWPF
         }
     }
 
+    public class CanLeaveOrBeMemorialValueConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if(values.Length == 3)
+            {
+                var currentYear = (int)values[0];
+                var purchaseYear = (int)values[1];
+                var isHeading = (bool)values[2];
+                // do whatever you want
+                return (
+                            (currentYear != purchaseYear)
+                          &&(isHeading == false)
+                       );
+            }
+            return false;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
+
 }

@@ -158,15 +158,6 @@ namespace AnlageverzeichnisAppWPF
             }
         }
 
-        private void CheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            // need to handle like this for esp. w/ the refresh for the change to actually propagate to both the data behind and the UI to update accordingly
-            dataEntryLinesDataGrid.BeginEdit();
-            dataEntryLinesDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-
-            dataEntryLinesDataGrid.Items.Refresh();
-        }
-
         private void TextBox_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             dataEntryLinesDataGrid.BeginEdit();

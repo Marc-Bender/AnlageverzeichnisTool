@@ -38,6 +38,7 @@ namespace AnlageverzeichnisAppWPF
                 mwvw.ActivePageExistingCommand = null;
             }
         }
+
         private void newFunction()
         {
             var generalInformationPage = new generalInformationInputPage();
@@ -67,6 +68,7 @@ namespace AnlageverzeichnisAppWPF
                     if (document is not null)
                     {
                         document.migrateToNextYear();
+                        document.applyCurrentYearToImportedDataEntries(); // needs to be done to ensure correct calculation of derived fields if the contents are modified in the datagrid later.
                     }
                     else
                     {
@@ -95,6 +97,7 @@ namespace AnlageverzeichnisAppWPF
                     var document = JsonSerializer.Deserialize<AnlageverzeichnisDocument>(outfile.ReadToEnd());
                     if (document is not null)
                     {
+                        document.applyCurrentYearToImportedDataEntries(); // needs to be done to ensure correct calculation of derived fields if the contents are modified in the datagrid later.
                         var inputAndDisplayPage = new inputAndDisplayPage(document, dialog.FileName);
                         inputAndDisplayPage.Tag = this.Tag;
                         NavigationService.Navigate(inputAndDisplayPage);

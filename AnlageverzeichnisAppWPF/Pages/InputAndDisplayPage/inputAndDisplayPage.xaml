@@ -19,6 +19,9 @@
         <local:BoldHeadingsConverter x:Key="BoldHeadings" />
         <local:EditingToBackgroundConverter x:Key="EditingBackground" />
         <local:YearsTo0P1PctConverter x:Key="YearsTo0P1Pct" />
+        <local:CanLeaveOrBeMemorialValueConverter x:Key="CanLeaveOrBeMemorialValueConverter" />
+
+        <Binding x:Key="ExpertModeEnableState" Path="DataContext.IsExpertModeEnabled" RelativeSource="{RelativeSource AncestorType=Page}"/>
 
         <DataTemplate x:Key="ObjectDescriptionTextTextBoxTemplate">
                 <TextBox
@@ -33,7 +36,10 @@
                     />
         </DataTemplate>
         <DataTemplate x:Key="monthYearTextBoxTemplate">
-            <StackPanel Orientation="Horizontal">
+            <StackPanel 
+                Orientation="Horizontal"
+                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}"
+                >
                 <TextBox
                     Text="{Binding MonthOfPurchase}" 
                     Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
@@ -77,6 +83,7 @@
                 Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
                 Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
                 IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                IsEnabled="{Binding DataContext.IsExpertModeEnabled, RelativeSource={RelativeSource AncestorType=Page}}"
                 BorderThickness="0"
                 IsHitTestVisible="True"
                 Focusable="True"
@@ -86,45 +93,59 @@
         </DataTemplate>
         
         <DataTemplate x:Key="accumulatedDeprecationCentsTextBoxTemplate">
-            <TextBox
-                Text="{Binding AccumulatedDepreciation_Cents, Converter={StaticResource CentsToEuroString}}"
-                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
-                Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
-                IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
-                BorderThickness="0"
-                IsHitTestVisible="True"
-                Focusable="True"
-                PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
-                HorizontalContentAlignment="Right"
-           />
+            <Grid
+                Visibility="{Binding IsLeavingThisYear, Converter={StaticResource InverseBoolVisibility}}"
+                >
+                <TextBox
+                    Text="{Binding AccumulatedDepreciation_Cents, Converter={StaticResource CentsToEuroString}}"
+                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
+                    Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                    IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                    IsEnabled="{Binding DataContext.IsExpertModeEnabled, RelativeSource={RelativeSource AncestorType=Page}}"
+                    BorderThickness="0"
+                    IsHitTestVisible="True"
+                    Focusable="True"
+                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                    HorizontalContentAlignment="Right"
+                />
+            </Grid>
         </DataTemplate>
         
         <DataTemplate x:Key="deprecationPercentageTextBoxTemplate">
-            <TextBox
-                Text="{Binding DepreciationPercentage_0P1Pct, Converter={StaticResource TenthPctToPercentageString}}"
-                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}"
-                Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
-                IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
-                BorderThickness="0"
-                IsHitTestVisible="True"
-                Focusable="True"
-                PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
-                HorizontalContentAlignment="Right"
-            />
+            <Grid
+                Visibility="{Binding IsLeavingThisYear, Converter={StaticResource InverseBoolVisibility}}"
+            >
+                <TextBox
+                    Text="{Binding DepreciationPercentage_0P1Pct, Converter={StaticResource TenthPctToPercentageString}}"
+                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}"
+                    Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                    IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                    BorderThickness="0"
+                    IsHitTestVisible="True"
+                    Focusable="True"
+                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                    HorizontalContentAlignment="Right"
+                />
+            </Grid>
         </DataTemplate>
         
         <DataTemplate x:Key="currentYearDeprecationAmountCentsTextBoxTemplate">
-            <TextBox
-                Text="{Binding CurrentYearDepreciationAmount_Cents, Converter={StaticResource CentsToEuroString}}"
-                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
-                Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
-                IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
-                BorderThickness="0"
-                IsHitTestVisible="True"
-                Focusable="True"
-                PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
-                HorizontalContentAlignment="Right"
-            />
+            <Grid
+                Visibility="{Binding IsLeavingThisYear, Converter={StaticResource InverseBoolVisibility}}"
+                >
+                <TextBox
+                    Text="{Binding CurrentYearDepreciationAmount_Cents, Converter={StaticResource CentsToEuroString}}"
+                    Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
+                    Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
+                    IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                    IsEnabled="{Binding DataContext.IsExpertModeEnabled, RelativeSource={RelativeSource AncestorType=Page}}"
+                    BorderThickness="0"
+                    IsHitTestVisible="True"
+                    Focusable="True"
+                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+                    HorizontalContentAlignment="Right"
+                />
+            </Grid>
         </DataTemplate>
     
         <DataTemplate x:Key="currentYearObjectValueTextBoxTemplate">
@@ -133,6 +154,7 @@
                 Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
                 Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
                 IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                IsEnabled="{Binding DataContext.IsExpertModeEnabled, RelativeSource={RelativeSource AncestorType=Page}}"
                 BorderThickness="0"
                 IsHitTestVisible="True"
                 Focusable="True"
@@ -147,32 +169,12 @@
                 Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}" 
                 Background="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource EditingBackground}}"
                 IsReadOnly="{Binding IsEditing, RelativeSource={RelativeSource AncestorType=DataGridCell}, Converter={StaticResource InverseBool}}"
+                IsEnabled="{Binding DataContext.IsExpertModeEnabled, RelativeSource={RelativeSource AncestorType=Page}}"
                 BorderThickness="0"
                 IsHitTestVisible="True"
                 Focusable="True"
                 PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
                 HorizontalContentAlignment="Right"
-            />
-        </DataTemplate>
-
-        <DataTemplate x:Key="HeadingCheckBoxTemplate">
-            <CheckBox 
-                IsChecked="{Binding IsHeading, Mode=TwoWay}" 
-                Click="CheckBox_Click"
-            />
-        </DataTemplate>
-        <DataTemplate x:Key="IsLeavingThisYearCheckBoxTemplate">
-            <CheckBox 
-                IsChecked="{Binding IsLeavingThisYear, Mode=TwoWay}" 
-                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}"
-                Click="CheckBox_Click"
-            />
-        </DataTemplate>
-        <DataTemplate x:Key="DisplayAsMemorialValueCheckBoxTemplate">
-            <CheckBox 
-                IsChecked="{Binding DisplayAsMemorialValue, Mode=TwoWay}" 
-                Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}"
-                Click="CheckBox_Click"
             />
         </DataTemplate>
     </Page.Resources>
@@ -294,6 +296,7 @@
                   CanUserSortColumns="False"
                   GridLinesVisibility="None"
                   PreviewKeyDown="dataEntryLinesDataGrid_PreviewKeyDown"
+                  CellEditEnding="dataEntryLinesDataGrid_CellEditEnding"
             >
                 <DataGrid.Columns>
 
@@ -361,28 +364,58 @@
                         CellEditingTemplate="{StaticResource previousYearObjectValueTextBoxTemplate}"
                     />
 
-                    <DataGridTemplateColumn
+                    <DataGridCheckBoxColumn
                             Header="Ü"
                             Width="0.25*"
-                            CellTemplate = "{StaticResource HeadingCheckBoxTemplate}"
-                            CellEditingTemplate="{StaticResource HeadingCheckBoxTemplate}"
-                        >
-                    </DataGridTemplateColumn>
+                            Binding="{Binding IsHeading, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    />
 
-                    <DataGridTemplateColumn
+                    <DataGridCheckBoxColumn
+                            x:Name="isleavingcheckboxcol"
                             Header="-"
                             Width="0.25*"
-                            CellTemplate="{StaticResource IsLeavingThisYearCheckBoxTemplate}"
-                            CellEditingTemplate="{StaticResource IsLeavingThisYearCheckBoxTemplate}"
-                        >
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn
+                            Binding="{Binding IsLeavingThisYear,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    >
+                            <DataGridCheckBoxColumn.ElementStyle>
+                                <Style TargetType="CheckBox">
+                                    <Setter 
+                                            Property="IsEnabled"
+                                        >
+                                        <Setter.Value>
+                                            <MultiBinding Converter="{StaticResource CanLeaveOrBeMemorialValueConverter}">
+                                                <Binding Path="DataContext.Document.Header.CurrentlyWorkedOnYear" RelativeSource="{RelativeSource AncestorType=Page}"/>
+                                                <Binding Path="YearOfPurchase" />
+                                                <Binding Path="IsHeading" />
+                                            </MultiBinding>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridCheckBoxColumn.ElementStyle>
+
+                    </DataGridCheckBoxColumn>
+                    
+
+                    <DataGridCheckBoxColumn
                             Header="E"
                             Width="0.25*"
-                            CellTemplate="{StaticResource DisplayAsMemorialValueCheckBoxTemplate}"
-                            CellEditingTemplate="{StaticResource DisplayAsMemorialValueCheckBoxTemplate}"
+                            Binding="{Binding DisplayAsMemorialValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         >
-                    </DataGridTemplateColumn>
+                        <DataGridCheckBoxColumn.ElementStyle>
+                            <Style TargetType="CheckBox">
+                                <Setter 
+                                            Property="IsEnabled"
+                                        >
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource CanLeaveOrBeMemorialValueConverter}">
+                                            <Binding Path="DataContext.Document.Header.CurrentlyWorkedOnYear" RelativeSource="{RelativeSource AncestorType=Page}"/>
+                                            <Binding Path="YearOfPurchase" />
+                                            <Binding Path="IsHeading" />
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </DataGridCheckBoxColumn.ElementStyle>
+                    </DataGridCheckBoxColumn>
 
                 </DataGrid.Columns>
             </DataGrid>
@@ -395,7 +428,7 @@
             Grid.Row="2"
             Margin="0,5,0,5"
             DataContext="{Binding CurrentlyEditedLine}"
-            Visibility="{Binding IsExpertModeEnabled, Converter={StaticResource InverseBoolVisibility}}"
+            Visibility="{Binding DataContext.IsExpertModeEnabled, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource InverseBoolVisibility}}"
             IsEnabled="{Binding IsKeyboardFocusWithin, ElementName=dataEntryLinesDataGrid, Converter={StaticResource InverseBool}}"
             >
             <Grid.RowDefinitions>
@@ -598,7 +631,10 @@
                 TabIndex="5"
                 IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 IsChecked="{Binding IsLeavingThisYear}"
-            />
+                Style="{StaticResource CanLeaveOrBeMemorialValueStyle}"
+            >
+            </CheckBox>
+
             <CheckBox
                 Name="displayAsMemorialValueCheckbox"
                 Grid.Row="3"

@@ -41,5 +41,16 @@ namespace AnlageverzeichnisAppWPF
             this.Unloaded += (_, __) => unregisterHotkeys();
             InitializeComponent();
         }
+
+        private void dataEntryLinesDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            if(
+                  (e.Row.Item is dataEntryLine line)
+                &&(e.Column == isleavingcheckboxcol)
+              )
+            {
+                line.IsCalculateDerivedFieldsNeeded = true;
+            }
+        }
     }
 }
