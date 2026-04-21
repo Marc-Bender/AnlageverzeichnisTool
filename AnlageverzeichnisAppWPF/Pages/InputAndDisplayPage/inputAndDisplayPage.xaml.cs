@@ -46,9 +46,15 @@ namespace AnlageverzeichnisAppWPF
         {
             if(
                   (e.Row.Item is dataEntryLine line)
-                &&(e.Column == isleavingcheckboxcol)
               )
             {
+                /*
+                switch(e.Column)
+                {
+                    //case isLeavingCheckBoxColumn:
+                    //case displayAsMemorialValueCheckBoxColumn:
+                    //    break;
+                }*/
                 line.IsCalculateDerivedFieldsNeeded = true;
             }
         }
