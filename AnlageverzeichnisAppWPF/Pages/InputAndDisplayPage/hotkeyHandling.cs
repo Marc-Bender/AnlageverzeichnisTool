@@ -57,6 +57,10 @@ namespace AnlageverzeichnisAppWPF
                 if (this.DataContext is inputAndDisplayPageViewModel vm)
                 {
                     vm.Document = JsonSerializer.Deserialize<AnlageverzeichnisDocument>(infile.ReadToEnd());
+                    if (vm.Document is AnlageverzeichnisDocument document)
+                    {
+                        document.applyCurrentYearToImportedDataEntries(); // needs to be done to ensure correct calculation of derived fields if the contents are modified in the datagrid later.
+                    }
                 }
             }
 

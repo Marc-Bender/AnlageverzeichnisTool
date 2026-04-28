@@ -8,7 +8,7 @@
       mc:Ignorable="d" 
       Focusable="True"
       d:DesignHeight="400" d:DesignWidth="940"
-      Title="Eingabe und Anzeigemakse">
+      Title="Eingabe und Anzeigemaske">
     
     <Page.Resources>
         <local:CentsToEuroStringConverter x:Key="CentsToEuroString" />
@@ -286,6 +286,7 @@
                   GridLinesVisibility="None"
                   PreviewKeyDown="dataEntryLinesDataGrid_PreviewKeyDown"
                   CellEditEnding="dataEntryLinesDataGrid_CellEditEnding"
+                  SelectionChanged="dataEntryLinesDataGrid_RowEditEnding"
             >
                 <DataGrid.Columns>
 
@@ -298,12 +299,14 @@
                     />
                     <!-- Monat/Jahr combined -->
                     <DataGridTemplateColumn 
+                        x:Name="purchaseDateDataGridColumn"
                         Header="MM/JJJJ" 
                         Width="0.7*"
                         CellTemplate="{StaticResource monthYearTextBoxTemplate}"
                         CellEditingTemplate="{StaticResource monthYearTextBoxTemplate}"
                     />
                     <DataGridTemplateColumn 
+                        x:Name="historicPriceDataGridColumn"
                         Header="€ Hist."
                         Width="*"
                         CellTemplate="{StaticResource priceAtPurchaseCentsTextBoxTemplate}"
@@ -326,6 +329,7 @@
 
 
                     <DataGridTemplateColumn 
+                        x:Name="percentageDeprecationDataGridColumn"
                         Header="% GJ Abschr."
                         Width="1.1*"
                         CellTemplate="{StaticResource deprecationPercentageTextBoxTemplate}"

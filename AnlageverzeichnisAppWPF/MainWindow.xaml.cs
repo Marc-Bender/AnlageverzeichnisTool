@@ -21,6 +21,18 @@ namespace AnlageverzeichnisAppWPF
         public MainWindow()
         {
             this.DataContext = new MainWindowViewModel();
+            NavigationCommands.BrowseBack.InputGestures.Clear();
+            NavigationCommands.BrowseForward.InputGestures.Clear();
+            NavigationCommands.BrowseHome.InputGestures.Clear();
+            NavigationCommands.BrowseStop.InputGestures.Clear();
+            NavigationCommands.Favorites.InputGestures.Clear();
+            NavigationCommands.FirstPage.InputGestures.Clear();
+            NavigationCommands.GoToPage.InputGestures.Clear();
+            NavigationCommands.LastPage.InputGestures.Clear();
+            NavigationCommands.NavigateJournal.InputGestures.Clear();
+            NavigationCommands.NextPage.InputGestures.Clear();
+            NavigationCommands.PreviousPage.InputGestures.Clear();
+            NavigationCommands.Search.InputGestures.Clear();
             NavigationCommands.Refresh.InputGestures.Clear(); // to free up F5 and alike for my own usage
 
             InitializeComponent();

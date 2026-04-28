@@ -44,19 +44,38 @@ namespace AnlageverzeichnisAppWPF
 
         private void dataEntryLinesDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
+            // need to handle recalculation on :
+            // mm/jjjj, eur hist, % deprecation, isLeavingCheckbox, memorialvalCheckbox
             if(
                   (e.Row.Item is dataEntryLine line)
+                &&(
+                        (e.Column == purchaseDateDataGridColumn)
+                      ||(e.Column == historicPriceDataGridColumn)
+                      ||(e.Column == percentageDeprecationDataGridColumn)
+                      ||(e.Column == isLeavingCheckBoxColumn)
+                      ||(e.Column == displayAsMemorialValueCheckBoxColumn)
+                  )
               )
             {
-                /*
-                switch(e.Column)
-                {
-                    //case isLeavingCheckBoxColumn:
-                    //case displayAsMemorialValueCheckBoxColumn:
-                    //    break;
-                }*/
                 line.IsCalculateDerivedFieldsNeeded = true;
             }
+        }
+
+        private void dataEntryLinesDataGrid_RowEditEnding(object sender, SelectionChangedEventArgs e)
+        {
+            if (true)//(e.RemovedItems is Array<object> oldLines)
+            {
+                foreach (var lineobj in e.RemovedItems)
+                {
+                    if(lineobj is dataEntryLine line)
+                    {
+                        if (line.IsCalculateDerivedFieldsNeeded == true)
+                        {
+                            line.handleCalculateDerivedFieldsOnUpdate();
+                        }
+                    }
+                }
+            }    
         }
     }
 }
