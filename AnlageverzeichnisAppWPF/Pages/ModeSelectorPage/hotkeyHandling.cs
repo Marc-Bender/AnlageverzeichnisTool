@@ -55,31 +55,43 @@ namespace AnlageverzeichnisAppWPF
 
         private void newFromExistingFunction()
         {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "JSON-Dateien | *.json";
+            OpenFileDialog openDialog = new OpenFileDialog();
+            openDialog.Filter = "JSON-Dateien | *.json";
             if (
-                    (dialog.ShowDialog() == true)
-                  && (dialog.FileName != "")
+                    (openDialog.ShowDialog() == true)
+                  && (openDialog.FileName != "")
                )
             {
-                using (var outfile = new StreamReader(dialog.FileName))
+                using (var infile = new StreamReader(openDialog.FileName))
                 {
-                    var document = JsonSerializer.Deserialize<AnlageverzeichnisDocument>(outfile.ReadToEnd());
+                    var document = JsonSerializer.Deserialize<AnlageverzeichnisDocument>(infile.ReadToEnd());
                     if (document is not null)
                     {
-                       document.migrateToNextYear();
+                        document.migrateToNextYear();
+                        // after migration save the new document to a new file to ensure that when clicking the reload button the post-migration data is showed and not the pre-migration data
+                        SaveFileDialog saveFileDialog = new SaveFileDialog();
+                        saveFileDialog.Filter = "JSON-Dateien | *.json";
+                        if (
+                                (saveFileDialog.ShowDialog() == true)
+                              && (saveFileDialog.FileName != "")
+                           )
+                        {
+                            using (var outfile = new StreamWriter(saveFileDialog.FileName))
+                            {
+                                outfile.Write(JsonSerializer.Serialize<AnlageverzeichnisDocument>(document));
+                                var inputAndDisplayPage = new inputAndDisplayPage(document, saveFileDialog.FileName);
+                                inputAndDisplayPage.Tag = this.Tag;
+                                NavigationService.Navigate(inputAndDisplayPage);
+                            }
+                        }
                     }
                     else
                     {
                         MessageBox.Show("Interner Fehler: parsen von alter Datei lieferte NULL", "Interner Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-                    var inputAndDisplayPage = new inputAndDisplayPage(document, dialog.FileName);
-                    inputAndDisplayPage.Tag = this.Tag;
-                    NavigationService.Navigate(inputAndDisplayPage);
                 }
             }
-
         }
 
         private void openFunction()
