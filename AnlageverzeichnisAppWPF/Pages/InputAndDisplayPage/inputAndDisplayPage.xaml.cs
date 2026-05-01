@@ -77,5 +77,24 @@ namespace AnlageverzeichnisAppWPF
                 }
             }    
         }
+
+        private void TextBox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if(this.DataContext is inputAndDisplayPageViewModel vm)
+            {
+                foreach(var line in vm.Document.DataEntryLines)
+                {
+                    line.IsCurrentHeading = false; // first clear the current heading state of all data entries in the document ...
+                }
+
+                if(
+                        (sender is Label label)
+                     && (label.DataContext is dataEntryLine thisLine)
+                  )
+                {
+                    thisLine.IsCurrentHeading = true; // before setting the property for the line clicked -- this ensures that there is only ever one line with this being set in the document; which is needed because under that heading there shall be all the new items be added
+                }
+            }
+        }
     }
 }

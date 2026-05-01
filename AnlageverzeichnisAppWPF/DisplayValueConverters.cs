@@ -174,5 +174,26 @@ namespace AnlageverzeichnisAppWPF
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
             => throw new NotImplementedException();
     }
+    public class FirstYearItalicPreviousYearConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 2)
+            {
+                if (
+                        (values[0] is int currentYear)
+                     && (values[1] is int purchaseYear)
+                   )
+                {
+                    return currentYear == purchaseYear ? FontStyles.Italic : FontStyles.Normal;
+                }
+            }
+            return FontStyles.Normal;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
+
 
 }

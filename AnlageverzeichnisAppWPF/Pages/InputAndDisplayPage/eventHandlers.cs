@@ -138,7 +138,6 @@ namespace AnlageverzeichnisAppWPF
             }
         }
 
-
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (sender is TextBox textbox)
@@ -181,5 +180,8 @@ namespace AnlageverzeichnisAppWPF
                 }), System.Windows.Threading.DispatcherPriority.Background);
             }
         }
+
+        private void newEntryButton_Click(object sender, RoutedEventArgs e) => NewEntry();
+
     }
 }

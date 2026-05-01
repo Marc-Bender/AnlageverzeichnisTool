@@ -14,6 +14,10 @@ namespace AnlageverzeichnisAppWPF
         [JsonIgnore]
         private bool isCalculateDerivedFieldsNeeded;
 
+        [ObservableProperty]
+        [JsonIgnore]
+        private bool isCurrentHeading = false;
+
         [JsonIgnore]
         public int currentYear;
 

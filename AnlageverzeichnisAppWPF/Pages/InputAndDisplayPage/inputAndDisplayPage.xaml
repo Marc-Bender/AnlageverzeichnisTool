@@ -20,6 +20,7 @@
         <local:EditingToBackgroundConverter x:Key="EditingBackground" />
         <local:YearsTo0P1PctConverter x:Key="YearsTo0P1Pct" />
         <local:CanLeaveOrBeMemorialValueConverter x:Key="CanLeaveOrBeMemorialValueConverter" />
+        <local:FirstYearItalicPreviousYearConverter x:Key="FirstYearItalicPreviousYearConverter" />
 
         <Binding x:Key="ExpertModeEnableState" Path="DataContext.IsExpertModeEnabled" RelativeSource="{RelativeSource AncestorType=Page}"/>
 
@@ -41,6 +42,26 @@
 
         </Style>
 
+        <DataTemplate x:Key="SelectedHeadingTextboxTemplate">
+            <Grid 
+                Visibility="{Binding IsHeading, Converter={StaticResource BoolVisibility}}"
+                >
+                <Label
+                        Content="*"
+                        FontWeight="UltraBold"
+                        VerticalAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        Visibility="{Binding IsCurrentHeading, Converter={StaticResource BoolVisibility}}"
+                        PreviewMouseDown="TextBox_MouseDown"
+                />
+                <Label
+                        Content=" "
+                        FontWeight="Normal"
+                        Visibility="{Binding IsCurrentHeading, Converter={StaticResource InverseBoolVisibility}}"
+                        PreviewMouseDown="TextBox_MouseDown"
+                />
+            </Grid>
+        </DataTemplate>
         <DataTemplate x:Key="ObjectDescriptionTextTextBoxTemplate">
                 <TextBox
                     Text="{Binding ObjectDescriptionText}"
@@ -151,7 +172,14 @@
                 Style="{StaticResource editStyle}"
                 PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
                 HorizontalContentAlignment="Right"
-            />
+            >
+                <TextBox.FontStyle>
+                    <MultiBinding Converter="{StaticResource FirstYearItalicPreviousYearConverter}">
+                        <Binding Path="DataContext.Document.Header.CurrentlyWorkedOnYear" RelativeSource="{RelativeSource AncestorType=Page}"/>
+                        <Binding Path="YearOfPurchase"/>
+                    </MultiBinding>
+                </TextBox.FontStyle>
+            </TextBox>
         </DataTemplate>
 
         <Style x:Key="CanLeaveOrBeMemorialValueStyle"
@@ -289,7 +317,12 @@
                   SelectionChanged="dataEntryLinesDataGrid_RowEditEnding"
             >
                 <DataGrid.Columns>
-
+                    <!-- 0th column for the selector of the current heading -->
+                    <DataGridTemplateColumn
+                        Header="*"
+                        CellTemplate="{StaticResource SelectedHeadingTextboxTemplate}"
+                        IsReadOnly="True"
+                    />
                     <!-- 1st column stretches -->
                     <DataGridTemplateColumn 
                         Header="Gegenstand"
@@ -631,7 +664,7 @@
             <Button
                 Name="newEntryButton"
                 Content="Neuer Entrag (Strg+N)"
-                
+                Click="newEntryButton_Click"
             />
         </Grid>
     </Grid>

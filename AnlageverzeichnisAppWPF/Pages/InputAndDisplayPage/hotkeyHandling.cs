@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.IO;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Shapes;
 
 namespace AnlageverzeichnisAppWPF
 {
@@ -20,6 +22,7 @@ namespace AnlageverzeichnisAppWPF
                 mwvm.ActivePageSaveCommand = SaveCommand;
                 mwvm.ActivePageReloadCommand = ReloadCommand;
                 mwvm.ActivePageApplyCommand = ApplyCommand;
+                mwvm.ActivePageNewCommand = NewEntryCommand;
             }
         }
 
@@ -30,6 +33,7 @@ namespace AnlageverzeichnisAppWPF
                 mwvm.ActivePageSaveCommand = null;
                 mwvm.ActivePageReloadCommand = null;
                 mwvm.ActivePageApplyCommand = null;
+                mwvm.ActivePageNewCommand = null;
             }
 
         }
@@ -37,6 +41,7 @@ namespace AnlageverzeichnisAppWPF
         public ICommand SaveCommand => new RelayCommand(Save);
         public ICommand ReloadCommand => new RelayCommand(Reload);
         public ICommand ApplyCommand => new RelayCommand(Apply);
+        public ICommand NewEntryCommand => new RelayCommand(NewEntry);
         private void Save()
         {
             using (var outfile = new StreamWriter(this.filename))
@@ -69,7 +74,10 @@ namespace AnlageverzeichnisAppWPF
 
         private void Apply()
         {
-            if (this.DataContext is inputAndDisplayPageViewModel vm)
+            if (
+                    (this.DataContext is inputAndDisplayPageViewModel vm)
+                 && (vm.Document.DataEntryLines is ObservableCollection<dataEntryLine> lines)
+               )
             {
                 try
                 {
@@ -80,10 +88,77 @@ namespace AnlageverzeichnisAppWPF
                     MessageBox.Show("Ein Wert ist Null der nicht Null sein darf!", "Null-Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                vm.Document.DataEntryLines.Add(vm.CurrentlyEditedLine);
+
+                if (vm.CurrentlyEditedLine.IsHeading == true)
+                {
+                    vm.CurrentlyEditedLine.IsCurrentHeading = true; // when a heading is newly added to the dataset then assume that it should be the heading under which all new data shall be generated going forward (until explicitly overridden)
+                }
+
+                try
+                {
+                    var indexOfCurrentHeading = lines.IndexOf(lines.Where(x => x.IsCurrentHeading == true).ElementAt(0));
+                    var indexOfHeadingAfterCurrentHeading = lines.IndexOf(
+                                                                            lines.Where(x =>
+                                                                                                   (x.IsHeading == true)
+                                                                                                && (lines.IndexOf(x) > indexOfCurrentHeading)
+                                                                                       ).ElementAt(0)
+                                                                         );
+                    foreach (var line in vm.Document.DataEntryLines)
+                    {
+                        line.IsCurrentHeading = false; // first clear the current heading state of all data entries in the document ...
+                    }
+
+                    lines.Insert(indexOfHeadingAfterCurrentHeading, vm.CurrentlyEditedLine); // inserting at the location of the heading after the selected heading will effectively add the element at the end of the block started with the selected heading... 
+                }
+                catch
+                {
+                    foreach (var line in vm.Document.DataEntryLines)
+                    {
+                        line.IsCurrentHeading = false; // first clear the current heading state of all data entries in the document ...
+                    }
+
+                    lines.Add(vm.CurrentlyEditedLine);
+                }
                 vm.CurrentlyEditedLine = new dataEntryLine(vm.Document.Header.CurrentlyWorkedOnYear);
                 deprecationInYearsCheckBox.IsChecked = false;
                 objectDescriptionTextBox.Focus();
+            }
+        }
+
+        private void NewEntry()
+        {
+            // since this may be reached via hotkey if the expert mode is disabled (ie the button for clicking is not visible / not enabled) we need to check if the expert mode is enabled here to keep things simple
+            if(
+                    (this.DataContext is inputAndDisplayPageViewModel vm)
+                 && (vm.IsExpertModeEnabled == true)
+                 && (this.dataEntryLinesDataGrid.ItemsSource is ObservableCollection<dataEntryLine> lines)
+              )
+            {
+                try
+                {
+                    var indexOfCurrentHeading = lines.IndexOf(lines.Where(x => x.IsCurrentHeading == true).ElementAt(0));
+                    var indexOfHeadingAfterCurrentHeading = lines.IndexOf(
+                                                                            lines.Where(x =>
+                                                                                                (x.IsHeading == true)
+                                                                                             && (lines.IndexOf(x) > indexOfCurrentHeading)
+                                                                                       ).ElementAt(0)
+                                                                         );
+                    foreach (var line in vm.Document.DataEntryLines)
+                    {
+                        line.IsCurrentHeading = false; // first clear the current heading state of all data entries in the document ...
+                    }
+
+                    lines.Insert(indexOfHeadingAfterCurrentHeading, new dataEntryLine()); // inserting at the location of the heading after the selected heading will effectively add the element at the end of the block started with the selected heading... 
+                }
+                catch 
+                {
+                    foreach (var line in vm.Document.DataEntryLines)
+                    {
+                        line.IsCurrentHeading = false; // first clear the current heading state of all data entries in the document ...
+                    }
+
+                    lines.Add(new dataEntryLine()); 
+                }
             }
         }
     }
