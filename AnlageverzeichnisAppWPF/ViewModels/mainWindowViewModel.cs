@@ -20,5 +20,7 @@ namespace AnlageverzeichnisAppWPF
         private ICommand? activePageOpenCommand;
         [ObservableProperty]
         private ICommand? activePageExistingCommand;
+        [ObservableProperty]
+        private ICommand? activePagePDFCommand;
     }
 }

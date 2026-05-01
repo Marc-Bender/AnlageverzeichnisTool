@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Shapes;
 
@@ -23,6 +24,7 @@ namespace AnlageverzeichnisAppWPF
                 mwvm.ActivePageReloadCommand = ReloadCommand;
                 mwvm.ActivePageApplyCommand = ApplyCommand;
                 mwvm.ActivePageNewCommand = NewEntryCommand;
+                mwvm.ActivePagePDFCommand = CreatePDFCommand;
             }
         }
 
@@ -34,6 +36,7 @@ namespace AnlageverzeichnisAppWPF
                 mwvm.ActivePageReloadCommand = null;
                 mwvm.ActivePageApplyCommand = null;
                 mwvm.ActivePageNewCommand = null;
+                mwvm.ActivePagePDFCommand = null;
             }
 
         }
@@ -42,6 +45,7 @@ namespace AnlageverzeichnisAppWPF
         public ICommand ReloadCommand => new RelayCommand(Reload);
         public ICommand ApplyCommand => new RelayCommand(Apply);
         public ICommand NewEntryCommand => new RelayCommand(NewEntry);
+        public ICommand CreatePDFCommand => new RelayCommand(CreatePDF);
         private void Save()
         {
             using (var outfile = new StreamWriter(this.filename))
@@ -159,6 +163,22 @@ namespace AnlageverzeichnisAppWPF
 
                     lines.Add(new dataEntryLine()); 
                 }
+            }
+        }
+
+        private void CreatePDF()
+        {
+            if (
+                    (this.DataContext is inputAndDisplayPageViewModel vm)
+                  &&(vm.Document is AnlageverzeichnisDocument doc)
+               )
+            {
+                var dlg = new PrintDialog();
+
+                var flowDoc = doc.toFlowDocument();
+
+                dlg.PrintDocument(((IDocumentPaginatorSource)flowDoc).DocumentPaginator, "PDF Print");
+
             }
         }
     }

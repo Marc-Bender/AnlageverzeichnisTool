@@ -52,13 +52,13 @@
                         VerticalAlignment="Stretch"
                         HorizontalAlignment="Stretch"
                         Visibility="{Binding IsCurrentHeading, Converter={StaticResource BoolVisibility}}"
-                        PreviewMouseDown="TextBox_MouseDown"
+                        MouseLeftButtonDown="TextBox_MouseDown"
                 />
                 <Label
                         Content=" "
                         FontWeight="Normal"
                         Visibility="{Binding IsCurrentHeading, Converter={StaticResource InverseBoolVisibility}}"
-                        PreviewMouseDown="TextBox_MouseDown"
+                        MouseLeftButtonDown="TextBox_MouseDown"
                 />
             </Grid>
         </DataTemplate>
@@ -266,6 +266,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="2*"/>
@@ -289,10 +290,21 @@
                 />
                 <CheckBox
                     Grid.Row="1"
+                    Grid.Column="0"
                     DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Page}}"
                     IsChecked="{Binding IsExpertModeEnabled}"
                     Content="Expertenmodus"    
                 />
+                <Button
+                    x:Name="createPDFButton"
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Content="PDF erstellen"
+                    Margin="5,0,0,5"
+                    Click="createPDFButton_Click"
+                />
+
+
             </Grid>
         </Grid>
         
@@ -315,7 +327,7 @@
                   PreviewKeyDown="dataEntryLinesDataGrid_PreviewKeyDown"
                   CellEditEnding="dataEntryLinesDataGrid_CellEditEnding"
                   SelectionChanged="dataEntryLinesDataGrid_RowEditEnding"
-            >
+            > 
                 <DataGrid.Columns>
                     <!-- 0th column for the selector of the current heading -->
                     <DataGridTemplateColumn

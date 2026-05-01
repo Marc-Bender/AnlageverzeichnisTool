@@ -18,7 +18,8 @@ namespace AnlageverzeichnisAppWPF
             {
                 Int64 euros = cents / 100;
                 byte rest = (byte)(cents % 100);
-                return $"{euros},{rest:00}";
+                var de = new CultureInfo("de-DE");
+                return string.Format(de, "{0:N0},{1:00}", euros, rest);
             }
             else return "0,00";
         }
@@ -30,7 +31,7 @@ namespace AnlageverzeichnisAppWPF
                 try
                 {
                     Int64 centsValue = 0;
-                    Int64.TryParse(str.Replace(",", ""), out centsValue);
+                    Int64.TryParse(str.Replace(",", "").Replace(".", ""), out centsValue);
                     return centsValue;
                 }
                 catch

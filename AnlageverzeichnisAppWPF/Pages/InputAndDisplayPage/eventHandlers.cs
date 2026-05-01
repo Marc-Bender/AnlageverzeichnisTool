@@ -182,6 +182,7 @@ namespace AnlageverzeichnisAppWPF
         }
 
         private void newEntryButton_Click(object sender, RoutedEventArgs e) => NewEntry();
+        private void createPDFButton_Click(object sender, RoutedEventArgs e) => CreatePDF();
 
     }
 }

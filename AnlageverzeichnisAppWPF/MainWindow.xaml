@@ -20,6 +20,9 @@
         <KeyBinding Key="E"
                     Modifiers="Control"
                     Command="{Binding ActivePageExistingCommand}" />
+        <KeyBinding Key="P"
+                    Modifiers="Control"
+                    Command="{Binding ActivePagePDFCommand}" />
         <!-- F5 needs explicit empty-modifier because otherwise the hot key would not work (also "none" does not work either because it is not a valid modifier option) !-->
         <KeyBinding Key="F5"
                     Modifiers="" 
