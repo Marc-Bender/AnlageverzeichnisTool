@@ -79,38 +79,25 @@ namespace AnlageverzeichnisAppWPF
         {
             var flowDoc = new FlowDocument();
 
-            const int A3PaperHeightLandscape_mm = 297;
-            const int A3PaperWidthLandscape_mm = 420;
-            const int DPI = 96;
-            const float mm_per_inch = 25.4f;
-            const int pageMargins_mm = 15;
-
-            flowDoc.PageWidth  = A3PaperWidthLandscape_mm / mm_per_inch * DPI;
-            flowDoc.PageHeight = (float)A3PaperHeightLandscape_mm / mm_per_inch * DPI;
-            flowDoc.PagePadding = new Thickness((float)pageMargins_mm / DPI * mm_per_inch);
-
             flowDoc.FontFamily = new System.Windows.Media.FontFamily("Courier New");
             flowDoc.FontSize = 12;
             flowDoc.ColumnWidth = double.PositiveInfinity;
+            flowDoc.Tag = this;
 
             var table = new Table();
             table.CellSpacing = 0;
 
             // Define columns
-            table.Columns.Add(new TableColumn { Width = new GridLength(80) });
-            table.Columns.Add(new TableColumn { Width = new GridLength(200) });
-            table.Columns.Add(new TableColumn { Width = new GridLength(100) });
+            /*0*/table.Columns.Add(new TableColumn { Width = new GridLength(300) });
+            /*1*/table.Columns.Add(new TableColumn { Width = new GridLength(100) });
+            /*2*/table.Columns.Add(new TableColumn { Width = new GridLength(70) });
+            /*3*/table.Columns.Add(new TableColumn { Width = new GridLength(100) });
+            /*4*/table.Columns.Add(new TableColumn { Width = new GridLength(100) });
+            /*5*/table.Columns.Add(new TableColumn { Width = new GridLength(100) });
+            /*6*/table.Columns.Add(new TableColumn { Width = new GridLength(100) });
+            /*7*/table.Columns.Add(new TableColumn { Width = new GridLength(100) });
 
-            // Header row group
-            var headerGroup = new TableRowGroup();
-            table.RowGroups.Add(headerGroup);
-
-            var headerRow = new TableRow();
-            headerGroup.Rows.Add(headerRow);
-
-            headerRow.Cells.Add(new TableCell(new Paragraph(new Bold(new Run("ID")))));
-            headerRow.Cells.Add(new TableCell(new Paragraph(new Bold(new Run("Description")))));
-            headerRow.Cells.Add(new TableCell(new Paragraph(new Bold(new Run("Amount")))));
+            // do not draw the table header here and leave that up to the paginator
 
             // Data rows
             var bodyGroup = new TableRowGroup();
@@ -121,9 +108,22 @@ namespace AnlageverzeichnisAppWPF
                 var row = new TableRow();
                 bodyGroup.Rows.Add(row);
 
-                row.Cells.Add(new TableCell(new Paragraph(new Run(item.ObjectDescriptionText))));
-                row.Cells.Add(new TableCell(new Paragraph(new Run(item.MonthOfPurchase.ToString()))));
-                row.Cells.Add(new TableCell(new Paragraph(new Run(item.YearOfPurchase.ToString()))));
+                /*0*/row.Cells.Add(new TableCell(new Paragraph(new Run(item.ObjectDescriptionText))));
+                /*1*/row.Cells.Add(new TableCell(new Paragraph(new Run($"{item.MonthOfPurchase}/{item.YearOfPurchase}"))));
+                string sign = "";
+                string enterOrLeaveString = "";
+                if(item.EnterOrLeaveAmount_Cents is not null)
+                {
+                    sign = item.EnterOrLeaveAmount_Cents < 0 ? "-" : "+";
+                    enterOrLeaveString = $"{Math.Abs(new Decimal((long)item.EnterOrLeaveAmount_Cents))}";
+                }
+
+                /*2*/row.Cells.Add(new TableCell(new Paragraph(new Run($"{sign}"))));
+                /*3*/row.Cells.Add(new TableCell(new Paragraph(new Run(enterOrLeaveString))));
+                /*4*/row.Cells.Add(new TableCell(new Paragraph(new Run($"{item.AccumulatedDepreciation_Cents}"))));
+                /*5*/row.Cells.Add(new TableCell(new Paragraph(new Run($"{item.CurrentYearDepreciationAmount_Cents}"))));
+                /*6*/row.Cells.Add(new TableCell(new Paragraph(new Run($"{item.CurrentYearDepreciationAmount_Cents}"))));
+                /*7*/row.Cells.Add(new TableCell(new Paragraph(new Run($"{item.PreviousYearObjectValue_Cents}"))));
             }
 
             // Add table to FlowDocument

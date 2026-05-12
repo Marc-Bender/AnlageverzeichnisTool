@@ -173,12 +173,10 @@ namespace AnlageverzeichnisAppWPF
                   &&(vm.Document is AnlageverzeichnisDocument doc)
                )
             {
+                var paginator = new CustomPaginator(doc.toFlowDocument());
                 var dlg = new PrintDialog();
 
-                var flowDoc = doc.toFlowDocument();
-
-                dlg.PrintDocument(((IDocumentPaginatorSource)flowDoc).DocumentPaginator, "PDF Print");
-
+                dlg.PrintDocument(paginator, $"Anlageverzeichnis {doc.Header.CurrentlyWorkedOnYear} {doc.Header.CompanyName}");
             }
         }
     }
