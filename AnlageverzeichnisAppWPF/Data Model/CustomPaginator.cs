@@ -8,18 +8,21 @@ using System.Windows.Media;
 
 namespace AnlageverzeichnisAppWPF
 {
+    public class A3PaperAbstraction
+    {
+        public static readonly int heightLandscape_mm = 297;
+        public static readonly int widthLandscape_mm = 420;
+        public static readonly int DPI = 96;
+        public static readonly float mm_per_inch = 25.4f;
+        public static readonly int pageMargins_mm = 10;
+    }
+
     public class CustomPaginator : DocumentPaginator
     {
-        private static readonly int A3PaperHeightLandscape_mm = 297;
-        private static readonly int A3PaperWidthLandscape_mm = 420;
-        private static readonly int DPI = 96;
-        private static readonly float mm_per_inch = 25.4f;
-        private static readonly int pageMargins_mm = 10;
-
         private readonly DocumentPaginator? _basePaginator;
         private readonly Typeface _headerTypeface = new Typeface("Courier New");
         private readonly double _headerFontSize = 12;
-        private readonly Thickness _pageMargins = new Thickness(pageMargins_mm / mm_per_inch * DPI);
+        private readonly Thickness _pageMargins = new Thickness(A3PaperAbstraction.pageMargins_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI);
 
         private AnlageverzeichnisDocument? document;
         public CustomPaginator(FlowDocument flowDoc)
@@ -29,8 +32,8 @@ namespace AnlageverzeichnisAppWPF
                 this.document = document;
                 _basePaginator = ((IDocumentPaginatorSource)flowDoc).DocumentPaginator;
                 _basePaginator.PageSize = new Size(
-                                                    A3PaperWidthLandscape_mm / mm_per_inch * DPI, 
-                                                    A3PaperHeightLandscape_mm / mm_per_inch * DPI
+                                                    A3PaperAbstraction.widthLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI, 
+                                                    A3PaperAbstraction.heightLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI
                                                   );
             }
         }
@@ -51,24 +54,6 @@ namespace AnlageverzeichnisAppWPF
             var visual = new DrawingVisual();
             using (var dc = visual.RenderOpen())
             {
-                
-                FormattedText companyInformationText = new FormattedText(
-                    $"{this.document.Header.CompanyName}\n{this.document.Header.CompanyCityAndZipCode}",
-                    new CultureInfo("de-de"),
-                    FlowDirection.LeftToRight,
-                    _headerTypeface,
-                    _headerFontSize,
-                    Brushes.Black,
-                    1.0);
-                
-                dc.DrawText(companyInformationText, new Point(
-                                                                _pageMargins.Left ,
-                                                                _pageMargins.Top
-                                                             )
-                           );
-
-                var mainDocumentStartYCoordinate = _pageMargins.Top + companyInformationText.Height;
-
                 if (pageNumber == 0)
                 {
                     // Draw title 
@@ -83,10 +68,9 @@ namespace AnlageverzeichnisAppWPF
                 
                     dc.DrawText(title, new Point(
                                                     (page.Size.Width / 2) - (title.Width / 2) ,
-                                                    _pageMargins.Top + companyInformationText.Height
+                                                    _pageMargins.Top
                                                  )
                                );
-                    mainDocumentStartYCoordinate += title.Height;
                 }
                 else
                 {
@@ -115,9 +99,9 @@ namespace AnlageverzeichnisAppWPF
                     null,
                     new Rect(
                                 _pageMargins.Left, 
-                                _pageMargins.Top + companyInformationText.Height + 10,
+                                0,
                                 page.Size.Width,
-                                page.Size.Height - mainDocumentStartYCoordinate - _pageMargins.Bottom 
+                                page.Size.Height - _pageMargins.Bottom 
                             )
                     );
 

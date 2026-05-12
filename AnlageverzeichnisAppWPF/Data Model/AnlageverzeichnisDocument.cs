@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Windows;
@@ -82,55 +83,99 @@ namespace AnlageverzeichnisAppWPF
             flowDoc.FontFamily = new System.Windows.Media.FontFamily("Courier New");
             flowDoc.FontSize = 12;
             flowDoc.ColumnWidth = double.PositiveInfinity;
+            flowDoc.PageWidth = A3PaperAbstraction.widthLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
+            flowDoc.PageHeight = A3PaperAbstraction.heightLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
+
             flowDoc.Tag = this;
 
-            var table = new Table();
-            table.CellSpacing = 0;
+            var tableCompanyInfo = new Table();
+            tableCompanyInfo.CellSpacing = 0;
 
-            // Define columns
-            /*0*/table.Columns.Add(new TableColumn { Width = new GridLength(300) });
-            /*1*/table.Columns.Add(new TableColumn { Width = new GridLength(100) });
-            /*2*/table.Columns.Add(new TableColumn { Width = new GridLength(70) });
-            /*3*/table.Columns.Add(new TableColumn { Width = new GridLength(100) });
-            /*4*/table.Columns.Add(new TableColumn { Width = new GridLength(100) });
-            /*5*/table.Columns.Add(new TableColumn { Width = new GridLength(100) });
-            /*6*/table.Columns.Add(new TableColumn { Width = new GridLength(100) });
-            /*7*/table.Columns.Add(new TableColumn { Width = new GridLength(100) });
+            /*0*/tableCompanyInfo.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
+            /*1*/tableCompanyInfo.Columns.Add(new TableColumn { Width = new GridLength(3, GridUnitType.Star) }); // spacer
+            
+            var companyInfoRowGroup = new TableRowGroup();
+            tableCompanyInfo.RowGroups.Add(companyInfoRowGroup);
 
-            // do not draw the table header here and leave that up to the paginator
+            var row = new TableRow();
+            companyInfoRowGroup.Rows.Add(row);
+            row.Cells.Add(new TableCell(new Paragraph(new Run(this.Header.CompanyName))));
 
-            // Data rows
-            var bodyGroup = new TableRowGroup();
-            table.RowGroups.Add(bodyGroup);
+            row = new TableRow();
+            companyInfoRowGroup.Rows.Add(row);
+            row.Cells.Add(new TableCell(new Paragraph(new Run(this.Header.CompanyCityAndZipCode))));
 
-            foreach (var item in this.DataEntryLines)
-            {
-                var row = new TableRow();
-                bodyGroup.Rows.Add(row);
+            flowDoc.Blocks.Add(tableCompanyInfo);
 
-                /*0*/row.Cells.Add(new TableCell(new Paragraph(new Run(item.ObjectDescriptionText))));
-                /*1*/row.Cells.Add(new TableCell(new Paragraph(new Run($"{item.MonthOfPurchase}/{item.YearOfPurchase}"))));
-                string sign = "";
-                string enterOrLeaveString = "";
-                if(item.EnterOrLeaveAmount_Cents is not null)
-                {
-                    sign = item.EnterOrLeaveAmount_Cents < 0 ? "-" : "+";
-                    enterOrLeaveString = $"{Math.Abs(new Decimal((long)item.EnterOrLeaveAmount_Cents))}";
-                }
+            var tableHeader = new Table();
+            tableHeader.CellSpacing = 0;
+            tableHeader.Margin = new Thickness(0,50,0,0);
 
-                /*2*/row.Cells.Add(new TableCell(new Paragraph(new Run($"{sign}"))));
-                /*3*/row.Cells.Add(new TableCell(new Paragraph(new Run(enterOrLeaveString))));
-                /*4*/row.Cells.Add(new TableCell(new Paragraph(new Run($"{item.AccumulatedDepreciation_Cents}"))));
-                /*5*/row.Cells.Add(new TableCell(new Paragraph(new Run($"{item.CurrentYearDepreciationAmount_Cents}"))));
-                /*6*/row.Cells.Add(new TableCell(new Paragraph(new Run($"{item.CurrentYearDepreciationAmount_Cents}"))));
-                /*7*/row.Cells.Add(new TableCell(new Paragraph(new Run($"{item.PreviousYearObjectValue_Cents}"))));
-            }
+            tableHeader.Columns.Add(new TableColumn { Width = new GridLength(2, GridUnitType.Star) });
+            tableHeader.Columns.Add(new TableColumn { Width = new GridLength(0.5, GridUnitType.Star) }); //historische anschaffungskosten -- jahr
+            tableHeader.Columns.Add(new TableColumn { Width = new GridLength(0.5, GridUnitType.Star) }); //historische anschaffungskosten -- euro
+            tableHeader.Columns.Add(new TableColumn { Width = new GridLength(0.25, GridUnitType.Star) });
+            tableHeader.Columns.Add(new TableColumn { Width = new GridLength(0.75, GridUnitType.Star) });
+            tableHeader.Columns.Add(new TableColumn { Width = new GridLength(1, GridUnitType.Star) });
+            tableHeader.Columns.Add(new TableColumn { Width = new GridLength(0.5, GridUnitType.Star) }); //geschäftsjahres abschreibung -- %
+            tableHeader.Columns.Add(new TableColumn { Width = new GridLength(0.5, GridUnitType.Star) }); //geschäftsjahres abschreibung -- Euro
+            tableHeader.Columns.Add(new TableColumn { Width = new GridLength(0.75, GridUnitType.Star) });
+            tableHeader.Columns.Add(new TableColumn { Width = new GridLength(0.75, GridUnitType.Star) });
 
-            // Add table to FlowDocument
-            flowDoc.Blocks.Add(table);
+            var headerRowGroup = new TableRowGroup();
+            tableHeader.RowGroups.Add(headerRowGroup);
 
+            row = new TableRow();
+            headerRowGroup.Rows.Add(row);
 
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Gegenstand"))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Historische"))) { ColumnSpan=2});
+            row.Cells.Add(new TableCell(new Paragraph(new Run("+"))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Zugänge"))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Kumulierte"))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Geschäftsjahres"))) { ColumnSpan=2});
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Aktuelle"))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Vorjahres"))));
 
+            row = new TableRow();
+            headerRowGroup.Rows.Add(row);
+
+            row.Cells.Add(new TableCell(new Paragraph(new Run(""))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Anschaffungskosten"))) {ColumnSpan=2});
+            row.Cells.Add(new TableCell(new Paragraph(new Run("-"))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Abgänge"))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Abschreibungen"))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Abschreibungen"))) { ColumnSpan=2});
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Buchwerte"))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Buchwerte"))));
+
+            row = new TableRow();
+            headerRowGroup.Rows.Add(row);
+
+            row.Cells.Add(new TableCell(new Paragraph(new Run(""))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Herstellungskosten"))) { ColumnSpan=2});
+            row.Cells.Add(new TableCell(new Paragraph(new Run(""))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run(""))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run(""))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run(""))) { ColumnSpan=2});
+            row.Cells.Add(new TableCell(new Paragraph(new Run($"31.12.{this.Header.CurrentlyWorkedOnYear}"))));
+            row.Cells.Add(new TableCell(new Paragraph(new Run($"31.12.{this.Header.CurrentlyWorkedOnYear - 1}"))));
+
+            row = new TableRow();
+            headerRowGroup.Rows.Add(row);
+
+            row.Cells.Add(new TableCell(new Paragraph(new Run(""))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black}); // nothing for the 2nd line in the 1st col
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Jahr"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Euro"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
+            row.Cells.Add(new TableCell(new Paragraph(new Run(""))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Euro"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Euro"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
+            row.Cells.Add(new TableCell(new Paragraph(new Run("%"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Euro"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Euro"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
+            row.Cells.Add(new TableCell(new Paragraph(new Run("Euro"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
+            
+            flowDoc.Blocks.Add(tableHeader);
             return flowDoc;
         }
     }
