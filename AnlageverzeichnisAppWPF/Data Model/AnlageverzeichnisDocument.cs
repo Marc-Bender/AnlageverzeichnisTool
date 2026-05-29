@@ -7,7 +7,9 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Shapes;
 
 namespace AnlageverzeichnisAppWPF
 {
@@ -16,15 +18,15 @@ namespace AnlageverzeichnisAppWPF
         public class headerTableColumnWidths
         {
             public static GridLength objectDescription => new GridLength(2, GridUnitType.Star);
-            public static GridLength dateOfPurchase => new GridLength(0.5, GridUnitType.Star);
+            public static GridLength dateOfPurchase => new GridLength(0.3, GridUnitType.Star);
             public static GridLength priceAtPurchase => new GridLength(0.5, GridUnitType.Star);
-            public static GridLength plusMinus => new GridLength(0.25, GridUnitType.Star);
-            public static GridLength enterAndLeaveAmount => new GridLength(0.75, GridUnitType.Star);
-            public static GridLength accumulatedDeprecationAmount => new GridLength(1, GridUnitType.Star);
-            public static GridLength currentYearDeprecationPercentage => new GridLength(0.5, GridUnitType.Star);
-            public static GridLength currentYearDeprecationAmount => new GridLength(0.5, GridUnitType.Star);
-            public static GridLength currentYearObjectValue => new GridLength(0.75, GridUnitType.Star);
-            public static GridLength previousYearObjectValue => new GridLength(0.75, GridUnitType.Star);
+            public static GridLength plusMinus => new GridLength(0.15, GridUnitType.Star);
+            public static GridLength enterAndLeaveAmount => new GridLength(0.5, GridUnitType.Star);
+            public static GridLength accumulatedDeprecationAmount => new GridLength(0.5, GridUnitType.Star);
+            public static GridLength currentYearDeprecationPercentage => new GridLength(0.25, GridUnitType.Star);
+            public static GridLength currentYearDeprecationAmount => new GridLength(0.3, GridUnitType.Star);
+            public static GridLength currentYearObjectValue => new GridLength(0.5, GridUnitType.Star);
+            public static GridLength previousYearObjectValue => new GridLength(0.5, GridUnitType.Star);
         }
 
         public class sectionSumTableColumnWidths
@@ -158,7 +160,37 @@ namespace AnlageverzeichnisAppWPF
             return merged;
         }
 
+        private void _addCellToRow(TableRow row, string text, int columnSpan = 1, TextAlignment textAlignment = TextAlignment.Left, Thickness? borderThickness = null, TextDecorationCollection? textDecorations = null, bool isItalics = false, bool isBold = false)
+        {
+            Inline textRun = new Run(text);
+            if (isBold==true)
+            {
+                textRun = new Bold(textRun);
+            }
+            if (isItalics==true)
+            {
+                textRun = new Italic(textRun);
+            }
 
+            var paragraph = new Paragraph(textRun)
+                {
+                    TextAlignment = textAlignment
+                };
+            if (textDecorations is not null)
+            {
+                paragraph.TextDecorations = (TextDecorationCollection)textDecorations;
+            }
+
+            row.Cells.Add(
+                            new TableCell(paragraph) 
+                                { 
+                                    ColumnSpan = columnSpan, 
+                                    BorderThickness = borderThickness is not null ? (Thickness)borderThickness : new Thickness(0),
+                                    BorderBrush = borderThickness is not null ? System.Windows.Media.Brushes.Black : System.Windows.Media.Brushes.White
+                                }
+                         );
+        }
+        private string _numericToFormatedString<T>(T number, IValueConverter converter) => (string)converter.Convert(number, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"));
         public FlowDocument generateHeaderFlowDocument()
         {
             var flowDoc = new FlowDocument();
@@ -211,52 +243,52 @@ namespace AnlageverzeichnisAppWPF
             row = new TableRow();
             headerRowGroup.Rows.Add(row);
 
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Gegenstand"))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Historische"))) { ColumnSpan=2});
-            row.Cells.Add(new TableCell(new Paragraph(new Run("+"))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Zugänge"))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Kumulierte"))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Geschäftsjahres"))) { ColumnSpan=2});
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Aktuelle"))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Vorjahres"))));
+            _addCellToRow(row, "Gegenstand");
+            _addCellToRow(row, "Historische", 2, TextAlignment.Center);
+            _addCellToRow(row, "+", textAlignment: TextAlignment.Center);
+            _addCellToRow(row, "Zugänge", textAlignment: TextAlignment.Right);
+            _addCellToRow(row, "Kumulierte", textAlignment: TextAlignment.Center);
+            _addCellToRow(row, "Geschäftsjahres", columnSpan: 2, textAlignment: TextAlignment.Center);
+            _addCellToRow(row, "Aktuelle", textAlignment: TextAlignment.Right);
+            _addCellToRow(row, "Vorjahres", textAlignment: TextAlignment.Right);
 
             row = new TableRow();
             headerRowGroup.Rows.Add(row);
 
-            row.Cells.Add(new TableCell(new Paragraph(new Run(""))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Anschaffungskosten"))) {ColumnSpan=2});
-            row.Cells.Add(new TableCell(new Paragraph(new Run("-"))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Abgänge"))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Abschreibungen"))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Abschreibungen"))) { ColumnSpan=2});
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Buchwerte"))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Buchwerte"))));
+            _addCellToRow(row, "\u00A0");
+            _addCellToRow(row, "Anschaffungskosten", 2, TextAlignment.Center);
+            _addCellToRow(row, "-", textAlignment: TextAlignment.Center);
+            _addCellToRow(row, "Abgänge", textAlignment: TextAlignment.Right);
+            _addCellToRow(row, "Abschreibungen", textAlignment: TextAlignment.Center);
+            _addCellToRow(row, "Abschreibungen", 2, TextAlignment.Center);
+            _addCellToRow(row, "Buchwerte", textAlignment: TextAlignment.Right);
+            _addCellToRow(row, "Buchwerte", textAlignment: TextAlignment.Right);
 
             row = new TableRow();
             headerRowGroup.Rows.Add(row);
 
-            row.Cells.Add(new TableCell(new Paragraph(new Run(""))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Herstellungskosten"))) { ColumnSpan=2});
-            row.Cells.Add(new TableCell(new Paragraph(new Run(""))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run(""))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run(""))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run(""))) { ColumnSpan=2});
-            row.Cells.Add(new TableCell(new Paragraph(new Run($"31.12.{this.Header.CurrentlyWorkedOnYear}"))));
-            row.Cells.Add(new TableCell(new Paragraph(new Run($"31.12.{this.Header.CurrentlyWorkedOnYear - 1}"))));
+            _addCellToRow(row, "\u00A0");
+            _addCellToRow(row, "Herstellungskosten", 2, TextAlignment.Center);
+            _addCellToRow(row, "\u00A0", textAlignment: TextAlignment.Center);
+            _addCellToRow(row, "\u00A0", textAlignment: TextAlignment.Right);
+            _addCellToRow(row, "\u00A0", textAlignment: TextAlignment.Center);
+            _addCellToRow(row, "\u00A0", 2, TextAlignment.Center);
+            _addCellToRow(row, $"31.12.{this.Header.CurrentlyWorkedOnYear}", textAlignment: TextAlignment.Right);
+            _addCellToRow(row, $"31.12.{this.Header.CurrentlyWorkedOnYear - 1}", textAlignment: TextAlignment.Right);
 
             row = new TableRow();
             headerRowGroup.Rows.Add(row);
 
-            row.Cells.Add(new TableCell(new Paragraph(new Run(""))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black}); // nothing for the 2nd line in the 1st col
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Jahr"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Euro"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
-            row.Cells.Add(new TableCell(new Paragraph(new Run(""))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Euro"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Euro"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
-            row.Cells.Add(new TableCell(new Paragraph(new Run("%"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Euro"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Euro"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
-            row.Cells.Add(new TableCell(new Paragraph(new Run("Euro"))) { BorderThickness = new Thickness(0, 0, 0, 1), BorderBrush = System.Windows.Media.Brushes.Black });
+            _addCellToRow(row, "\u00A0", borderThickness: new Thickness(0, 0, 0, 1)); // nothing for the 2nd line in the 1st col
+            _addCellToRow(row, "Jahr", textAlignment: TextAlignment.Center, borderThickness: new Thickness(0, 0, 0, 1));
+            _addCellToRow(row, "Euro", textAlignment: TextAlignment.Right, borderThickness: new Thickness(0, 0, 0, 1));
+            _addCellToRow(row, "\u00A0", textAlignment: TextAlignment.Center, borderThickness: new Thickness(0, 0, 0, 1));
+            _addCellToRow(row, "Euro", textAlignment: TextAlignment.Right, borderThickness: new Thickness(0, 0, 0, 1));
+            _addCellToRow(row, "Euro", textAlignment: TextAlignment.Right, borderThickness: new Thickness(0, 0, 0, 1));
+            _addCellToRow(row, "%", textAlignment: TextAlignment.Center, borderThickness: new Thickness(0, 0, 0, 1));
+            _addCellToRow(row, "Euro", textAlignment: TextAlignment.Right, borderThickness: new Thickness(0, 0, 0, 1));
+            _addCellToRow(row, "Euro", textAlignment: TextAlignment.Right, borderThickness: new Thickness(0, 0, 0, 1));
+            _addCellToRow(row, "Euro", textAlignment: TextAlignment.Right, borderThickness: new Thickness(0, 0, 0, 1));
             
             flowDoc.Blocks.Add(tableHeader);
             return flowDoc;
@@ -298,40 +330,36 @@ namespace AnlageverzeichnisAppWPF
                 dataLineTableRowGroup.Rows.Add(row);
                 if (line.IsHeading == true)
                 {
-                    row.Cells.Add(new TableCell(new Paragraph(new Italic(new Run(line.ObjectDescriptionText))
-                            {
-                                TextDecorations = TextDecorations.Underline
-                            })
-                        ));
+                    _addCellToRow(row, line.ObjectDescriptionText, textDecorations: TextDecorations.Underline, isItalics: true);
                     continue;
                 }
                 else
                 {
-                    row.Cells.Add(new TableCell(new Paragraph(new Run(line.ObjectDescriptionText))));
+                    _addCellToRow(row, line.ObjectDescriptionText);
                 }
 
-
-                row.Cells.Add(new TableCell(new Paragraph(new Run($"{line.MonthOfPurchase}/{line.YearOfPurchase}"))));
+                _addCellToRow(row, $"{line.MonthOfPurchase}/{line.YearOfPurchase}", textAlignment: TextAlignment.Center);
                 var centsConverter = new CentsToEuroStringConverter();
-                row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(line.PriceAtPurchase_Cents, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
+                _addCellToRow(row, _numericToFormatedString(line.PriceAtPurchase_Cents, centsConverter), textAlignment: TextAlignment.Right);
                 if (line.EnterOrLeaveAmount_Cents is not null)
                 {
-                    row.Cells.Add(new TableCell(new Paragraph(new Run(line.EnterOrLeaveAmount_Cents >= 0 ? "+" : "-"))));
-                    row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(Math.Abs((long)line.EnterOrLeaveAmount_Cents), Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
+                    _addCellToRow(row, line.EnterOrLeaveAmount_Cents >= 0 ? "+" : "-", textAlignment: TextAlignment.Center);
+                    _addCellToRow(row, _numericToFormatedString(Math.Abs((long)line.EnterOrLeaveAmount_Cents), centsConverter), textAlignment: TextAlignment.Right);                    
                 }
                 else
                 {
-                    row.Cells.Add(new TableCell(new Paragraph(new Run(" "))));
-                    row.Cells.Add(new TableCell(new Paragraph(new Run(" "))));
+                    _addCellToRow(row, "\u00A0");
+                    _addCellToRow(row, "\u00A0");
                 }
 
-                row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(line.AccumulatedDepreciation_Cents, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
+                _addCellToRow(row, _numericToFormatedString(line.AccumulatedDepreciation_Cents, centsConverter), textAlignment: TextAlignment.Right);
 
                 var percentageConverter = new TenthPctToPercentageString();
-                row.Cells.Add(new TableCell(new Paragraph(new Run((string)percentageConverter.Convert(line.DepreciationPercentage_0P1Pct, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
-                row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(line.CurrentYearDepreciationAmount_Cents, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
-                row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(line.CurrentYearObjectValue_Cents, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
-                row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(line.PreviousYearObjectValue_Cents, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
+                _addCellToRow(row, _numericToFormatedString(line.DepreciationPercentage_0P1Pct, percentageConverter), textAlignment: TextAlignment.Center);
+                
+                _addCellToRow(row, _numericToFormatedString(line.CurrentYearDepreciationAmount_Cents, centsConverter), textAlignment: TextAlignment.Right);
+                _addCellToRow(row, _numericToFormatedString(line.CurrentYearObjectValue_Cents, centsConverter), textAlignment: TextAlignment.Right);
+                _addCellToRow(row, _numericToFormatedString(line.PreviousYearObjectValue_Cents, centsConverter), textAlignment: TextAlignment.Right);    
             }
 
             flowDoc.Blocks.Add(dataLineTable);
@@ -351,24 +379,15 @@ namespace AnlageverzeichnisAppWPF
 
             var totalsSumTable = new Table();
             totalsSumTable.CellSpacing = 0;
-            /*0*/
-            totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.spacer });
-            /*1*/
-            totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.priceAtPurchase });
-            /*2*/
-            totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.plusMinus });
-            /*3*/
-            totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.enterAndLeaveAmount });
-            /*4*/
-            totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.accumulatedDeprecationAmount });
-            /*5*/
-            totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.spacer2 });
-            /*6*/
-            totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.currentYearDeprecationAmount });
-            /*7*/
-            totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.currentYearObjectValue });
-            /*8*/
-            totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.previousYearObjectValue });
+            /*0*/totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.spacer });
+            /*1*/totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.priceAtPurchase });
+            /*2*/totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.plusMinus });
+            /*3*/totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.enterAndLeaveAmount });
+            /*4*/totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.accumulatedDeprecationAmount });
+            /*5*/totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.spacer2 });
+            /*6*/totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.currentYearDeprecationAmount });
+            /*7*/totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.currentYearObjectValue });
+            /*8*/totalsSumTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.previousYearObjectValue });
 
             var totalsSumTableRowGroup = new TableRowGroup();
             totalsSumTable.RowGroups.Add(totalsSumTableRowGroup);
@@ -394,140 +413,34 @@ namespace AnlageverzeichnisAppWPF
 
             var row = new TableRow();
             totalsSumTableRowGroup.Rows.Add(row);
-            row.Cells.Add(new TableCell(new Paragraph(new Run("G e s a m t s u m m e n")))
-            {
-                BorderThickness = totalsSumTableThicknessFirstLine,
-                BorderBrush = System.Windows.Media.Brushes.Black
-            }
-                         );
+
+            _addCellToRow(row, "G e s a m t s u m m e n", borderThickness: totalsSumTableThicknessFirstLine);
+
             var centsConverter = new CentsToEuroStringConverter();
-            row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(totalsSumTableValues.priceAtPurchase_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE")))))
-            {
-                BorderThickness = totalsSumTableThicknessFirstLine,
-                BorderBrush = System.Windows.Media.Brushes.Black
-            }
-                         );
-            row.Cells.Add(new TableCell(new Paragraph(new Run(totalsSumTableValues.enterAmount_cent != 0 ? "+" : "")))
-            {
-                BorderThickness = totalsSumTableThicknessFirstLine,
-                BorderBrush = System.Windows.Media.Brushes.Black
-            }
-                         );
-            row.Cells.Add(new TableCell(new Paragraph(new Run(
-                                                                totalsSumTableValues.enterAmount_cent != 0 ?
-                                                                      (string)centsConverter.Convert(totalsSumTableValues.enterAmount_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))
-                                                                    : ""
-                                                             )))
-            {
-                BorderThickness = totalsSumTableThicknessFirstLine,
-                BorderBrush = System.Windows.Media.Brushes.Black
-            }
-                         );
 
-            row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(totalsSumTableValues.accumulatedDeprecation_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE")))))
-            {
-                BorderThickness = totalsSumTableThicknessFirstLine,
-                BorderBrush = System.Windows.Media.Brushes.Black
-            }
-                         );
-
-            row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-            {
-                BorderThickness = totalsSumTableThicknessFirstLine,
-                BorderBrush = System.Windows.Media.Brushes.Black
-            }
-                         );
-
-            row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(totalsSumTableValues.currentYearDeprecation_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE")))))
-            {
-                BorderThickness = totalsSumTableThicknessFirstLine,
-                BorderBrush = System.Windows.Media.Brushes.Black
-            }
-                         );
-
-            row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(totalsSumTableValues.currentYearObjectValue_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE")))))
-            {
-                BorderThickness = totalsSumTableThicknessFirstLine,
-                BorderBrush = System.Windows.Media.Brushes.Black
-            }
-                         );
-
-            row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(totalsSumTableValues.previousYearObjectValue_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE")))))
-            {
-                BorderThickness = totalsSumTableThicknessFirstLine,
-                BorderBrush = System.Windows.Media.Brushes.Black
-            }
-                         );
-
+            _addCellToRow(row, _numericToFormatedString(totalsSumTableValues.priceAtPurchase_cent, centsConverter), borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, totalsSumTableValues.enterAmount_cent != 0 ? "+" : "\u00A0", borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
+            _addCellToRow(row, totalsSumTableValues.enterAmount_cent != 0 ? _numericToFormatedString(totalsSumTableValues.enterAmount_cent, centsConverter) : "\u00A0", borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(totalsSumTableValues.accumulatedDeprecation_cent, centsConverter), borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, "\u00A0", borderThickness: totalsSumTableThicknessFirstLine);
+            _addCellToRow(row, _numericToFormatedString(totalsSumTableValues.currentYearDeprecation_cent, centsConverter), borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(totalsSumTableValues.currentYearObjectValue_cent, centsConverter), borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(totalsSumTableValues.previousYearObjectValue_cent, centsConverter), borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+ 
             if (totalsSumTableValues.leaveAmount_cent != 0)
             {
                 var sectionSumTableThicknessLeaveLine = new Thickness(0, 0, 0, 1);
 
                 row = new TableRow();
                 totalsSumTableRowGroup.Rows.Add(row);
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
+                _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine);
+                _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine);
+                _addCellToRow(row, totalsSumTableValues.leaveAmount_cent != 0 ? "-" : "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine, textAlignment: TextAlignment.Center);
+                _addCellToRow(row, totalsSumTableValues.leaveAmount_cent != 0 ? _numericToFormatedString(totalsSumTableValues.leaveAmount_cent, centsConverter) : "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine, textAlignment: TextAlignment.Right);
+                for (int i = 0;i<5;i++)
                 {
-                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                    BorderBrush = System.Windows.Media.Brushes.Black
+                    _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine);
                 }
-                             );
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                {
-                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                    BorderBrush = System.Windows.Media.Brushes.Black
-                }
-                             );
-                row.Cells.Add(new TableCell(new Paragraph(new Run(totalsSumTableValues.leaveAmount_cent != 0 ? "-" : "")))
-                {
-                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                    BorderBrush = System.Windows.Media.Brushes.Black
-                }
-                             );
-                row.Cells.Add(new TableCell(new Paragraph(new Run(
-                                                                    totalsSumTableValues.leaveAmount_cent != 0 ?
-                                                                          (string)centsConverter.Convert(totalsSumTableValues.leaveAmount_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))
-                                                                        : ""
-                                                                 )))
-                {
-                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                    BorderBrush = System.Windows.Media.Brushes.Black
-                }
-                             );
-
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                {
-                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                    BorderBrush = System.Windows.Media.Brushes.Black
-                }
-                             );
-
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                {
-                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                    BorderBrush = System.Windows.Media.Brushes.Black
-                }
-                             );
-
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                {
-                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                    BorderBrush = System.Windows.Media.Brushes.Black
-                }
-                             );
-
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                {
-                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                    BorderBrush = System.Windows.Media.Brushes.Black
-                }
-                             );
-
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                {
-                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                    BorderBrush = System.Windows.Media.Brushes.Black
-                }
-                             );
             }
 
             var spacer = new TableRow();
@@ -681,65 +594,17 @@ namespace AnlageverzeichnisAppWPF
 
             var row = new TableRow();
             sectionSumTableRowGroup.Rows.Add(row);
-            row.Cells.Add(new TableCell(new Paragraph(new Run("A b s c h n i t t s s u m m e"))));
+            _addCellToRow(row, "A b s c h n i t t s s u m m e n");
+
             var centsConverter = new CentsToEuroStringConverter();
-            row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(sectionSumValues.priceAtPurchase_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE")))))
-                            {
-                                BorderThickness = sectionSumTableThicknessFirstLine,
-                                BorderBrush = System.Windows.Media.Brushes.Black
-                            }
-                         );
-            row.Cells.Add(new TableCell(new Paragraph(new Run(sectionSumValues.enterAmount_cent != 0 ? "+" : "")))
-                            {
-                                BorderThickness = sectionSumTableThicknessFirstLine,
-                                BorderBrush = System.Windows.Media.Brushes.Black
-                            }
-                         );
-            row.Cells.Add(new TableCell(new Paragraph(new Run(
-                                                                sectionSumValues.enterAmount_cent != 0 ?
-                                                                      (string)centsConverter.Convert(sectionSumValues.enterAmount_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))
-                                                                    : ""
-                                                             )))
-                            {
-                                BorderThickness = sectionSumTableThicknessFirstLine,
-                                BorderBrush = System.Windows.Media.Brushes.Black
-                            }
-                         );
-
-            row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(sectionSumValues.accumulatedDeprecation_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE")))))
-                            {
-                                BorderThickness = sectionSumTableThicknessFirstLine,
-                                BorderBrush = System.Windows.Media.Brushes.Black
-                            }
-                         );
-
-            row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                            {
-                                BorderThickness = sectionSumTableThicknessFirstLine,
-                                BorderBrush = System.Windows.Media.Brushes.Black
-                            }
-                         );
-
-            row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(sectionSumValues.currentYearDeprecation_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE")))))
-                            {
-                                BorderThickness = sectionSumTableThicknessFirstLine,
-                                BorderBrush = System.Windows.Media.Brushes.Black
-                            }
-                         );
-
-            row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(sectionSumValues.currentYearObjectValue_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE")))))
-                            {
-                                BorderThickness = sectionSumTableThicknessFirstLine,
-                                BorderBrush = System.Windows.Media.Brushes.Black
-                            }
-                         );
-
-            row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(sectionSumValues.previousYearObjectValue_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE")))))
-                            {
-                                BorderThickness = sectionSumTableThicknessFirstLine,
-                                BorderBrush = System.Windows.Media.Brushes.Black
-                            }
-                         );
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.priceAtPurchase_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, sectionSumValues.enterAmount_cent != 0 ? "+" : "\u00A0", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
+            _addCellToRow(row, sectionSumValues.enterAmount_cent != 0 ? _numericToFormatedString(sectionSumValues.enterAmount_cent, centsConverter) : "\u00A0", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.accumulatedDeprecation_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessFirstLine);
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.currentYearDeprecation_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.currentYearObjectValue_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.previousYearObjectValue_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
 
             if(sectionSumValues.leaveAmount_cent != 0)
             {
@@ -747,64 +612,14 @@ namespace AnlageverzeichnisAppWPF
 
                 row = new TableRow();
                 sectionSumTableRowGroup.Rows.Add(row);
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" "))));
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                                {
-                                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                                    BorderBrush = System.Windows.Media.Brushes.Black
-                                }
-                             );
-                row.Cells.Add(new TableCell(new Paragraph(new Run(sectionSumValues.leaveAmount_cent != 0 ? "-" : "")))
-                                {
-                                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                                    BorderBrush = System.Windows.Media.Brushes.Black
-                                }
-                             );
-                row.Cells.Add(new TableCell(new Paragraph(new Run(
-                                                                    sectionSumValues.leaveAmount_cent != 0 ?
-                                                                          (string)centsConverter.Convert(sectionSumValues.leaveAmount_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))
-                                                                        : ""
-                                                                 )))
-                                {
-                                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                                    BorderBrush = System.Windows.Media.Brushes.Black
-                                }
-                             );
-
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                                {
-                                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                                    BorderBrush = System.Windows.Media.Brushes.Black
-                                }
-                             );
-
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                                {
-                                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                                    BorderBrush = System.Windows.Media.Brushes.Black
-                                }
-                             );
-
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                                {
-                                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                                    BorderBrush = System.Windows.Media.Brushes.Black
-                                }
-                             );
-
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                                {
-                                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                                    BorderBrush = System.Windows.Media.Brushes.Black
-                                }
-                             );
-
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
-                                {
-                                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                                    BorderBrush = System.Windows.Media.Brushes.Black
-                                }
-                             );
+                _addCellToRow(row, "\u00A0");
+                _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine);
+                _addCellToRow(row, sectionSumValues.leaveAmount_cent != 0 ? "-" : "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine, textAlignment: TextAlignment.Center);
+                _addCellToRow(row, sectionSumValues.leaveAmount_cent != 0 ? _numericToFormatedString(sectionSumValues.leaveAmount_cent, centsConverter) : "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine, textAlignment: TextAlignment.Right);
+                for(int i=0;i<5;i++)
+                {
+                    _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine);
+                }
             }
 
             var spacer = new TableRow();

@@ -100,7 +100,7 @@ namespace AnlageverzeichnisAppWPF
                     new Rect(
                                 _pageMargins.Left, 
                                 0,
-                                page.Size.Width,
+                                page.Size.Width - _pageMargins.Left - _pageMargins.Right,
                                 page.Size.Height - _pageMargins.Bottom 
                             )
                     );

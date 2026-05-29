@@ -299,7 +299,7 @@
                     x:Name="createPDFButton"
                     Grid.Row="0"
                     Grid.Column="2"
-                    Content="PDF erstellen"
+                    Content="exp. in PDF (Strg + P)"
                     Margin="5,0,0,5"
                     Click="createPDFButton_Click"
                 />
