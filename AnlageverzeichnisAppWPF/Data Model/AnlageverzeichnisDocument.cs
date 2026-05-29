@@ -264,7 +264,79 @@ namespace AnlageverzeichnisAppWPF
 
         public FlowDocument generateTableFlowDocument(int sectionStartDataLineIndexNumber, int sectionEndDataLineIndexNumber)
         {
-            return new FlowDocument();
+            var sectionStartDataLineIndex = new Index(sectionStartDataLineIndexNumber);
+            var sectionEndDataLineIndex = new Index(sectionEndDataLineIndexNumber);
+
+            var flowDoc = new FlowDocument();
+            flowDoc.FontFamily = new System.Windows.Media.FontFamily("Courier New");
+            flowDoc.FontSize = 12;
+            flowDoc.ColumnWidth = double.PositiveInfinity;
+            flowDoc.PageWidth = A3PaperAbstraction.widthLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
+            flowDoc.PageHeight = A3PaperAbstraction.heightLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
+
+            flowDoc.Tag = this;
+
+            var dataLineTable = new Table();
+            dataLineTable.CellSpacing = 0;
+            /*0*/dataLineTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.headerTableColumnWidths.objectDescription });
+            /*1*/dataLineTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.headerTableColumnWidths.dateOfPurchase });
+            /*2*/dataLineTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.headerTableColumnWidths.priceAtPurchase });
+            /*3*/dataLineTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.headerTableColumnWidths.plusMinus });
+            /*4*/dataLineTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.headerTableColumnWidths.enterAndLeaveAmount });
+            /*5*/dataLineTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.headerTableColumnWidths.accumulatedDeprecationAmount });
+            /*6*/dataLineTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.headerTableColumnWidths.currentYearDeprecationPercentage });
+            /*7*/dataLineTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.headerTableColumnWidths.currentYearDeprecationAmount });
+            /*8*/dataLineTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.headerTableColumnWidths.currentYearObjectValue });
+            /*8*/dataLineTable.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.headerTableColumnWidths.previousYearObjectValue });
+
+            var dataLineTableRowGroup = new TableRowGroup();
+            dataLineTable.RowGroups.Add(dataLineTableRowGroup);
+
+            foreach (var line in this.DataEntryLines.Take(new Range(sectionStartDataLineIndex, sectionEndDataLineIndex)))
+            {
+                var row = new TableRow();
+                dataLineTableRowGroup.Rows.Add(row);
+                if (line.IsHeading == true)
+                {
+                    row.Cells.Add(new TableCell(new Paragraph(new Italic(new Run(line.ObjectDescriptionText))
+                            {
+                                TextDecorations = TextDecorations.Underline
+                            })
+                        ));
+                    continue;
+                }
+                else
+                {
+                    row.Cells.Add(new TableCell(new Paragraph(new Run(line.ObjectDescriptionText))));
+                }
+
+
+                row.Cells.Add(new TableCell(new Paragraph(new Run($"{line.MonthOfPurchase}/{line.YearOfPurchase}"))));
+                var centsConverter = new CentsToEuroStringConverter();
+                row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(line.PriceAtPurchase_Cents, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
+                if (line.EnterOrLeaveAmount_Cents is not null)
+                {
+                    row.Cells.Add(new TableCell(new Paragraph(new Run(line.EnterOrLeaveAmount_Cents >= 0 ? "+" : "-"))));
+                    row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(Math.Abs((long)line.EnterOrLeaveAmount_Cents), Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
+                }
+                else
+                {
+                    row.Cells.Add(new TableCell(new Paragraph(new Run(" "))));
+                    row.Cells.Add(new TableCell(new Paragraph(new Run(" "))));
+                }
+
+                row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(line.AccumulatedDepreciation_Cents, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
+
+                var percentageConverter = new TenthPctToPercentageString();
+                row.Cells.Add(new TableCell(new Paragraph(new Run((string)percentageConverter.Convert(line.DepreciationPercentage_0P1Pct, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
+                row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(line.CurrentYearDepreciationAmount_Cents, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
+                row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(line.CurrentYearObjectValue_Cents, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
+                row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(line.PreviousYearObjectValue_Cents, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"))))));
+            }
+
+            flowDoc.Blocks.Add(dataLineTable);
+
+            return flowDoc;
         }
         public FlowDocument generateTotalsSumFlowDocument()
         {
@@ -609,12 +681,7 @@ namespace AnlageverzeichnisAppWPF
 
             var row = new TableRow();
             sectionSumTableRowGroup.Rows.Add(row);
-            row.Cells.Add(new TableCell(new Paragraph(new Run(" "))) 
-                            {
-                                BorderThickness = sectionSumTableThicknessFirstLine,
-                                BorderBrush = System.Windows.Media.Brushes.Black
-                            }
-                         );
+            row.Cells.Add(new TableCell(new Paragraph(new Run("A b s c h n i t t s s u m m e"))));
             var centsConverter = new CentsToEuroStringConverter();
             row.Cells.Add(new TableCell(new Paragraph(new Run((string)centsConverter.Convert(sectionSumValues.priceAtPurchase_cent, Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE")))))
                             {
@@ -680,12 +747,7 @@ namespace AnlageverzeichnisAppWPF
 
                 row = new TableRow();
                 sectionSumTableRowGroup.Rows.Add(row);
-                row.Cells.Add(new TableCell(new Paragraph(new Run(" "))) 
-                                {
-                                    BorderThickness = sectionSumTableThicknessLeaveLine,
-                                    BorderBrush = System.Windows.Media.Brushes.Black
-                                }
-                             );
+                row.Cells.Add(new TableCell(new Paragraph(new Run(" "))));
                 row.Cells.Add(new TableCell(new Paragraph(new Run(" ")))
                                 {
                                     BorderThickness = sectionSumTableThicknessLeaveLine,
@@ -775,20 +837,26 @@ namespace AnlageverzeichnisAppWPF
             var rowForDoubleUnderlineSecondLine = new TableRow();
             for (int i=0;i<9;i++)
             {
-                var spacerCell = new TableCell(new Paragraph(new Run("\u00A0"))) // linebreak as a placeholder as a cell must not be totally empty for WPF to work
+                TableCell spacerCell;
+                if (i==0)
                 {
-                    BorderThickness = new Thickness(0, 1, 0, 0),
-                    BorderBrush = System.Windows.Media.Brushes.Black,
-                    LineHeight = 2
-                };
+                    spacerCell = new TableCell(new Paragraph(new Run("\u00A0"))); // linebreak as a placeholder as a cell must not be totally empty for WPF to work
+                }
+                else
+                {
+                    spacerCell = new TableCell(new Paragraph(new Run("\u00A0"))) // linebreak as a placeholder as a cell must not be totally empty for WPF to work
+                    {
+                        BorderThickness = new Thickness(0, 1, 0, 0),
+                        BorderBrush = System.Windows.Media.Brushes.Black,
+                        LineHeight = 2
+                    };
+                }
+                
                 rowForDoubleUnderlineSecondLine.Cells.Add(spacerCell);
             }
             sectionSumTableRowGroup.Rows.Add(rowForDoubleUnderlineSecondLine);
 
-
             flowDoc.Blocks.Add(sectionSumTable);
-
-
 
             return flowDoc;
         }
