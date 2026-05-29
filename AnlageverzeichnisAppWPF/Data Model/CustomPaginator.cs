@@ -40,10 +40,7 @@ namespace AnlageverzeichnisAppWPF
 
         public override DocumentPage GetPage(int pageNumber)
         {
-            if(
-                    (this._basePaginator is null)
-                 || (this.document is null)
-              )
+            if(this._basePaginator is null)
             {
                 return new DocumentPage(new DrawingVisual());
             }
@@ -54,29 +51,6 @@ namespace AnlageverzeichnisAppWPF
             var visual = new DrawingVisual();
             using (var dc = visual.RenderOpen())
             {
-                if (pageNumber == 0)
-                {
-                    // Draw title 
-                    FormattedText title = new FormattedText(
-                        $"Anlageverzeichnis zum 31.12.{this.document.Header.CurrentlyWorkedOnYear}",
-                        new CultureInfo("de-de"),
-                        FlowDirection.LeftToRight,
-                        _headerTypeface,
-                        _headerFontSize,
-                        Brushes.Black,
-                        1.0);
-                
-                    dc.DrawText(title, new Point(
-                                                    (page.Size.Width / 2) - (title.Width / 2) ,
-                                                    _pageMargins.Top
-                                                 )
-                               );
-                }
-                else
-                {
-                    // no title on the subsequent pages
-                }
-
                 // Draw footer (page number)
                 FormattedText footer = new FormattedText(
                     $"Seite {pageNumber + 1}",

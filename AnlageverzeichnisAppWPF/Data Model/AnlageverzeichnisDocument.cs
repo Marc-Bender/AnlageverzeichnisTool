@@ -214,17 +214,22 @@ namespace AnlageverzeichnisAppWPF
 
             var row = new TableRow();
             companyInfoRowGroup.Rows.Add(row);
-            row.Cells.Add(new TableCell(new Paragraph(new Run(this.Header.CompanyName))));
+            _addCellToRow(row, this.Header.CompanyName);
 
             row = new TableRow();
             companyInfoRowGroup.Rows.Add(row);
-            row.Cells.Add(new TableCell(new Paragraph(new Run(this.Header.CompanyCityAndZipCode))));
+            _addCellToRow(row, this.Header.CompanyCityAndZipCode);
+
+            row = new TableRow();
+            companyInfoRowGroup.Rows.Add(row);
+            _addCellToRow(row, $"Anlageverzeichnis zum 31.12.{this.Header.CurrentlyWorkedOnYear}", textAlignment:TextAlignment.Center, isBold: true, textDecorations: TextDecorations.Underline);
 
             flowDoc.Blocks.Add(tableCompanyInfo);
 
+
             var tableHeader = new Table();
             tableHeader.CellSpacing = 0;
-            tableHeader.Margin = new Thickness(0,50,0,0);
+            tableHeader.Margin = new Thickness(0,25,0,0);
 
             tableHeader.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.headerTableColumnWidths.objectDescription});
             tableHeader.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.headerTableColumnWidths.dateOfPurchase});
@@ -338,7 +343,9 @@ namespace AnlageverzeichnisAppWPF
                     _addCellToRow(row, line.ObjectDescriptionText);
                 }
 
-                _addCellToRow(row, $"{line.MonthOfPurchase}/{line.YearOfPurchase}", textAlignment: TextAlignment.Center);
+                var dateConverter = new dateOfPurchaseConverter();
+                var date = (string)dateConverter.Convert([line.MonthOfPurchase, line.YearOfPurchase], Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"));
+                _addCellToRow(row, date, textAlignment: TextAlignment.Center);
                 var centsConverter = new CentsToEuroStringConverter();
                 _addCellToRow(row, _numericToFormatedString(line.PriceAtPurchase_Cents, centsConverter), textAlignment: TextAlignment.Right);
                 if (line.EnterOrLeaveAmount_Cents is not null)

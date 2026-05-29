@@ -196,5 +196,26 @@ namespace AnlageverzeichnisAppWPF
             => throw new NotImplementedException();
     }
 
+    public class dateOfPurchaseConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 2)
+            {
+                if (
+                        (values[0] is int purchaseMonth)
+                     && (values[1] is int purchaseYear)
+                   )
+                {
+                    return string.Format("{0:00}/{1}", purchaseMonth, purchaseYear);
+                }
+            }
+            return "";
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
+
 
 }

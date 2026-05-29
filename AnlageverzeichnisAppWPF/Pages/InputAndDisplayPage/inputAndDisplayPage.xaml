@@ -21,6 +21,7 @@
         <local:YearsTo0P1PctConverter x:Key="YearsTo0P1Pct" />
         <local:CanLeaveOrBeMemorialValueConverter x:Key="CanLeaveOrBeMemorialValueConverter" />
         <local:FirstYearItalicPreviousYearConverter x:Key="FirstYearItalicPreviousYearConverter" />
+        <local:dateOfPurchaseConverter x:Key="DateOfPurchaseConverter" />
 
         <Binding x:Key="ExpertModeEnableState" Path="DataContext.IsExpertModeEnabled" RelativeSource="{RelativeSource AncestorType=Page}"/>
 
@@ -71,22 +72,18 @@
                     />
         </DataTemplate>
         <DataTemplate x:Key="monthYearTextBoxTemplate">
-            <StackPanel 
-                Orientation="Horizontal"
+            <TextBox
                 Visibility="{Binding IsHeading, Converter={StaticResource InverseBoolVisibility}}"
-                >
-                <TextBox
-                    Text="{Binding MonthOfPurchase}" 
-                    Style="{StaticResource editStyle}"
-                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
-                />
-                <TextBlock Text="/" />
-                <TextBox
-                    Text="{Binding YearOfPurchase}" 
-                    Style="{StaticResource editStyle}"
-                    PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
-                />
-            </StackPanel>
+                Style="{StaticResource editStyle}"
+                PreviewMouseDoubleClick="TextBox_PreviewMouseDoubleClick"
+            >
+                <TextBox.Text>
+                    <MultiBinding Converter="{StaticResource DateOfPurchaseConverter}">
+                        <Binding Path="MonthOfPurchase"/>
+                        <Binding Path="YearOfPurchase"/>
+                    </MultiBinding>
+                </TextBox.Text>
+            </TextBox>
         </DataTemplate>
         <DataTemplate x:Key="priceAtPurchaseCentsTextBoxTemplate">
             <TextBox
