@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Markup;
 using System.Windows.Media;
+using System.Xml;
 
 namespace AnlageverzeichnisAppWPF
 {
@@ -15,85 +19,281 @@ namespace AnlageverzeichnisAppWPF
         public static readonly int DPI = 96;
         public static readonly float mm_per_inch = 25.4f;
         public static readonly int pageMargins_mm = 10;
+        public static double mm_to_diu(double mm) => mm / mm_per_inch * DPI;
     }
 
     public class CustomPaginator : DocumentPaginator
     {
-        private readonly DocumentPaginator? _basePaginator;
         private readonly Typeface _headerTypeface = new Typeface("Courier New");
         private readonly double _headerFontSize = 12;
         private readonly Thickness _pageMargins = new Thickness(A3PaperAbstraction.pageMargins_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI);
 
         private AnlageverzeichnisDocument? document;
-        public CustomPaginator(FlowDocument flowDoc)
+        private int consumedDocumentRows = 0;
+        private List<FlowDocument> dataLinesFlowDocuments;
+
+        // calculate the header and totals flowdoc once and then reuse across pages
+        private FlowDocument headerFlowDocument, totalsFlowDocument;
+
+        // generate a dummy set of flow docs for the page end sums for calculating their size upfront
+        private FlowDocument[] dummyPageEndSumFlowDocuments;
+
+        private double headerSize, totalsSize, pageEndSumPage0Size, pageEndSumPage1Size;
+        private DocumentPage headerPage, totalsPage, pageEndSumPage0, pageEndSumPage1;
+        
+        private bool isSectionInterrupted = false;
+        private int currentLineIndex = 0;
+
+        private List<DocumentPage> Pages = new();
+        private Size _pageSize = new Size(
+                                            A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm), 
+                                            A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm)
+                                         );
+
+        public static FlowDocument CloneFlowDocument(FlowDocument source)
         {
-            if(flowDoc.Tag is AnlageverzeichnisDocument document)
-            {
-                this.document = document;
-                _basePaginator = ((IDocumentPaginatorSource)flowDoc).DocumentPaginator;
-                _basePaginator.PageSize = new Size(
-                                                    A3PaperAbstraction.widthLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI, 
-                                                    A3PaperAbstraction.heightLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI
-                                                  );
-            }
+            var tag = source.Tag;
+            source.Tag = null;
+            string xaml = XamlWriter.Save(source);
+            using var stringReader = new StringReader(xaml);
+            using var xmlReader = XmlReader.Create(stringReader);
+            source.Tag = tag;
+            return (FlowDocument)XamlReader.Load(xmlReader);
+        }
+        private static double GetDpi()
+        {
+            var source = PresentationSource.FromVisual(Application.Current.MainWindow);
+            return source?.CompositionTarget?.TransformToDevice.M22 * 96 ?? 96;
         }
 
-        public override DocumentPage GetPage(int pageNumber)
+        public static double MeasureFlowDocumentHeight(FlowDocument doc)
         {
-            if(this._basePaginator is null)
+            var viewer = new RichTextBox
             {
-                return new DocumentPage(new DrawingVisual());
-            }
-            // Get the original FlowDocument page
-            DocumentPage page = _basePaginator.GetPage(pageNumber);
+                Document = CloneFlowDocument(doc),
+                Width = doc.PageWidth, // requires the pagewidth to be set which for the flow docs in this tool is true
+                BorderThickness = new Thickness(0),
+                Padding = new Thickness(0),
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                LayoutTransform = new ScaleTransform(96.0 / GetDpi(), 96.0 / GetDpi())
+            };
 
-            // Create a new visual to draw header/footer
-            var visual = new DrawingVisual();
-            using (var dc = visual.RenderOpen())
+            viewer.Measure(new Size(doc.PageWidth, double.PositiveInfinity));
+            viewer.Arrange(new Rect(0, 0, doc.PageWidth, viewer.DesiredSize.Height));
+            viewer.UpdateLayout();
+
+            return viewer.ExtentHeight;
+        }
+        public CustomPaginator(AnlageverzeichnisDocument document)
+        {
+            this.document = document;
+            dataLinesFlowDocuments = document.generatePerTableLineFlowDocuments();
+            headerFlowDocument = document.generateHeaderFlowDocument();
+            totalsFlowDocument = document.generateTotalsSumFlowDocument();
+            dummyPageEndSumFlowDocuments = document.generatePageEndSumFlowDocuments(0, 0);
+            var _basePaginator = ((IDocumentPaginatorSource)headerFlowDocument).DocumentPaginator;
+            headerPage = _basePaginator.GetPage(0);
+            headerSize = MeasureFlowDocumentHeight(headerFlowDocument);
+            _basePaginator = ((IDocumentPaginatorSource)totalsFlowDocument).DocumentPaginator;
+            totalsPage = _basePaginator.GetPage(0);
+            totalsSize = MeasureFlowDocumentHeight(totalsFlowDocument);
+            _basePaginator = ((IDocumentPaginatorSource)dummyPageEndSumFlowDocuments[0]).DocumentPaginator;
+            pageEndSumPage0 = _basePaginator.GetPage(0);
+            pageEndSumPage0Size = MeasureFlowDocumentHeight(dummyPageEndSumFlowDocuments[0]);
+            _basePaginator = ((IDocumentPaginatorSource)dummyPageEndSumFlowDocuments[1]).DocumentPaginator;
+            pageEndSumPage1 = _basePaginator.GetPage(0);
+            pageEndSumPage1Size = MeasureFlowDocumentHeight(dummyPageEndSumFlowDocuments[1]);
+
+            while (true)
             {
-                // Draw footer (page number)
-                FormattedText footer = new FormattedText(
-                    $"Seite {pageNumber + 1}",
-                    CultureInfo.CurrentCulture,
-                    FlowDirection.LeftToRight,
-                    _headerTypeface,
-                    12,
-                    Brushes.Gray,
-                    1.0);
+                // Create a new visual to draw header/footer
+                var visual = new DrawingVisual();
+                using (var dc = visual.RenderOpen())
+                {
+                    double cumulativeHeight = 0;
+                    dc.DrawRectangle(
+                        new VisualBrush(headerPage.Visual)
+                        {
+                            Stretch = Stretch.None,
+                            AlignmentX = AlignmentX.Left,
+                            AlignmentY = AlignmentY.Top
+                        },
+                        null,
+                        new Rect(
+                                    0,
+                                    0,
+                                    this._pageSize.Width,
+                                    headerSize
+                                )
+                        );
+                    cumulativeHeight += headerSize;
+                    double cumulativeHeightMax;
 
-                dc.DrawText(footer, new Point(
-                                                (page.Size.Width / 2) + (footer.Width / 2), 
-                                                page.Size.Height - _pageMargins.Bottom + 5
-                                             )
-                           );
+                    cumulativeHeightMax = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm) - totalsSize * 1.5f; // factor 1.5 as safety for possibly missing line with leave amounts... all sums should be more or less the same size enough for this simplification to hold
 
-                // Draw the original page content
-                dc.DrawRectangle(
-                    new VisualBrush(page.Visual),
-                    null,
-                    new Rect(
-                                _pageMargins.Left, 
-                                0,
-                                page.Size.Width - _pageMargins.Left - _pageMargins.Right,
-                                page.Size.Height - _pageMargins.Bottom 
+                    if (this.document is null)
+                    {
+                        MessageBox.Show("Fehler beim erstellen des PDF", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                        break;
+                    }
+
+                    for (int i = currentLineIndex; i < dataLinesFlowDocuments.Count; i++)
+                    {
+                        _basePaginator = ((IDocumentPaginatorSource)dataLinesFlowDocuments.ElementAt(currentLineIndex)).DocumentPaginator;
+                        var thisLinePage = _basePaginator.GetPage(0);
+                        _basePaginator = currentLineIndex + 1 < dataLinesFlowDocuments.Count ? ((IDocumentPaginatorSource)dataLinesFlowDocuments.ElementAt(currentLineIndex + 1)).DocumentPaginator : null;
+                        var nextLinePage = _basePaginator is not null ? _basePaginator.GetPage(0) : null;
+
+                        var thisLinePageSize = MeasureFlowDocumentHeight(dataLinesFlowDocuments[currentLineIndex]);
+                        var nextLinePageSize = currentLineIndex + 1 < dataLinesFlowDocuments.Count?MeasureFlowDocumentHeight(dataLinesFlowDocuments[currentLineIndex+1]):0;
+
+                        if (
+                                (cumulativeHeight + thisLinePageSize < cumulativeHeightMax)
+                                && (this.document is not null)
+                                && (
+                                    // insert current line only if not a heading or if it is a heading and atleast one data line fits after it... this is to ensure that a page end sum is always meaningfully calculatable
+                                    (nextLinePage is null)
+                                    || (this.document.DataEntryLines.ElementAt(currentLineIndex).IsHeading == false)
+                                    || (
+                                        (nextLinePage is not null)
+                                        && (this.document.DataEntryLines.ElementAt(currentLineIndex).IsHeading == true)
+                                        && (cumulativeHeight + thisLinePageSize + nextLinePageSize < cumulativeHeightMax)
+                                    )
+                                )
                             )
-                    );
+                        {
+                            if (this.document.DataEntryLines.ElementAt(currentLineIndex).IsHeading == true)
+                            {
+                                try
+                                {
+                                    // at the end of any section there needs to be a sectionend sum block ... 
+                                    // 1st find the previous heading
+                                    var headingsUntilNow = this.document.DataEntryLines.Where(x => x.IsHeading == true && this.document.DataEntryLines.IndexOf(x) < currentLineIndex);
+                                    // then generate the sectionendsum 
+                                    var sectionEndSumDoc = this.document.generateSectionSumFlowDocument(
+                                                                                                            sectionStartDataLineIndexNumber: this.document.DataEntryLines.IndexOf(headingsUntilNow.Last()),
+                                                                                                            sectionEndDataLineIndexNumber: currentLineIndex + 1 
+                                                                                                        );
+                                    // paginate the new section end sum document
+                                    _basePaginator = ((IDocumentPaginatorSource)sectionEndSumDoc).DocumentPaginator;
+                                    var sectionSumPage = _basePaginator.GetPage(0);
+                                    var sectionSumPageSize = MeasureFlowDocumentHeight(sectionEndSumDoc);
+
+                                    // draw the section end sum
+
+                                    dc.DrawRectangle(
+                                        new VisualBrush(sectionSumPage.Visual)
+                                        {
+                                            Stretch = Stretch.None,
+                                            AlignmentX = AlignmentX.Left,
+                                            AlignmentY = AlignmentY.Top
+                                        },
+                                        null,
+                                        new Rect(
+                                                    0,
+                                                    cumulativeHeight,
+                                                    this._pageSize.Width,
+                                                    sectionSumPageSize
+                                                )
+                                        );
+                                        cumulativeHeight += sectionSumPageSize;
+                                }
+                                catch (InvalidOperationException e)
+                                {
+                                    // may occur if the sequence "headingsUntilNow" does not contain any elements which is fine in case the first line is a heading ... (then there is no last item in there and then there also does not need to be any section end sum in place)
+                                    // thus in this case there is nothing to do here
+                                }
+                            }
+
+                            dc.DrawRectangle(
+                                new VisualBrush(thisLinePage.Visual)
+                                {
+                                    Stretch = Stretch.None,
+                                    AlignmentX = AlignmentX.Left,
+                                    AlignmentY = AlignmentY.Top,
+                                },
+                                null,
+                                new Rect(
+                                            0,
+                                            cumulativeHeight,
+                                            this._pageSize.Width,
+                                            thisLinePageSize
+                                        )
+                                );
+                            cumulativeHeight += thisLinePageSize;
+                            currentLineIndex++;
+                        }
+                        else
+                        {
+                            this.Pages.Add(
+                                new DocumentPage(
+                                    visual,
+                                    _pageSize,
+                                    new Rect(new Point(0, 0), _pageSize),
+                                    new Rect(
+                                        _pageMargins.Left,
+                                        _pageMargins.Top,
+                                        _pageSize.Width,
+                                        _pageSize.Height
+                                    )
+                                )
+                            );
+                            break; // if the page is full exit the inner loop (over the lines) to return to the outer loop (over the pages) to create a new visual 
+                        }
+                    }
+
+                    if (currentLineIndex >= this.dataLinesFlowDocuments.Count)
+                    {
+                        dc.DrawRectangle(
+                            new VisualBrush(totalsPage.Visual)
+                            {
+                                Stretch = Stretch.None,
+                                AlignmentX = AlignmentX.Left,
+                                AlignmentY = AlignmentY.Top
+                            },
+                            null,
+                            new Rect(
+                                        0,
+                                        cumulativeHeight,
+                                        this._pageSize.Width,
+                                        totalsSize
+                                    )
+                            );
+                        this.Pages.Add(
+                            new DocumentPage(
+                                visual,
+                                _pageSize,
+                                new Rect(new Point(0, 0), _pageSize),
+                                new Rect(
+                                    _pageMargins.Left,
+                                    _pageMargins.Top,
+                                    _pageSize.Width,
+                                    _pageSize.Height
+                                )
+                            )
+                        );
+                        break;
+                    }
+                }
 
             }
-
-            return new DocumentPage(
-                visual,
-                page.Size,
-                page.BleedBox,
-                page.ContentBox);
         }
 
-        public override bool IsPageCountValid => _basePaginator is not null?_basePaginator.IsPageCountValid:false;
-        public override int PageCount => _basePaginator is not null ? _basePaginator.PageCount : 0;
-        public override Size PageSize { 
-                    get => _basePaginator is not null ? _basePaginator.PageSize : new Size(); 
-                    set => _basePaginator.PageSize = value ; 
+        public override DocumentPage GetPage(int pageNumber)=>this.Pages.ElementAt(pageNumber);
+        
+        public override bool IsPageCountValid => true;
+        public override Size PageSize
+        {
+            get => _pageSize;
+            set
+            {
+                _pageSize = value;
+                Pages.Clear();
+            }
         }
-        public override IDocumentPaginatorSource Source => _basePaginator.Source;
+        public override int PageCount => this.Pages.Count;
+        public override IDocumentPaginatorSource Source => null;
+
     }
 }

@@ -143,23 +143,6 @@ namespace AnlageverzeichnisAppWPF
             }
         }
 
-        static FlowDocument MergeDocuments(List<FlowDocument> docs)
-        {
-            var merged = new FlowDocument();
-
-            foreach (var doc in docs)
-            {
-                // Make a copy of the blocks before iterating to prevent the doc.Blocks collection to change implicitly thereby throwing exceptions..
-                var blocks = doc.Blocks.ToList();
-                foreach (var block in blocks)
-                {
-                    merged.Blocks.Add(block);
-                }
-            }
-
-            return merged;
-        }
-
         private void _addCellToRow(TableRow row, string text, int columnSpan = 1, TextAlignment textAlignment = TextAlignment.Left, Thickness? borderThickness = null, TextDecorationCollection? textDecorations = null, bool isItalics = false, bool isBold = false)
         {
             Inline textRun = new Run(text);
@@ -198,8 +181,8 @@ namespace AnlageverzeichnisAppWPF
             flowDoc.FontFamily = new System.Windows.Media.FontFamily("Courier New");
             flowDoc.FontSize = 12;
             flowDoc.ColumnWidth = double.PositiveInfinity;
-            flowDoc.PageWidth = A3PaperAbstraction.widthLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
-            flowDoc.PageHeight = A3PaperAbstraction.heightLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
+            flowDoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm);
+            flowDoc.MaxPageHeight = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm);
 
             flowDoc.Tag = this;
 
@@ -299,18 +282,15 @@ namespace AnlageverzeichnisAppWPF
             return flowDoc;
         }
 
-        public FlowDocument generateTableFlowDocument(int sectionStartDataLineIndexNumber, int sectionEndDataLineIndexNumber)
+        public FlowDocument generateTableLineFlowDocument(int index)
         {
-            var sectionStartDataLineIndex = new Index(sectionStartDataLineIndexNumber);
-            var sectionEndDataLineIndex = new Index(sectionEndDataLineIndexNumber);
-
             var flowDoc = new FlowDocument();
             flowDoc.FontFamily = new System.Windows.Media.FontFamily("Courier New");
             flowDoc.FontSize = 12;
             flowDoc.ColumnWidth = double.PositiveInfinity;
-            flowDoc.PageWidth = A3PaperAbstraction.widthLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
-            flowDoc.PageHeight = A3PaperAbstraction.heightLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
-
+            flowDoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm);
+            flowDoc.MaxPageHeight = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm);
+            flowDoc.PagePadding = new Thickness(0);
             flowDoc.Tag = this;
 
             var dataLineTable = new Table();
@@ -329,49 +309,59 @@ namespace AnlageverzeichnisAppWPF
             var dataLineTableRowGroup = new TableRowGroup();
             dataLineTable.RowGroups.Add(dataLineTableRowGroup);
 
-            foreach (var line in this.DataEntryLines.Take(new Range(sectionStartDataLineIndex, sectionEndDataLineIndex)))
+            var line = this.DataEntryLines[index];
+            var row = new TableRow();
+            dataLineTableRowGroup.Rows.Add(row);
+            if (line.IsHeading == true)
             {
-                var row = new TableRow();
-                dataLineTableRowGroup.Rows.Add(row);
-                if (line.IsHeading == true)
-                {
-                    _addCellToRow(row, line.ObjectDescriptionText, textDecorations: TextDecorations.Underline, isItalics: true);
-                    continue;
-                }
-                else
-                {
-                    _addCellToRow(row, line.ObjectDescriptionText);
-                }
+                _addCellToRow(row, line.ObjectDescriptionText, textDecorations: TextDecorations.Underline, isItalics: true);
+                flowDoc.Blocks.Add(dataLineTable);
 
-                var dateConverter = new dateOfPurchaseConverter();
-                var date = (string)dateConverter.Convert([line.MonthOfPurchase, line.YearOfPurchase], Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"));
-                _addCellToRow(row, date, textAlignment: TextAlignment.Center);
-                var centsConverter = new CentsToEuroStringConverter();
-                _addCellToRow(row, _numericToFormatedString(line.PriceAtPurchase_Cents, centsConverter), textAlignment: TextAlignment.Right);
-                if (line.EnterOrLeaveAmount_Cents is not null)
-                {
-                    _addCellToRow(row, line.EnterOrLeaveAmount_Cents >= 0 ? "+" : "-", textAlignment: TextAlignment.Center);
-                    _addCellToRow(row, _numericToFormatedString(Math.Abs((long)line.EnterOrLeaveAmount_Cents), centsConverter), textAlignment: TextAlignment.Right);                    
-                }
-                else
-                {
-                    _addCellToRow(row, "\u00A0");
-                    _addCellToRow(row, "\u00A0");
-                }
-
-                _addCellToRow(row, _numericToFormatedString(line.AccumulatedDepreciation_Cents, centsConverter), textAlignment: TextAlignment.Right);
-
-                var percentageConverter = new TenthPctToPercentageString();
-                _addCellToRow(row, _numericToFormatedString(line.DepreciationPercentage_0P1Pct, percentageConverter), textAlignment: TextAlignment.Center);
-                
-                _addCellToRow(row, _numericToFormatedString(line.CurrentYearDepreciationAmount_Cents, centsConverter), textAlignment: TextAlignment.Right);
-                _addCellToRow(row, _numericToFormatedString(line.CurrentYearObjectValue_Cents, centsConverter), textAlignment: TextAlignment.Right);
-                _addCellToRow(row, _numericToFormatedString(line.PreviousYearObjectValue_Cents, centsConverter), textAlignment: TextAlignment.Right);    
+                return flowDoc;
             }
+            else
+            {
+                _addCellToRow(row, line.ObjectDescriptionText);
+            }
+
+            var dateConverter = new dateOfPurchaseConverter();
+            var date = (string)dateConverter.Convert([line.MonthOfPurchase, line.YearOfPurchase], Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"));
+            _addCellToRow(row, date, textAlignment: TextAlignment.Center);
+            var centsConverter = new CentsToEuroStringConverter();
+            _addCellToRow(row, _numericToFormatedString(line.PriceAtPurchase_Cents, centsConverter), textAlignment: TextAlignment.Right);
+            if (line.EnterOrLeaveAmount_Cents is not null)
+            {
+                _addCellToRow(row, line.EnterOrLeaveAmount_Cents >= 0 ? "+" : "-", textAlignment: TextAlignment.Center);
+                _addCellToRow(row, _numericToFormatedString(Math.Abs((long)line.EnterOrLeaveAmount_Cents), centsConverter), textAlignment: TextAlignment.Right);                    
+            }
+            else
+            {
+                _addCellToRow(row, "\u00A0");
+                _addCellToRow(row, "\u00A0");
+            }
+
+            _addCellToRow(row, _numericToFormatedString(line.AccumulatedDepreciation_Cents, centsConverter), textAlignment: TextAlignment.Right);
+
+            var percentageConverter = new TenthPctToPercentageString();
+            _addCellToRow(row, _numericToFormatedString(line.DepreciationPercentage_0P1Pct, percentageConverter), textAlignment: TextAlignment.Center);
+                
+            _addCellToRow(row, _numericToFormatedString(line.CurrentYearDepreciationAmount_Cents, centsConverter), textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(line.CurrentYearObjectValue_Cents, centsConverter), textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(line.PreviousYearObjectValue_Cents, centsConverter), textAlignment: TextAlignment.Right);    
 
             flowDoc.Blocks.Add(dataLineTable);
 
             return flowDoc;
+        }
+
+        public List<FlowDocument> generatePerTableLineFlowDocuments()
+        {
+            List<FlowDocument> flowDocuments = new List<FlowDocument>();
+            for(int i=0;i<this.DataEntryLines.Count;i++)
+            {
+                flowDocuments.Add(generateTableLineFlowDocument(i));
+            }
+            return flowDocuments;
         }
         public FlowDocument generateTotalsSumFlowDocument()
         {
@@ -379,8 +369,8 @@ namespace AnlageverzeichnisAppWPF
             flowDoc.FontFamily = new System.Windows.Media.FontFamily("Courier New");
             flowDoc.FontSize = 12;
             flowDoc.ColumnWidth = double.PositiveInfinity;
-            flowDoc.PageWidth = A3PaperAbstraction.widthLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
-            flowDoc.PageHeight = A3PaperAbstraction.heightLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
+            flowDoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm);
+            flowDoc.PageHeight = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm);
 
             flowDoc.Tag = this;
 
@@ -498,59 +488,6 @@ namespace AnlageverzeichnisAppWPF
             return flowDoc;
         }
 
-        public FlowDocument toFlowDocument()
-        {
-            var headerFlowDoc = this.generateHeaderFlowDocument();
-
-            var headingsDataLines = this.DataEntryLines.Where(x => x.IsHeading == true).ToList();
-
-            var totalsSumFlowDoc = this.generateTotalsSumFlowDocument();
-
-            List<FlowDocument> allDocumentFragments = new();
-            allDocumentFragments.Add(headerFlowDoc);
-
-            for (int i=0;i<headingsDataLines.Count();i++)
-            {
-                FlowDocument? tableFlowDoc = null;
-                FlowDocument? sectionSumFlowDoc = null;
-                if(i<headingsDataLines.Count() - 1)
-                {
-                    // if the current heading is not the last heading the section goes until the next heading
-                    var startIndex = this.DataEntryLines.IndexOf(headingsDataLines[i]);
-                    var endIndex = this.DataEntryLines.IndexOf(headingsDataLines[i + 1]);
-
-                    tableFlowDoc = this.generateTableFlowDocument(startIndex, endIndex);
-                    sectionSumFlowDoc = this.generateSectionSumFlowDocument(startIndex,endIndex);
-
-                }
-                else
-                {
-                    // if the current heading _IS_ the last heading then the section goes until the end of the document.
-                    var startIndex = this.DataEntryLines.IndexOf(headingsDataLines[i]);
-                    var endIndex = this.DataEntryLines.Count();
-
-                    tableFlowDoc = this.generateTableFlowDocument(startIndex, endIndex);
-                    sectionSumFlowDoc = this.generateSectionSumFlowDocument(startIndex,endIndex);
-                }
-
-                allDocumentFragments.Add(tableFlowDoc); // guaranteed by design that tableFlowDoc is never null
-                allDocumentFragments.Add(sectionSumFlowDoc); // guaranteed by design that sectionSumFlowDoc is never null
-            }
-
-            allDocumentFragments.Add(totalsSumFlowDoc);
-            var mergedDocument = MergeDocuments(allDocumentFragments);
-            mergedDocument.FontFamily = new System.Windows.Media.FontFamily("Courier New");
-            mergedDocument.FontSize = 12;
-            mergedDocument.ColumnWidth = double.PositiveInfinity;
-            mergedDocument.PageWidth = A3PaperAbstraction.widthLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
-            mergedDocument.PageHeight = A3PaperAbstraction.heightLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
-
-            mergedDocument.Tag = this;
-
-            return mergedDocument;
-        }
-        
-
         public FlowDocument generateSectionSumFlowDocument(int sectionStartDataLineIndexNumber, int sectionEndDataLineIndexNumber)
         {
             var sectionStartDataLineIndex = new Index(sectionStartDataLineIndexNumber);
@@ -560,8 +497,8 @@ namespace AnlageverzeichnisAppWPF
             flowDoc.FontFamily = new System.Windows.Media.FontFamily("Courier New");
             flowDoc.FontSize = 12;
             flowDoc.ColumnWidth = double.PositiveInfinity;
-            flowDoc.PageWidth = A3PaperAbstraction.widthLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
-            flowDoc.PageHeight = A3PaperAbstraction.heightLandscape_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI;
+            flowDoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm);
+            flowDoc.PageHeight = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm);
 
             flowDoc.Tag = this;
 
@@ -681,6 +618,195 @@ namespace AnlageverzeichnisAppWPF
             flowDoc.Blocks.Add(sectionSumTable);
 
             return flowDoc;
+        }
+
+        public FlowDocument[] generatePageEndSumFlowDocuments(int sectionStartDataLineIndexNumber, int pageEndDataLineIndexNumber)
+        {
+            var sectionStartDataLineIndex = new Index(sectionStartDataLineIndexNumber);
+            var pageEndDataLineIndex = new Index(pageEndDataLineIndexNumber);
+
+            var flowDocPage0 = new FlowDocument();
+            flowDocPage0.FontFamily = new System.Windows.Media.FontFamily("Courier New");
+            flowDocPage0.FontSize = 12;
+            flowDocPage0.ColumnWidth = double.PositiveInfinity;
+            flowDocPage0.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm);
+            flowDocPage0.PageHeight = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm);
+
+            flowDocPage0.Tag = this;
+
+            var sectionSumTablePage0 = new Table();
+            sectionSumTablePage0.CellSpacing = 0;
+            /*0*/sectionSumTablePage0.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.spacer});
+            /*1*/sectionSumTablePage0.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.priceAtPurchase});
+            /*2*/sectionSumTablePage0.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.plusMinus});
+            /*3*/sectionSumTablePage0.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.enterAndLeaveAmount});
+            /*4*/sectionSumTablePage0.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.accumulatedDeprecationAmount});
+            /*5*/sectionSumTablePage0.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.spacer2});
+            /*6*/sectionSumTablePage0.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.currentYearDeprecationAmount});
+            /*7*/sectionSumTablePage0.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.currentYearObjectValue});
+            /*8*/sectionSumTablePage0.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.previousYearObjectValue});
+
+            var sectionSumPage0TableRowGroup = new TableRowGroup();
+            sectionSumTablePage0.RowGroups.Add(sectionSumPage0TableRowGroup);
+
+            var sectionSumValues = new PrintedDocumentAbstraction.sumValues();
+            foreach (var line in this.DataEntryLines.Take(new Range(sectionStartDataLineIndex, pageEndDataLineIndex)))
+            {
+                    sectionSumValues.priceAtPurchase_cent += line.PriceAtPurchase_Cents;
+                    sectionSumValues.enterAmount_cent += line.EnterOrLeaveAmount_Cents is not null && line.EnterOrLeaveAmount_Cents > 0 ? (long)line.EnterOrLeaveAmount_Cents : 0;
+                    sectionSumValues.leaveAmount_cent += line.EnterOrLeaveAmount_Cents is not null && line.EnterOrLeaveAmount_Cents < 0 ? (long)-line.EnterOrLeaveAmount_Cents : 0;
+                    sectionSumValues.accumulatedDeprecation_cent += line.AccumulatedDepreciation_Cents;
+                    sectionSumValues.currentYearDeprecation_cent += line.CurrentYearDepreciationAmount_Cents;
+                    sectionSumValues.currentYearObjectValue_cent += line.CurrentYearObjectValue_Cents;
+                    sectionSumValues.previousYearObjectValue_cent += line.PreviousYearObjectValue_Cents;
+            }
+
+            var sectionSumTableThicknessFirstLine = new Thickness(
+                                                                    0,
+                                                                    1,
+                                                                    0,
+                                                                    sectionSumValues.leaveAmount_cent != 0 ? 0 : 1 // if there is a leave amount there is a seperate line being added to the sum table thus the bottom line will be the next line thus this line will not need a bottom border in that case only
+                                                               );
+
+            var row = new TableRow();
+            sectionSumPage0TableRowGroup.Rows.Add(row);
+            _addCellToRow(row, "Ü b e r t r a g");
+
+            var centsConverter = new CentsToEuroStringConverter();
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.priceAtPurchase_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, sectionSumValues.enterAmount_cent != 0 ? "+" : "\u00A0", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
+            _addCellToRow(row, sectionSumValues.enterAmount_cent != 0 ? _numericToFormatedString(sectionSumValues.enterAmount_cent, centsConverter) : "\u00A0", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.accumulatedDeprecation_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessFirstLine);
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.currentYearDeprecation_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.currentYearObjectValue_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.previousYearObjectValue_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+
+            if(sectionSumValues.leaveAmount_cent != 0)
+            {
+                var sectionSumTableThicknessLeaveLine = new Thickness(0,0,0,1);
+
+                row = new TableRow();
+                sectionSumPage0TableRowGroup.Rows.Add(row);
+                _addCellToRow(row, "\u00A0");
+                _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine);
+                _addCellToRow(row, sectionSumValues.leaveAmount_cent != 0 ? "-" : "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine, textAlignment: TextAlignment.Center);
+                _addCellToRow(row, sectionSumValues.leaveAmount_cent != 0 ? _numericToFormatedString(sectionSumValues.leaveAmount_cent, centsConverter) : "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine, textAlignment: TextAlignment.Right);
+                for(int i=0;i<5;i++)
+                {
+                    _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine);
+                }
+            }
+
+            var spacer = new TableRow();
+            
+            for (int i=0;i<9;i++)
+            {
+                var rect = new System.Windows.Shapes.Rectangle
+                {
+                    Height = 2, // tiny gap
+                    Fill = System.Windows.Media.Brushes.Transparent
+                };
+
+                var ui = new BlockUIContainer(rect)
+                {
+                    Margin = new Thickness(0),
+                    Padding = new Thickness(0)
+                };
+
+                var cell = new TableCell(ui)
+                {
+                    BorderThickness = new Thickness(0),
+                    Padding = new Thickness(0)
+                };
+
+                spacer.Cells.Add(cell);
+            }
+
+            sectionSumPage0TableRowGroup.Rows.Add(spacer);
+
+            var rowForDoubleUnderlineSecondLine = new TableRow();
+            for (int i=0;i<9;i++)
+            {
+                TableCell spacerCell;
+                if (i==0)
+                {
+                    spacerCell = new TableCell(new Paragraph(new Run("\u00A0"))); // linebreak as a placeholder as a cell must not be totally empty for WPF to work
+                }
+                else
+                {
+                    spacerCell = new TableCell(new Paragraph(new Run("\u00A0"))) // linebreak as a placeholder as a cell must not be totally empty for WPF to work
+                    {
+                        BorderThickness = new Thickness(0, 1, 0, 0),
+                        BorderBrush = System.Windows.Media.Brushes.Black,
+                        LineHeight = 2
+                    };
+                }
+                
+                rowForDoubleUnderlineSecondLine.Cells.Add(spacerCell);
+            }
+            sectionSumPage0TableRowGroup.Rows.Add(rowForDoubleUnderlineSecondLine);
+            flowDocPage0.Blocks.Add(sectionSumTablePage0);
+
+
+            // the below is for the echo of the previous page values on the top of the next page
+            var flowDocPage1 = new FlowDocument();
+            flowDocPage1.FontFamily = new System.Windows.Media.FontFamily("Courier New");
+            flowDocPage1.FontSize = 12;
+            flowDocPage1.ColumnWidth = double.PositiveInfinity;
+            flowDocPage1.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm);
+            flowDocPage1.PageHeight = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm);
+
+            flowDocPage1.Tag = this;
+
+            var sectionSumTablePage1 = new Table();
+            sectionSumTablePage0.CellSpacing = 0;
+            /*0*/sectionSumTablePage1.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.spacer});
+            /*1*/sectionSumTablePage1.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.priceAtPurchase});
+            /*2*/sectionSumTablePage1.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.plusMinus});
+            /*3*/sectionSumTablePage1.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.enterAndLeaveAmount});
+            /*4*/sectionSumTablePage1.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.accumulatedDeprecationAmount});
+            /*5*/sectionSumTablePage1.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.spacer2});
+            /*6*/sectionSumTablePage1.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.currentYearDeprecationAmount});
+            /*7*/sectionSumTablePage1.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.currentYearObjectValue});
+            /*8*/sectionSumTablePage1.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.previousYearObjectValue});
+
+            var sectionSumPage1TableRowGroup = new TableRowGroup();
+            sectionSumTablePage1.RowGroups.Add(sectionSumPage1TableRowGroup);
+
+            row = new TableRow();
+            sectionSumPage1TableRowGroup.Rows.Add(row);
+
+            _addCellToRow(row, "Ü b e r t r a g");
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.priceAtPurchase_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, sectionSumValues.enterAmount_cent != 0 ? "+" : "\u00A0", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
+            _addCellToRow(row, sectionSumValues.enterAmount_cent != 0 ? _numericToFormatedString(sectionSumValues.enterAmount_cent, centsConverter) : "\u00A0", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.accumulatedDeprecation_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessFirstLine);
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.currentYearDeprecation_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.currentYearObjectValue_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            _addCellToRow(row, _numericToFormatedString(sectionSumValues.previousYearObjectValue_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+
+            if (sectionSumValues.leaveAmount_cent != 0)
+            {
+                var sectionSumTableThicknessLeaveLine = new Thickness(0, 0, 0, 1);
+
+                row = new TableRow();
+                sectionSumPage1TableRowGroup.Rows.Add(row);
+                _addCellToRow(row, "\u00A0");
+                _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine);
+                _addCellToRow(row, sectionSumValues.leaveAmount_cent != 0 ? "-" : "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine, textAlignment: TextAlignment.Center);
+                _addCellToRow(row, sectionSumValues.leaveAmount_cent != 0 ? _numericToFormatedString(sectionSumValues.leaveAmount_cent, centsConverter) : "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine, textAlignment: TextAlignment.Right);
+                for (int i = 0; i < 5; i++)
+                {
+                    _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessLeaveLine);
+                }
+            }
+
+            flowDocPage1.Blocks.Add(sectionSumTablePage1);
+
+
+            return new[] {flowDocPage0, flowDocPage1};
         }
 
     }

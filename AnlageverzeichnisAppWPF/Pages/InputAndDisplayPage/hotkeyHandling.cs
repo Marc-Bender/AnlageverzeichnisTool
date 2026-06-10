@@ -173,7 +173,9 @@ namespace AnlageverzeichnisAppWPF
                   &&(vm.Document is AnlageverzeichnisDocument doc)
                )
             {
-                var paginator = new CustomPaginator(doc.toFlowDocument());
+                // the below needs to be rethought once the paginator is doing the pagination stuff for real
+
+                var paginator = new CustomPaginator(doc);
                 var dlg = new PrintDialog();
 
                 dlg.PrintDocument(paginator, $"Anlageverzeichnis {doc.Header.CurrentlyWorkedOnYear} {doc.Header.CompanyName}");
