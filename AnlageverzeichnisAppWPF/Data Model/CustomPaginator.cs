@@ -87,8 +87,15 @@ namespace AnlageverzeichnisAppWPF
         {
             this.document = document;
             dataLinesFlowDocuments = document.generatePerTableLineFlowDocuments();
+            foreach(var linedoc in dataLinesFlowDocuments)
+            {
+                linedoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm) - _pageMargins.Left - _pageMargins.Right;
+            }
+
             headerFlowDocument = document.generateHeaderFlowDocument();
+            headerFlowDocument.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm) - _pageMargins.Left - _pageMargins.Right;
             totalsFlowDocument = document.generateTotalsSumFlowDocument();
+            totalsFlowDocument.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm) - _pageMargins.Left - _pageMargins.Right;
             dummyPageEndSumFlowDocuments = document.generatePageEndSumFlowDocuments(0, 0);
             var _basePaginator = ((IDocumentPaginatorSource)headerFlowDocument).DocumentPaginator;
             headerPage = _basePaginator.GetPage(0);
@@ -151,7 +158,7 @@ namespace AnlageverzeichnisAppWPF
                     }
                     double cumulativeHeightMax;
 
-                    cumulativeHeightMax = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm) - totalsSize * 1.5f; // factor 1.5 as safety for possibly missing line with leave amounts... all sums should be more or less the same size enough for this simplification to hold
+                    cumulativeHeightMax = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm) - _pageMargins.Top - _pageMargins.Bottom - totalsSize * 1.5f; // factor 1.5 as safety for possibly missing line with leave amounts... all sums should be more or less the same size enough for this simplification to hold
 
                     if (this.document is null)
                     {
@@ -198,6 +205,7 @@ namespace AnlageverzeichnisAppWPF
                                                                                                         );
                                     // paginate the new section end sum document
                                     _basePaginator = ((IDocumentPaginatorSource)sectionEndSumDoc).DocumentPaginator;
+                                    sectionEndSumDoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm) - _pageMargins.Left - _pageMargins.Right;
                                     var sectionSumPage = _basePaginator.GetPage(0);
                                     var sectionSumPageSize = MeasureFlowDocumentHeight(sectionEndSumDoc);
 
@@ -254,9 +262,11 @@ namespace AnlageverzeichnisAppWPF
                                                                                                     pageEndDataLineIndexNumber: currentLineIndex
                                                                                                   );
                             _basePaginator = ((IDocumentPaginatorSource)pageEndSumFlowDocs[0]).DocumentPaginator;
+                            pageEndSumFlowDocs[0].PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm) - _pageMargins.Left - _pageMargins.Right;
                             pageEndSumPage0 = _basePaginator.GetPage(0);
                             pageEndSumPage0Size = MeasureFlowDocumentHeight(pageEndSumFlowDocs[0]);
                             _basePaginator = ((IDocumentPaginatorSource)pageEndSumFlowDocs[1]).DocumentPaginator;
+                            pageEndSumFlowDocs[1].PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm) - _pageMargins.Left - _pageMargins.Right;
                             pageEndSumPage1 = _basePaginator.GetPage(0);
                             pageEndSumPage1Size = MeasureFlowDocumentHeight(pageEndSumFlowDocs[1]);
 

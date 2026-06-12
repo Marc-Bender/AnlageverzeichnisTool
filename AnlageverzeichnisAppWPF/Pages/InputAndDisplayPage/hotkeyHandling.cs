@@ -92,6 +92,11 @@ namespace AnlageverzeichnisAppWPF
                     MessageBox.Show("Ein Wert ist Null der nicht Null sein darf!", "Null-Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+                catch (ArgumentOutOfRangeException)
+                {
+                    MessageBox.Show("Ein Wert hat einen unerlaubten Betrag", "Wert-Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
                 if (vm.CurrentlyEditedLine.IsHeading == true)
                 {

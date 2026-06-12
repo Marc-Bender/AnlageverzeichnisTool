@@ -22,6 +22,10 @@ namespace AnlageverzeichnisAppWPF
             {
                 throw new NoNullAllowedException();
             }
+            else if (PriceAtPurchase_Cents < 200)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
             else
             {
                 // not attempting to divide by zero
