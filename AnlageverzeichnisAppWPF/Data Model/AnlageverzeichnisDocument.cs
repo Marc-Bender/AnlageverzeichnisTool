@@ -17,7 +17,7 @@ namespace AnlageverzeichnisAppWPF
     {
         public class headerTableColumnWidths
         {
-            public static GridLength objectDescription => new GridLength(2, GridUnitType.Star);
+            public static GridLength objectDescription => new GridLength(1.5, GridUnitType.Star);
             public static GridLength dateOfPurchase => new GridLength(0.3, GridUnitType.Star);
             public static GridLength priceAtPurchase => new GridLength(0.5, GridUnitType.Star);
             public static GridLength plusMinus => new GridLength(0.15, GridUnitType.Star);
@@ -183,6 +183,7 @@ namespace AnlageverzeichnisAppWPF
             flowDoc.ColumnWidth = double.PositiveInfinity;
             flowDoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm);
             flowDoc.MaxPageHeight = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm);
+            flowDoc.PagePadding = new Thickness(0);
 
             flowDoc.Tag = this;
 
@@ -290,7 +291,7 @@ namespace AnlageverzeichnisAppWPF
             flowDoc.ColumnWidth = double.PositiveInfinity;
             flowDoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm);
             flowDoc.MaxPageHeight = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm);
-            flowDoc.PagePadding = new Thickness(0);
+            flowDoc.PagePadding = new Thickness(0); // absolutely required in order to not draw the padding area in the paginator later! this would cause the data line to appear to be invisible but have the correct size eitherway
             flowDoc.Tag = this;
 
             var dataLineTable = new Table();
@@ -371,7 +372,7 @@ namespace AnlageverzeichnisAppWPF
             flowDoc.ColumnWidth = double.PositiveInfinity;
             flowDoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm);
             flowDoc.PageHeight = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm);
-
+            flowDoc.PagePadding = new Thickness(0);
             flowDoc.Tag = this;
 
             var totalsSumTable = new Table();
@@ -499,6 +500,7 @@ namespace AnlageverzeichnisAppWPF
             flowDoc.ColumnWidth = double.PositiveInfinity;
             flowDoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm);
             flowDoc.PageHeight = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm);
+            flowDoc.PagePadding = new Thickness(0);
 
             flowDoc.Tag = this;
 
@@ -631,6 +633,7 @@ namespace AnlageverzeichnisAppWPF
             flowDocPage0.ColumnWidth = double.PositiveInfinity;
             flowDocPage0.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm);
             flowDocPage0.PageHeight = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm);
+            flowDocPage0.PagePadding = new Thickness(0);
 
             flowDocPage0.Tag = this;
 
@@ -749,6 +752,13 @@ namespace AnlageverzeichnisAppWPF
             flowDocPage0.Blocks.Add(sectionSumTablePage0);
 
 
+            sectionSumTableThicknessFirstLine = new Thickness(
+                                                        0,
+                                                        0,
+                                                        0,
+                                                        sectionSumValues.leaveAmount_cent != 0 ? 0 : 1 // if there is a leave amount there is a seperate line being added to the sum table thus the bottom line will be the next line thus this line will not need a bottom border in that case only
+                                                   );
+
             // the below is for the echo of the previous page values on the top of the next page
             var flowDocPage1 = new FlowDocument();
             flowDocPage1.FontFamily = new System.Windows.Media.FontFamily("Courier New");
@@ -756,11 +766,12 @@ namespace AnlageverzeichnisAppWPF
             flowDocPage1.ColumnWidth = double.PositiveInfinity;
             flowDocPage1.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm);
             flowDocPage1.PageHeight = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm);
+            flowDocPage1.PagePadding = new Thickness(0);
 
             flowDocPage1.Tag = this;
 
             var sectionSumTablePage1 = new Table();
-            sectionSumTablePage0.CellSpacing = 0;
+            sectionSumTablePage1.CellSpacing = 0;
             /*0*/sectionSumTablePage1.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.spacer});
             /*1*/sectionSumTablePage1.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.priceAtPurchase});
             /*2*/sectionSumTablePage1.Columns.Add(new TableColumn { Width = PrintedDocumentAbstraction.sectionSumTableColumnWidths.plusMinus});

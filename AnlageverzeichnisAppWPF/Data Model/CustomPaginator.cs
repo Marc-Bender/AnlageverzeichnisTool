@@ -25,11 +25,9 @@ namespace AnlageverzeichnisAppWPF
     public class CustomPaginator : DocumentPaginator
     {
         private readonly Typeface _headerTypeface = new Typeface("Courier New");
-        private readonly double _headerFontSize = 12;
         private readonly Thickness _pageMargins = new Thickness(A3PaperAbstraction.pageMargins_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI);
 
         private AnlageverzeichnisDocument? document;
-        private int consumedDocumentRows = 0;
         private List<FlowDocument> dataLinesFlowDocuments;
 
         // calculate the header and totals flowdoc once and then reuse across pages
@@ -121,13 +119,36 @@ namespace AnlageverzeichnisAppWPF
                         },
                         null,
                         new Rect(
-                                    0,
-                                    0,
-                                    this._pageSize.Width,
+                                    _pageMargins.Left,
+                                    _pageMargins.Top,
+                                    this._pageSize.Width - _pageMargins.Left - _pageMargins.Right,
                                     headerSize
                                 )
                         );
+
                     cumulativeHeight += headerSize;
+
+                    if(this.isSectionInterrupted == true)
+                    {
+                        this.isSectionInterrupted = false;
+                        dc.DrawRectangle(
+                            new VisualBrush(pageEndSumPage1.Visual)
+                            {
+                                Stretch = Stretch.None,
+                                AlignmentX = AlignmentX.Left,
+                                AlignmentY = AlignmentY.Top
+                            },
+                            null,
+                            new Rect(
+                                        _pageMargins.Left,
+                                        _pageMargins.Top + cumulativeHeight,
+                                        this._pageSize.Width - _pageMargins.Left - _pageMargins.Right,
+                                        pageEndSumPage1Size
+                                    )
+                            );
+
+                        cumulativeHeight += pageEndSumPage1Size;
+                    }
                     double cumulativeHeightMax;
 
                     cumulativeHeightMax = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm) - totalsSize * 1.5f; // factor 1.5 as safety for possibly missing line with leave amounts... all sums should be more or less the same size enough for this simplification to hold
@@ -191,15 +212,15 @@ namespace AnlageverzeichnisAppWPF
                                         },
                                         null,
                                         new Rect(
-                                                    0,
-                                                    cumulativeHeight,
-                                                    this._pageSize.Width,
+                                                    _pageMargins.Left,
+                                                    _pageMargins.Top + cumulativeHeight,
+                                                    this._pageSize.Width - _pageMargins.Left - _pageMargins.Right,
                                                     sectionSumPageSize
                                                 )
                                         );
                                         cumulativeHeight += sectionSumPageSize;
                                 }
-                                catch (InvalidOperationException e)
+                                catch (InvalidOperationException)
                                 {
                                     // may occur if the sequence "headingsUntilNow" does not contain any elements which is fine in case the first line is a heading ... (then there is no last item in there and then there also does not need to be any section end sum in place)
                                     // thus in this case there is nothing to do here
@@ -215,9 +236,9 @@ namespace AnlageverzeichnisAppWPF
                                 },
                                 null,
                                 new Rect(
-                                            0,
-                                            cumulativeHeight,
-                                            this._pageSize.Width,
+                                            _pageMargins.Left,
+                                            _pageMargins.Top + cumulativeHeight,
+                                            this._pageSize.Width - _pageMargins.Left - _pageMargins.Right,
                                             thisLinePageSize
                                         )
                                 );
@@ -226,6 +247,36 @@ namespace AnlageverzeichnisAppWPF
                         }
                         else
                         {
+                            var headingsUntilNow = this.document.DataEntryLines.Where(x => x.IsHeading == true && this.document.DataEntryLines.IndexOf(x) < currentLineIndex);
+                            // then generate the sectionendsum 
+                            var pageEndSumFlowDocs = this.document.generatePageEndSumFlowDocuments(
+                                                                                                    sectionStartDataLineIndexNumber: this.document.DataEntryLines.IndexOf(headingsUntilNow.Last()),
+                                                                                                    pageEndDataLineIndexNumber: currentLineIndex
+                                                                                                  );
+                            _basePaginator = ((IDocumentPaginatorSource)pageEndSumFlowDocs[0]).DocumentPaginator;
+                            pageEndSumPage0 = _basePaginator.GetPage(0);
+                            pageEndSumPage0Size = MeasureFlowDocumentHeight(pageEndSumFlowDocs[0]);
+                            _basePaginator = ((IDocumentPaginatorSource)pageEndSumFlowDocs[1]).DocumentPaginator;
+                            pageEndSumPage1 = _basePaginator.GetPage(0);
+                            pageEndSumPage1Size = MeasureFlowDocumentHeight(pageEndSumFlowDocs[1]);
+
+                            this.isSectionInterrupted = true;
+
+                            dc.DrawRectangle(
+                                new VisualBrush(pageEndSumPage0.Visual)
+                                {
+                                    Stretch = Stretch.None,
+                                    AlignmentX = AlignmentX.Left,
+                                    AlignmentY = AlignmentY.Top,
+                                },
+                                null,
+                                new Rect(
+                                            _pageMargins.Left,
+                                            _pageMargins.Top + cumulativeHeight,
+                                            this._pageSize.Width - _pageMargins.Left - _pageMargins.Right,
+                                            pageEndSumPage0Size
+                                        )
+                                );
                             this.Pages.Add(
                                 new DocumentPage(
                                     visual,
@@ -254,9 +305,9 @@ namespace AnlageverzeichnisAppWPF
                             },
                             null,
                             new Rect(
-                                        0,
-                                        cumulativeHeight,
-                                        this._pageSize.Width,
+                                        _pageMargins.Left,
+                                        _pageMargins.Top + cumulativeHeight,
+                                        this._pageSize.Width - _pageMargins.Left - _pageMargins.Right,
                                         totalsSize
                                     )
                             );
