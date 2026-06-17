@@ -109,9 +109,12 @@ namespace AnlageverzeichnisAppWPF
             _basePaginator = ((IDocumentPaginatorSource)dummyPageEndSumFlowDocuments[1]).DocumentPaginator;
             pageEndSumPage1 = _basePaginator.GetPage(0);
             pageEndSumPage1Size = MeasureFlowDocumentHeight(dummyPageEndSumFlowDocuments[1]);
-
+        }
+        public async Task BuildPagesAsync(AnlageverzeichnisDocument document)
+        {
             while (true)
             {
+                await Task.Yield();
                 // Create a new visual to draw header/footer
                 var visual = new DrawingVisual();
                 using (var dc = visual.RenderOpen())
@@ -132,6 +135,7 @@ namespace AnlageverzeichnisAppWPF
                                     headerSize
                                 )
                         );
+                    await Task.Yield();
 
                     cumulativeHeight += headerSize;
 
@@ -156,6 +160,7 @@ namespace AnlageverzeichnisAppWPF
 
                         cumulativeHeight += pageEndSumPage1Size;
                     }
+                    await Task.Yield();
                     double cumulativeHeightMax;
 
                     cumulativeHeightMax = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.heightLandscape_mm) - _pageMargins.Top - _pageMargins.Bottom - totalsSize * 1.5f; // factor 1.5 as safety for possibly missing line with leave amounts... all sums should be more or less the same size enough for this simplification to hold
@@ -168,14 +173,16 @@ namespace AnlageverzeichnisAppWPF
 
                     for (int i = currentLineIndex; i < dataLinesFlowDocuments.Count; i++)
                     {
-                        _basePaginator = ((IDocumentPaginatorSource)dataLinesFlowDocuments.ElementAt(currentLineIndex)).DocumentPaginator;
+                        var _basePaginator = ((IDocumentPaginatorSource)dataLinesFlowDocuments.ElementAt(currentLineIndex)).DocumentPaginator;
                         var thisLinePage = _basePaginator.GetPage(0);
+                        await Task.Yield();
                         _basePaginator = currentLineIndex + 1 < dataLinesFlowDocuments.Count ? ((IDocumentPaginatorSource)dataLinesFlowDocuments.ElementAt(currentLineIndex + 1)).DocumentPaginator : null;
                         var nextLinePage = _basePaginator is not null ? _basePaginator.GetPage(0) : null;
+                        await Task.Yield();
 
                         var thisLinePageSize = MeasureFlowDocumentHeight(dataLinesFlowDocuments[currentLineIndex]);
                         var nextLinePageSize = currentLineIndex + 1 < dataLinesFlowDocuments.Count?MeasureFlowDocumentHeight(dataLinesFlowDocuments[currentLineIndex+1]):0;
-
+                        await Task.Yield();
                         if (
                                 (cumulativeHeight + thisLinePageSize < cumulativeHeightMax)
                                 && (this.document is not null)
@@ -203,11 +210,14 @@ namespace AnlageverzeichnisAppWPF
                                                                                                             sectionStartDataLineIndexNumber: this.document.DataEntryLines.IndexOf(headingsUntilNow.Last()),
                                                                                                             sectionEndDataLineIndexNumber: currentLineIndex + 1 
                                                                                                         );
+                                    await Task.Yield();
+
                                     // paginate the new section end sum document
                                     _basePaginator = ((IDocumentPaginatorSource)sectionEndSumDoc).DocumentPaginator;
                                     sectionEndSumDoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm) - _pageMargins.Left - _pageMargins.Right;
                                     var sectionSumPage = _basePaginator.GetPage(0);
                                     var sectionSumPageSize = MeasureFlowDocumentHeight(sectionEndSumDoc);
+                                    await Task.Yield();
 
                                     // draw the section end sum
 
@@ -227,6 +237,7 @@ namespace AnlageverzeichnisAppWPF
                                                 )
                                         );
                                         cumulativeHeight += sectionSumPageSize;
+                                    await Task.Yield();
                                 }
                                 catch (InvalidOperationException)
                                 {
@@ -252,23 +263,29 @@ namespace AnlageverzeichnisAppWPF
                                 );
                             cumulativeHeight += thisLinePageSize;
                             currentLineIndex++;
+                            await Task.Yield();
                         }
                         else
                         {
                             var headingsUntilNow = this.document.DataEntryLines.Where(x => x.IsHeading == true && this.document.DataEntryLines.IndexOf(x) < currentLineIndex);
+                            await Task.Yield();
+
                             // then generate the sectionendsum 
                             var pageEndSumFlowDocs = this.document.generatePageEndSumFlowDocuments(
                                                                                                     sectionStartDataLineIndexNumber: this.document.DataEntryLines.IndexOf(headingsUntilNow.Last()),
                                                                                                     pageEndDataLineIndexNumber: currentLineIndex
                                                                                                   );
+                            await Task.Yield();
                             _basePaginator = ((IDocumentPaginatorSource)pageEndSumFlowDocs[0]).DocumentPaginator;
                             pageEndSumFlowDocs[0].PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm) - _pageMargins.Left - _pageMargins.Right;
                             pageEndSumPage0 = _basePaginator.GetPage(0);
                             pageEndSumPage0Size = MeasureFlowDocumentHeight(pageEndSumFlowDocs[0]);
+                            await Task.Yield();
                             _basePaginator = ((IDocumentPaginatorSource)pageEndSumFlowDocs[1]).DocumentPaginator;
                             pageEndSumFlowDocs[1].PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm) - _pageMargins.Left - _pageMargins.Right;
                             pageEndSumPage1 = _basePaginator.GetPage(0);
                             pageEndSumPage1Size = MeasureFlowDocumentHeight(pageEndSumFlowDocs[1]);
+                            await Task.Yield();
 
                             this.isSectionInterrupted = true;
 
@@ -287,6 +304,7 @@ namespace AnlageverzeichnisAppWPF
                                             pageEndSumPage0Size
                                         )
                                 );
+                            await Task.Yield();
                             this.Pages.Add(
                                 new DocumentPage(
                                     visual,
@@ -302,6 +320,8 @@ namespace AnlageverzeichnisAppWPF
                             );
                             break; // if the page is full exit the inner loop (over the lines) to return to the outer loop (over the pages) to create a new visual 
                         }
+
+                        await Task.Yield();
                     }
 
                     if (currentLineIndex >= this.dataLinesFlowDocuments.Count)
@@ -321,6 +341,7 @@ namespace AnlageverzeichnisAppWPF
                                         totalsSize
                                     )
                             );
+                        await Task.Yield();
                         this.Pages.Add(
                             new DocumentPage(
                                 visual,

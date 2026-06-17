@@ -45,7 +45,7 @@ namespace AnlageverzeichnisAppWPF
         public ICommand ReloadCommand => new RelayCommand(Reload);
         public ICommand ApplyCommand => new RelayCommand(Apply);
         public ICommand NewEntryCommand => new RelayCommand(NewEntry);
-        public ICommand CreatePDFCommand => new RelayCommand(CreatePDF);
+        public ICommand CreatePDFCommand => new RelayCommand(async () => await CreatePDF());
         private void Save()
         {
             using (var outfile = new StreamWriter(this.filename))
@@ -171,7 +171,7 @@ namespace AnlageverzeichnisAppWPF
             }
         }
 
-        private void CreatePDF()
+        private async Task CreatePDF()
         {
             if (
                     (this.DataContext is inputAndDisplayPageViewModel vm)
@@ -179,11 +179,18 @@ namespace AnlageverzeichnisAppWPF
                )
             {
                 // the below needs to be rethought once the paginator is doing the pagination stuff for real
-
+                this.pdfCreationProgressBar.Visibility = Visibility.Visible;
                 var paginator = new CustomPaginator(doc);
+                await Task.Run(
+                    async () => 
+                    {
+                        await paginator.BuildPagesAsync(doc);
+
+                    });
                 var dlg = new PrintDialog();
 
                 dlg.PrintDocument(paginator, $"Anlageverzeichnis {doc.Header.CurrentlyWorkedOnYear} {doc.Header.CompanyName}");
+                this.pdfCreationProgressBar.Visibility = Visibility.Hidden;
             }
         }
     }
