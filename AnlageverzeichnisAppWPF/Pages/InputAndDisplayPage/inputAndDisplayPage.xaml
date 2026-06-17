@@ -545,6 +545,7 @@
                 VerticalScrollBarVisibility="Visible"
                 PreviewKeyDown="objectDescriptionTextBox_PreviewKeyDown"
                 TabIndex="0"
+                AcceptsReturn="True"
                 Text="{Binding ObjectDescriptionText, UpdateSourceTrigger=PropertyChanged}"
             />
             <xctk:IntegerUpDown
