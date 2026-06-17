@@ -411,10 +411,14 @@
                             Width="0.25*"
                             Binding="{Binding IsLeavingThisYear,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     >
-                            <DataGridCheckBoxColumn.ElementStyle>
-                            <Style BasedOn="{StaticResource CanLeaveOrBeMemorialValueStyle}" TargetType="CheckBox"/>
+                        <DataGridCheckBoxColumn.ElementStyle>
+                            <Style BasedOn="{StaticResource CanLeaveOrBeMemorialValueStyle}" TargetType="CheckBox">
+                                <Setter Property="ToolTip"
+                                        Value="Ändungen hieran bedingen keine _direkte_ Werteänderung "
+                                        >
+                                </Setter>
+                            </Style>
                         </DataGridCheckBoxColumn.ElementStyle>
-
                     </DataGridCheckBoxColumn>
                     
 
