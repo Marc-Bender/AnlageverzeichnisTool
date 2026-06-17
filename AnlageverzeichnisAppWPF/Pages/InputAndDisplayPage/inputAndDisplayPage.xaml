@@ -19,7 +19,7 @@
         <local:BoldHeadingsConverter x:Key="BoldHeadings" />
         <local:EditingToBackgroundConverter x:Key="EditingBackground" />
         <local:YearsTo0P1PctConverter x:Key="YearsTo0P1Pct" />
-        <local:CanLeaveOrBeMemorialValueConverter x:Key="CanLeaveOrBeMemorialValueConverter" />
+        <local:CanLeaveConverter x:Key="CanLeaveConverter" />
         <local:FirstYearItalicPreviousYearConverter x:Key="FirstYearItalicPreviousYearConverter" />
         <local:dateOfPurchaseConverter x:Key="DateOfPurchaseConverter" />
 
@@ -179,11 +179,11 @@
             </TextBox>
         </DataTemplate>
 
-        <Style x:Key="CanLeaveOrBeMemorialValueStyle"
+        <Style x:Key="CanLeaveStyle"
             TargetType="CheckBox">
             <Setter Property="IsEnabled">
                 <Setter.Value>
-                    <MultiBinding Converter="{StaticResource CanLeaveOrBeMemorialValueConverter}">
+                    <MultiBinding Converter="{StaticResource CanLeaveConverter}">
                         <Binding Path="DataContext.Document.Header.CurrentlyWorkedOnYear" RelativeSource="{RelativeSource AncestorType=Page}"/>
                         <Binding Path="YearOfPurchase" />
                         <Binding Path="IsHeading" />
@@ -412,7 +412,7 @@
                             Binding="{Binding IsLeavingThisYear,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     >
                         <DataGridCheckBoxColumn.ElementStyle>
-                            <Style BasedOn="{StaticResource CanLeaveOrBeMemorialValueStyle}" TargetType="CheckBox">
+                            <Style BasedOn="{StaticResource CanLeaveStyle}" TargetType="CheckBox">
                                 <Setter Property="ToolTip"
                                         Value="Ändungen hieran bedingen keine _direkte_ Werteänderung "
                                         >
@@ -420,19 +420,6 @@
                             </Style>
                         </DataGridCheckBoxColumn.ElementStyle>
                     </DataGridCheckBoxColumn>
-                    
-
-                    <DataGridCheckBoxColumn
-                            x:Name="displayAsMemorialValueCheckBoxColumn"
-                            Header="E"
-                            Width="0.25*"
-                            Binding="{Binding DisplayAsMemorialValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        >
-                        <DataGridCheckBoxColumn.ElementStyle>
-                            <Style BasedOn="{StaticResource CanLeaveOrBeMemorialValueStyle}" TargetType="CheckBox"/>
-                        </DataGridCheckBoxColumn.ElementStyle>
-                    </DataGridCheckBoxColumn>
-
                 </DataGrid.Columns>
             </DataGrid>
 
@@ -647,22 +634,13 @@
                 Content="Abgang in diesem Jahr (-)"
                 TabIndex="5"
                 IsChecked="{Binding IsLeavingThisYear}"
-                Style="{StaticResource CanLeaveOrBeMemorialValueStyle}"
+                Style="{StaticResource CanLeaveStyle}"
             >
             </CheckBox>
 
             <CheckBox
-                Name="displayAsMemorialValueCheckbox"
-                Grid.Row="3"
-                Grid.Column="5"
-                Content="Auf Erinnerungswert setzen (E)"
-                TabIndex="6"
-                IsChecked="{Binding DisplayAsMemorialValue}"
-                Style="{StaticResource CanLeaveOrBeMemorialValueStyle}"
-            />
-            <CheckBox
                 Name="deprecationInYearsCheckBox"
-                Grid.Row="4"
+                Grid.Row="3"
                 Grid.Column="5"
                 Content="Abschreibung in Jahren (F9)"
                 TabIndex="6"

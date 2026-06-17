@@ -45,7 +45,7 @@ namespace AnlageverzeichnisAppWPF
         private void dataEntryLinesDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             // need to handle recalculation on :
-            // mm/jjjj, eur hist, % deprecation, isLeavingCheckbox, memorialvalCheckbox
+            // mm/jjjj, eur hist, % deprecation, isLeavingCheckbox
             if(
                   (e.Row.Item is dataEntryLine line)
                 &&(
@@ -53,7 +53,6 @@ namespace AnlageverzeichnisAppWPF
                       ||(e.Column == historicPriceDataGridColumn)
                       ||(e.Column == percentageDeprecationDataGridColumn)
                       ||(e.Column == isLeavingCheckBoxColumn)
-                      ||(e.Column == displayAsMemorialValueCheckBoxColumn)
                   )
                 &&(sender is System.Windows.Controls.DataGrid grid)
                 &&(grid.DataContext is inputAndDisplayPageViewModel vm)

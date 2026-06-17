@@ -57,9 +57,6 @@ namespace AnlageverzeichnisAppWPF
         [ObservableProperty]
         private bool isLeavingThisYear  = false;
         
-        [ObservableProperty]
-        private bool displayAsMemorialValue  = false;
-
         public dataEntryLine()
         {
             // needed for easy json deserialize only! otherwise the constructor with parameters would be used and the deserializer fails!

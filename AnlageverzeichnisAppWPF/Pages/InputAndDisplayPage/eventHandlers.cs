@@ -47,12 +47,6 @@ namespace AnlageverzeichnisAppWPF
                             e.Handled = true;
                         }
                         break;
-                    case Key.E:
-                        {
-                            vm.CurrentlyEditedLine.DisplayAsMemorialValue = !vm.CurrentlyEditedLine.DisplayAsMemorialValue;
-                            e.Handled = true;
-                        }
-                        break;
                     case Key.Multiply:
                         {
                             e.Handled = true;

@@ -154,7 +154,7 @@ namespace AnlageverzeichnisAppWPF
         }
     }
 
-    public class CanLeaveOrBeMemorialValueConverter : IMultiValueConverter
+    public class CanLeaveConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
