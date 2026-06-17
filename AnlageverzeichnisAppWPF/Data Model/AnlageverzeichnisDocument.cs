@@ -664,12 +664,7 @@ namespace AnlageverzeichnisAppWPF
                     sectionSumValues.previousYearObjectValue_cent += line.PreviousYearObjectValue_Cents;
             }
 
-            var sectionSumTableThicknessFirstLine = new Thickness(
-                                                                    0,
-                                                                    1,
-                                                                    0,
-                                                                    sectionSumValues.leaveAmount_cent != 0 ? 0 : 1 // if there is a leave amount there is a seperate line being added to the sum table thus the bottom line will be the next line thus this line will not need a bottom border in that case only
-                                                               );
+            var sectionSumTableThicknessFirstLine = new Thickness(0,1,0,0);
 
             var row = new TableRow();
             sectionSumPage0TableRowGroup.Rows.Add(row);
@@ -687,7 +682,7 @@ namespace AnlageverzeichnisAppWPF
 
             if(sectionSumValues.leaveAmount_cent != 0)
             {
-                var sectionSumTableThicknessLeaveLine = new Thickness(0,0,0,1);
+                var sectionSumTableThicknessLeaveLine = new Thickness(0);
 
                 row = new TableRow();
                 sectionSumPage0TableRowGroup.Rows.Add(row);
@@ -701,54 +696,6 @@ namespace AnlageverzeichnisAppWPF
                 }
             }
 
-            var spacer = new TableRow();
-            
-            for (int i=0;i<9;i++)
-            {
-                var rect = new System.Windows.Shapes.Rectangle
-                {
-                    Height = 2, // tiny gap
-                    Fill = System.Windows.Media.Brushes.Transparent
-                };
-
-                var ui = new BlockUIContainer(rect)
-                {
-                    Margin = new Thickness(0),
-                    Padding = new Thickness(0)
-                };
-
-                var cell = new TableCell(ui)
-                {
-                    BorderThickness = new Thickness(0),
-                    Padding = new Thickness(0)
-                };
-
-                spacer.Cells.Add(cell);
-            }
-
-            sectionSumPage0TableRowGroup.Rows.Add(spacer);
-
-            var rowForDoubleUnderlineSecondLine = new TableRow();
-            for (int i=0;i<9;i++)
-            {
-                TableCell spacerCell;
-                if (i==0)
-                {
-                    spacerCell = new TableCell(new Paragraph(new Run("\u00A0"))); // linebreak as a placeholder as a cell must not be totally empty for WPF to work
-                }
-                else
-                {
-                    spacerCell = new TableCell(new Paragraph(new Run("\u00A0"))) // linebreak as a placeholder as a cell must not be totally empty for WPF to work
-                    {
-                        BorderThickness = new Thickness(0, 1, 0, 0),
-                        BorderBrush = System.Windows.Media.Brushes.Black,
-                        LineHeight = 2
-                    };
-                }
-                
-                rowForDoubleUnderlineSecondLine.Cells.Add(spacerCell);
-            }
-            sectionSumPage0TableRowGroup.Rows.Add(rowForDoubleUnderlineSecondLine);
             flowDocPage0.Blocks.Add(sectionSumTablePage0);
 
 
