@@ -672,7 +672,7 @@
             >
             <Button
                 Name="newEntryButton"
-                Content="Neuer Entrag (Strg+N)"
+                Content="Neuer Eintrag (Strg+N)"
                 Click="newEntryButton_Click"
             />
         </Grid>

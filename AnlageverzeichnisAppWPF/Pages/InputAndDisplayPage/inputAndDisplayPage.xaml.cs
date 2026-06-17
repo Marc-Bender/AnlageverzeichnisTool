@@ -55,6 +55,9 @@ namespace AnlageverzeichnisAppWPF
                       ||(e.Column == isLeavingCheckBoxColumn)
                       ||(e.Column == displayAsMemorialValueCheckBoxColumn)
                   )
+                &&(sender is System.Windows.Controls.DataGrid grid)
+                &&(grid.DataContext is inputAndDisplayPageViewModel vm)
+                &&(vm.IsExpertModeEnabled == false)
               )
             {
                 line.IsCalculateDerivedFieldsNeeded = true;
