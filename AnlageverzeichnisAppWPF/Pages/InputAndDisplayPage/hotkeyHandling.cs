@@ -178,19 +178,26 @@ namespace AnlageverzeichnisAppWPF
                   &&(vm.Document is AnlageverzeichnisDocument doc)
                )
             {
-                // the below needs to be rethought once the paginator is doing the pagination stuff for real
-                this.pdfCreationProgressBar.Visibility = Visibility.Visible;
-                var paginator = new CustomPaginator(doc);
-                await Task.Run(
-                    async () => 
+                ProgressWindow progressWindow = new ();
+                var progressThread = new Thread(() =>
                     {
-                        await paginator.BuildPagesAsync(doc);
-
-                    });
+                        progressWindow = new ProgressWindow();
+                        progressWindow.Show();
+                        System.Windows.Threading.Dispatcher.Run();
+                    }
+                );
+                progressThread.SetApartmentState(ApartmentState.STA);
+                progressThread.IsBackground = true;
+                progressThread.Start();
+                var paginator = new CustomPaginator(doc);
                 var dlg = new PrintDialog();
-
+                if (progressWindow is not null)
+                {
+                    progressWindow.Dispatcher.Invoke(() => { progressWindow.Close(); });
+                    progressWindow.Dispatcher.InvokeShutdown();
+                    progressThread.Join();
+                }
                 dlg.PrintDocument(paginator, $"Anlageverzeichnis {doc.Header.CurrentlyWorkedOnYear} {doc.Header.CompanyName}");
-                this.pdfCreationProgressBar.Visibility = Visibility.Hidden;
             }
         }
     }

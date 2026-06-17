@@ -200,7 +200,6 @@
             <RowDefinition Height="0.35*"></RowDefinition>
             <RowDefinition Height="2*"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="0.1*"></RowDefinition>
         </Grid.RowDefinitions>
         <!-- 1st row ## company name, zip code, city and year -->
         <Grid
@@ -681,11 +680,5 @@
                 Click="newEntryButton_Click"
             />
         </Grid>
-        <ProgressBar
-            Visibility="Hidden"
-            IsIndeterminate="True"
-            Name="pdfCreationProgressBar"
-            Grid.Row="3"
-            />
     </Grid>
 </Page>

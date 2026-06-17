@@ -11,5 +11,8 @@
     <Compile Update="Pages\ModeSelectorPage\modeSelectorPage.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="ProgressWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 </Project>
