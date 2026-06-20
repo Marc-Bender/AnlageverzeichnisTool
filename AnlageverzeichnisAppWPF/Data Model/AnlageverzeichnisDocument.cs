@@ -341,12 +341,29 @@ namespace AnlageverzeichnisAppWPF
                 _addCellToRow(row, "\u00A0");
             }
 
-            _addCellToRow(row, _numericToFormatedString(line.AccumulatedDepreciation_Cents, centsConverter), textAlignment: TextAlignment.Right);
+            if(line.IsLeavingThisYear == false)
+            {
+                _addCellToRow(row, _numericToFormatedString(line.AccumulatedDepreciation_Cents, centsConverter), textAlignment: TextAlignment.Right);
+            }
+            else 
+            { 
+                _addCellToRow(row, "\u00A0");
+            }
 
-            var percentageConverter = new TenthPctToPercentageString();
-            _addCellToRow(row, _numericToFormatedString(line.DepreciationPercentage_0P1Pct, percentageConverter), textAlignment: TextAlignment.Center);
-                
-            _addCellToRow(row, _numericToFormatedString(line.CurrentYearDepreciationAmount_Cents, centsConverter), textAlignment: TextAlignment.Right);
+            if (
+                   (line.IsLeavingThisYear == false)
+                || (line.CurrentYearDepreciationAmount_Cents != 0)
+              )
+            {
+                var percentageConverter = new TenthPctToPercentageString();
+                _addCellToRow(row, _numericToFormatedString(line.DepreciationPercentage_0P1Pct, percentageConverter), textAlignment: TextAlignment.Center);
+                _addCellToRow(row, _numericToFormatedString(line.CurrentYearDepreciationAmount_Cents, centsConverter), textAlignment: TextAlignment.Right);
+            }
+            else
+            {
+                _addCellToRow(row, "\u00A0");
+                _addCellToRow(row, "\u00A0");
+            }
             _addCellToRow(row, _numericToFormatedString(line.CurrentYearObjectValue_Cents, centsConverter), textAlignment: TextAlignment.Right);
             _addCellToRow(row, _numericToFormatedString(line.PreviousYearObjectValue_Cents, centsConverter), textAlignment: TextAlignment.Right);    
 

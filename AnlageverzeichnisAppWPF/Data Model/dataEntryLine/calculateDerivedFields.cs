@@ -75,13 +75,13 @@ namespace AnlageverzeichnisAppWPF
             }
 
             // handle the accumulated deprecation amount 
-            if (currentYear == YearOfPurchase)
+            if (IsLeavingThisYear == true)
+            {
+                AccumulatedDepreciation_Cents = 0;
+            }
+            else if (currentYear == YearOfPurchase)
             {
                 AccumulatedDepreciation_Cents = CurrentYearDepreciationAmount_Cents;
-            }
-            else if (IsLeavingThisYear == true)
-            {
-
             }
             else
             {
@@ -93,10 +93,16 @@ namespace AnlageverzeichnisAppWPF
                 AccumulatedDepreciation_Cents = Math.Min(AccumulatedDepreciation_Cents, PriceAtPurchase_Cents - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur...
             }
 
+            var currentYearObjectValueTheoretical = PriceAtPurchase_Cents; // initializer -- to be overwritten in the if else below
+
             // handle the current year remaining value
             if (currentYear == YearOfPurchase)
             {
                 CurrentYearObjectValue_Cents = PriceAtPurchase_Cents - CurrentYearDepreciationAmount_Cents;
+            }
+            else if (IsLeavingThisYear == true)
+            {
+                CurrentYearObjectValue_Cents = 0; // if the object is leaving it is fully written off by definition ... 
             }
             else
             {
@@ -108,14 +114,26 @@ namespace AnlageverzeichnisAppWPF
             {
                 PreviousYearObjectValue_Cents = 0; // has not been purchased yet -- thus there is no previous value yet...
             }
-            else
+            else 
             {
-                // since the current year value and current year deprecation are already computed they can be used for infering the previous year value
-                PreviousYearObjectValue_Cents = CurrentYearObjectValue_Cents + CurrentYearDepreciationAmount_Cents;
+                var accumulatedDepreciationTheoretical = initialYearDeprecationAmount();
+                for (int i = 0; i < currentYear - 1 - YearOfPurchase; i++)
+                {
+                    accumulatedDepreciationTheoretical += subsequentYearDeprecationAmount();
+                }
+                accumulatedDepreciationTheoretical = Math.Min(accumulatedDepreciationTheoretical, PriceAtPurchase_Cents - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur
+                PreviousYearObjectValue_Cents = PriceAtPurchase_Cents - accumulatedDepreciationTheoretical;
             }
 
             // need to do this check in the very end to ensure that the current year value has been calculated before being used here
-            CurrentYearDepreciationAmount_Cents = Math.Min(subsequentYearDeprecationAmount(), CurrentYearObjectValue_Cents - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur...
+            if (IsLeavingThisYear == false)
+            {
+                CurrentYearDepreciationAmount_Cents = Math.Min(subsequentYearDeprecationAmount(), CurrentYearObjectValue_Cents - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur...
+            }
+            else
+            {
+                CurrentYearDepreciationAmount_Cents = Math.Min(subsequentYearDeprecationAmount(), CurrentYearObjectValue_Cents); // here the last 100ct (ie 1EUR) do not need to be reserved b/c the object is leaving anyways.
+            }
 
         }
     }
