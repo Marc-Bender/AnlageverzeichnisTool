@@ -128,7 +128,7 @@ namespace AnlageverzeichnisAppWPF
             // need to do this check in the very end to ensure that the current year value has been calculated before being used here
             if (IsLeavingThisYear == false)
             {
-                CurrentYearDepreciationAmount_Cents = Math.Min(subsequentYearDeprecationAmount(), PreviousYearObjectValue_Cents - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur...
+                CurrentYearDepreciationAmount_Cents = Math.Min(subsequentYearDeprecationAmount(), Math.Max(PreviousYearObjectValue_Cents, CurrentYearObjectValue_Cents) - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur...
             }
             else
             {
