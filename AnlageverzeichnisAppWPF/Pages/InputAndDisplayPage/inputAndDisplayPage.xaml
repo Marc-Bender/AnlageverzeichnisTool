@@ -324,7 +324,19 @@
                   PreviewKeyDown="dataEntryLinesDataGrid_PreviewKeyDown"
                   CellEditEnding="dataEntryLinesDataGrid_CellEditEnding"
                   SelectionChanged="dataEntryLinesDataGrid_RowEditEnding"
-            > 
+            >
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsInvalid}" Value="True">
+                                <Setter Property="Background" Value="#FFFFB3B3"/>
+                                <!-- light red -->
+                                <Setter Property="BorderBrush" Value="Red"/>
+                                <Setter Property="BorderThickness" Value="2"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
                 <DataGrid.Columns>
                     <!-- 0th column for the selector of the current heading -->
                     <DataGridTemplateColumn

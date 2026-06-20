@@ -18,6 +18,10 @@ namespace AnlageverzeichnisAppWPF
         [JsonIgnore]
         private bool isCurrentHeading = false;
 
+        [ObservableProperty]
+        [JsonIgnore]
+        private bool isInvalid = false; // a dirty flag to be used for denoting that the current entry is erroneous and thus should be highlighted in some way
+
         [JsonIgnore]
         public int currentYear;
 

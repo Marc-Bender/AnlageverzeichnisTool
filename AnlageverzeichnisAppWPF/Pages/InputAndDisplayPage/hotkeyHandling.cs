@@ -94,7 +94,7 @@ namespace AnlageverzeichnisAppWPF
                 }
                 catch (ArgumentOutOfRangeException)
                 {
-                    MessageBox.Show("Ein Wert hat einen unerlaubten Betrag", "Wert-Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Ein Feld hat einen unerlaubten Wert", "Wert-Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 

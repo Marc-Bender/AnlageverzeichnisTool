@@ -22,7 +22,10 @@ namespace AnlageverzeichnisAppWPF
             {
                 throw new NoNullAllowedException();
             }
-            else if (PriceAtPurchase_Cents < 200)
+            else if (
+                          (PriceAtPurchase_Cents < 200)
+                        ||(currentYear < YearOfPurchase) // might happen in case of any edits in the datagrid!
+                    )
             {
                 throw new ArgumentOutOfRangeException();
             }

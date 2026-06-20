@@ -73,7 +73,23 @@ namespace AnlageverzeichnisAppWPF
                     {
                         if (line.IsCalculateDerivedFieldsNeeded == true)
                         {
-                            line.handleCalculateDerivedFieldsOnUpdate();
+                            line.IsInvalid = false;
+                            try
+                            {
+                                line.handleCalculateDerivedFieldsOnUpdate();
+                            }
+                            catch(NoNullAllowedException)
+                            {
+                                line.IsInvalid = true;
+                                MessageBox.Show("Ein Wert ist Null der nicht Null sein darf!", "Null-Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                                return;
+                            }
+                            catch (ArgumentOutOfRangeException)
+                            {
+                                line.IsInvalid = true;
+                                MessageBox.Show("Ein Feld hat einen unerlaubten Wert", "Wert-Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                                return;
+                            }
                         }
                     }
                 }
