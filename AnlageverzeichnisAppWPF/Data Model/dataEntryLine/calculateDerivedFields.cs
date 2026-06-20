@@ -24,7 +24,13 @@ namespace AnlageverzeichnisAppWPF
             }
             else if (
                           (PriceAtPurchase_Cents < 200)
-                        ||(currentYear < YearOfPurchase) // might happen in case of any edits in the datagrid!
+                        ||(DepreciationPercentage_0P1Pct > 1000)
+                        ||(
+                                // might happen in case of any edits in the datagrid!
+                                (currentYear < YearOfPurchase) 
+                             || (YearOfPurchase < 1900) // minimum value allowed in entry mask as minimum for allowed values in data grid
+
+                          )
                     )
             {
                 throw new ArgumentOutOfRangeException();
