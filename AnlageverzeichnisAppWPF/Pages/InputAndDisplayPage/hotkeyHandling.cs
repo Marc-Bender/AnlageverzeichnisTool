@@ -178,6 +178,13 @@ namespace AnlageverzeichnisAppWPF
                   &&(vm.Document is AnlageverzeichnisDocument doc)
                )
             {
+                var invalidLines = doc.DataEntryLines.Where(x => x.IsInvalid == true).ToList();
+                if (invalidLines.Count != 0)
+                {
+                    MessageBox.Show("Kann kein Dokument mit Fehlern exportieren", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 ProgressWindow progressWindow = new ();
                 var progressThread = new Thread(() =>
                     {
