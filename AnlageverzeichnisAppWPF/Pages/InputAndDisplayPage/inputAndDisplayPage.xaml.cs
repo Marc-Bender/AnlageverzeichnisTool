@@ -78,12 +78,6 @@ namespace AnlageverzeichnisAppWPF
                             {
                                 line.handleCalculateDerivedFieldsOnUpdate();
                             }
-                            catch(NoNullAllowedException)
-                            {
-                                line.IsInvalid = true;
-                                MessageBox.Show("Ein Wert ist Null der nicht Null sein darf!", "Null-Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
-                                return;
-                            }
                             catch (ArgumentOutOfRangeException)
                             {
                                 line.IsInvalid = true;

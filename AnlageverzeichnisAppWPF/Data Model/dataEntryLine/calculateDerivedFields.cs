@@ -18,20 +18,17 @@ namespace AnlageverzeichnisAppWPF
             {
                 // continue calculating...
             }
-            if (DepreciationPercentage_0P1Pct <= 0)
-            {
-                throw new NoNullAllowedException();
-            }
-            else if (
-                          (PriceAtPurchase_Cents < 200)
-                        ||(DepreciationPercentage_0P1Pct > 1000)
-                        ||(
-                                // might happen in case of any edits in the datagrid!
-                                (currentYear < YearOfPurchase) 
-                             || (YearOfPurchase < 1900) // minimum value allowed in entry mask as minimum for allowed values in data grid
 
-                          )
+            if (
+                    (DepreciationPercentage_0P1Pct <= 0)
+                  ||(PriceAtPurchase_Cents < 200)
+                  ||(DepreciationPercentage_0P1Pct >= 1000)
+                  ||(
+                        // might happen in case of any edits in the datagrid!
+                        (currentYear < YearOfPurchase) 
+                        || (YearOfPurchase < 1900) // minimum value allowed in entry mask as minimum for allowed values in data grid
                     )
+                )
             {
                 throw new ArgumentOutOfRangeException();
             }
@@ -137,7 +134,8 @@ namespace AnlageverzeichnisAppWPF
             // need to do this check in the very end to ensure that the current year value has been calculated before being used here
             if (IsLeavingThisYear == false)
             {
-                CurrentYearDepreciationAmount_Cents = Math.Min(subsequentYearDeprecationAmount(), Math.Max(PreviousYearObjectValue_Cents, CurrentYearObjectValue_Cents) - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur...
+                var deprecationAmountThisYearTheoretical = currentYear == YearOfPurchase ? initialYearDeprecationAmount() : subsequentYearDeprecationAmount();
+                CurrentYearDepreciationAmount_Cents = Math.Min(deprecationAmountThisYearTheoretical, Math.Max(PreviousYearObjectValue_Cents, CurrentYearObjectValue_Cents) - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur...
             }
             else
             {

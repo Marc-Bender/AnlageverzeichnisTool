@@ -87,11 +87,6 @@ namespace AnlageverzeichnisAppWPF
                 {
                     vm.CurrentlyEditedLine.calculateDerivedFields(vm.Document.Header.CurrentlyWorkedOnYear);
                 }
-                catch (NoNullAllowedException)
-                {
-                    MessageBox.Show("Ein Wert ist Null der nicht Null sein darf!", "Null-Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
                 catch (ArgumentOutOfRangeException)
                 {
                     MessageBox.Show("Ein Feld hat einen unerlaubten Wert", "Wert-Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
