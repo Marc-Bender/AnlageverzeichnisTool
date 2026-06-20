@@ -127,6 +127,7 @@ namespace AnlageverzeichnisAppWPF
         public void migrateToNextYear() // will change the datastructure inplace
         {
             this.Header.CurrentlyWorkedOnYear++;
+            this.DataEntryLines = new ObservableCollection<dataEntryLine>(this.DataEntryLines.Where(x => x.IsLeavingThisYear == false));
             this.applyCurrentYearToImportedDataEntries(); // need to apply the current year to the data lines after modifying to ensure subsequent calculation of derived fields (actual migration) will calculate the correct values
             foreach (var line in DataEntryLines)
             {
