@@ -214,7 +214,20 @@ namespace AnlageverzeichnisAppWPF
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-            => throw new NotImplementedException();
+        {
+            if (value is string dateString)
+            {
+                var parts = dateString.Split('/');
+                if (parts.Length == 2)
+                {
+                    int month = int.Parse(parts[0]);
+                    int year = int.Parse(parts[1]);
+
+                    return new object[] { month, year };
+                }
+            }
+            return new object[] { };
+        }
     }
 
 
