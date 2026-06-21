@@ -411,6 +411,10 @@ namespace AnlageverzeichnisAppWPF
             var totalsSumTableValues = new PrintedDocumentAbstraction.sumValues();
             foreach (var line in this.DataEntryLines)
             {
+                if (line.IsHeading == true)
+                {
+                    continue; // skip any lines that are selected as headings -- while they may not have a value when entered via the entry mask they may be entered as regular lines with value and then be changed to heading later...
+                }
                 totalsSumTableValues.priceAtPurchase_cent += line.PriceAtPurchase_Cents;
                 totalsSumTableValues.enterAmount_cent += line.EnterOrLeaveAmount_Cents is not null && line.EnterOrLeaveAmount_Cents > 0 ? (long)line.EnterOrLeaveAmount_Cents : 0;
                 totalsSumTableValues.leaveAmount_cent += line.EnterOrLeaveAmount_Cents is not null && line.EnterOrLeaveAmount_Cents < 0 ? (long)-line.EnterOrLeaveAmount_Cents : 0;
