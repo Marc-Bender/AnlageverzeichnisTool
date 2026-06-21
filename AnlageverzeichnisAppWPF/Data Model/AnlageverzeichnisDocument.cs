@@ -428,7 +428,7 @@ namespace AnlageverzeichnisAppWPF
                                                                     0,
                                                                     1,
                                                                     0,
-                                                                    totalsSumTableValues.leaveAmount_cent != 0 ? 0 : 1 // if there is a leave amount there is a seperate line being added to the sum table thus the bottom line will be the next line thus this line will not need a bottom border in that case only
+                                                                    (totalsSumTableValues.leaveAmount_cent != 0) && (totalsSumTableValues.enterAmount_cent != 0) ? 0 : 1 // this border is not needed only if there is both an enter and leave amount thereby causing the sum to span two lines. 
                                                                );
 
             var row = new TableRow();
@@ -439,15 +439,37 @@ namespace AnlageverzeichnisAppWPF
             var centsConverter = new CentsToEuroStringConverter();
 
             _addCellToRow(row, _numericToFormatedString(totalsSumTableValues.priceAtPurchase_cent, centsConverter), borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
-            _addCellToRow(row, totalsSumTableValues.enterAmount_cent != 0 ? "+" : "\u00A0", borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
-            _addCellToRow(row, totalsSumTableValues.enterAmount_cent != 0 ? _numericToFormatedString(totalsSumTableValues.enterAmount_cent, centsConverter) : "\u00A0", borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            if(totalsSumTableValues.enterAmount_cent != 0)
+            {
+                _addCellToRow(row, "+", borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
+                _addCellToRow(row, _numericToFormatedString(totalsSumTableValues.enterAmount_cent, centsConverter), borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            }
+            else if (
+                        (totalsSumTableValues.enterAmount_cent == 0)
+                      &&(totalsSumTableValues.leaveAmount_cent != 0)
+                    )
+            {
+                // if only a leave amount is available then the sum collapses to one line instead of two...
+                _addCellToRow(row, "-", borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
+                _addCellToRow(row, _numericToFormatedString(totalsSumTableValues.leaveAmount_cent, centsConverter), borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            }
+            else
+            {
+                // neither entering nor leaving objects 
+                _addCellToRow(row, "\u00A0", borderThickness: totalsSumTableThicknessFirstLine);
+                _addCellToRow(row, "\u00A0", borderThickness: totalsSumTableThicknessFirstLine);
+            }
+
             _addCellToRow(row, _numericToFormatedString(totalsSumTableValues.accumulatedDeprecation_cent, centsConverter), borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
             _addCellToRow(row, "\u00A0", borderThickness: totalsSumTableThicknessFirstLine);
             _addCellToRow(row, _numericToFormatedString(totalsSumTableValues.currentYearDeprecation_cent, centsConverter), borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
             _addCellToRow(row, _numericToFormatedString(totalsSumTableValues.currentYearObjectValue_cent, centsConverter), borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
             _addCellToRow(row, _numericToFormatedString(totalsSumTableValues.previousYearObjectValue_cent, centsConverter), borderThickness: totalsSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
  
-            if (totalsSumTableValues.leaveAmount_cent != 0)
+            if (
+                    (totalsSumTableValues.leaveAmount_cent != 0)
+                  &&(totalsSumTableValues.enterAmount_cent != 0) // second line for leave amount only if there is an enter amount too
+               )
             {
                 var sectionSumTableThicknessLeaveLine = new Thickness(0, 0, 0, 1);
 
@@ -566,15 +588,36 @@ namespace AnlageverzeichnisAppWPF
 
             var centsConverter = new CentsToEuroStringConverter();
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.priceAtPurchase_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
-            _addCellToRow(row, sectionSumValues.enterAmount_cent != 0 ? "+" : "\u00A0", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
-            _addCellToRow(row, sectionSumValues.enterAmount_cent != 0 ? _numericToFormatedString(sectionSumValues.enterAmount_cent, centsConverter) : "\u00A0", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            if (sectionSumValues.enterAmount_cent != 0)
+            {
+                _addCellToRow(row, "+", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
+                _addCellToRow(row, _numericToFormatedString(sectionSumValues.enterAmount_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            }
+            else if (
+                          (sectionSumValues.enterAmount_cent == 0)
+                        &&(sectionSumValues.leaveAmount_cent != 0)
+                    )
+            {
+                _addCellToRow(row, "-", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
+                _addCellToRow(row, _numericToFormatedString(sectionSumValues.leaveAmount_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            }
+            else
+            {
+                // neither entering nor leaving objects 
+                _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessFirstLine);
+                _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessFirstLine);
+            }
+
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.accumulatedDeprecation_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
             _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessFirstLine);
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.currentYearDeprecation_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.currentYearObjectValue_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.previousYearObjectValue_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
 
-            if(sectionSumValues.leaveAmount_cent != 0)
+            if(
+                    (sectionSumValues.leaveAmount_cent != 0)
+                  &&(sectionSumValues.enterAmount_cent != 0) // second line for leave amount only if there is an enter amount too
+              )
             {
                 var sectionSumTableThicknessLeaveLine = new Thickness(0,0,0,1);
 
@@ -694,15 +737,36 @@ namespace AnlageverzeichnisAppWPF
 
             var centsConverter = new CentsToEuroStringConverter();
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.priceAtPurchase_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
-            _addCellToRow(row, sectionSumValues.enterAmount_cent != 0 ? "+" : "\u00A0", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
-            _addCellToRow(row, sectionSumValues.enterAmount_cent != 0 ? _numericToFormatedString(sectionSumValues.enterAmount_cent, centsConverter) : "\u00A0", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            if(sectionSumValues.enterAmount_cent != 0)
+            {
+                _addCellToRow(row, "+", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
+                _addCellToRow(row, _numericToFormatedString(sectionSumValues.enterAmount_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            }
+            else if (
+                            (sectionSumValues.enterAmount_cent == 0)
+                          &&(sectionSumValues.leaveAmount_cent != 0)
+                    )
+            {
+                _addCellToRow(row, "-", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
+                _addCellToRow(row, _numericToFormatedString(sectionSumValues.leaveAmount_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            }
+            else
+            {
+                // neither entering nor leaving objects 
+                _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessFirstLine);
+                _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessFirstLine);
+            }
+
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.accumulatedDeprecation_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
             _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessFirstLine);
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.currentYearDeprecation_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.currentYearObjectValue_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.previousYearObjectValue_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
 
-            if(sectionSumValues.leaveAmount_cent != 0)
+            if(
+                    (sectionSumValues.leaveAmount_cent != 0)
+                 && (sectionSumValues.enterAmount_cent != 0)
+              )
             {
                 var sectionSumTableThicknessLeaveLine = new Thickness(0);
 
@@ -759,15 +823,36 @@ namespace AnlageverzeichnisAppWPF
 
             _addCellToRow(row, "Ü b e r t r a g");
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.priceAtPurchase_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
-            _addCellToRow(row, sectionSumValues.enterAmount_cent != 0 ? "+" : "\u00A0", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
-            _addCellToRow(row, sectionSumValues.enterAmount_cent != 0 ? _numericToFormatedString(sectionSumValues.enterAmount_cent, centsConverter) : "\u00A0", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            if(sectionSumValues.enterAmount_cent != 0)
+            {
+                _addCellToRow(row, "+", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
+                _addCellToRow(row, _numericToFormatedString(sectionSumValues.enterAmount_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            }
+            else if(
+                        (sectionSumValues.enterAmount_cent == 0)
+                      &&(sectionSumValues.leaveAmount_cent != 0)
+                   )
+            {
+                _addCellToRow(row, "-", borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Center);
+                _addCellToRow(row, _numericToFormatedString(sectionSumValues.leaveAmount_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
+            }
+            else
+            {
+                // neither entering nor leaving objects 
+                _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessFirstLine);
+                _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessFirstLine);
+            }
+
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.accumulatedDeprecation_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
             _addCellToRow(row, "\u00A0", borderThickness: sectionSumTableThicknessFirstLine);
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.currentYearDeprecation_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.currentYearObjectValue_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
             _addCellToRow(row, _numericToFormatedString(sectionSumValues.previousYearObjectValue_cent, centsConverter), borderThickness: sectionSumTableThicknessFirstLine, textAlignment: TextAlignment.Right);
 
-            if (sectionSumValues.leaveAmount_cent != 0)
+            if (
+                    (sectionSumValues.leaveAmount_cent != 0)
+                  &&(sectionSumValues.enterAmount_cent != 0)
+               )
             {
                 var sectionSumTableThicknessLeaveLine = new Thickness(0, 0, 0, 1);
 
