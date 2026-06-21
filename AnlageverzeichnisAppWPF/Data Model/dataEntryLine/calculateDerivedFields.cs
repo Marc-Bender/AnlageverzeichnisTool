@@ -25,8 +25,10 @@ namespace AnlageverzeichnisAppWPF
                   ||(DepreciationPercentage_0P1Pct >= 1000)
                   ||(
                         // might happen in case of any edits in the datagrid!
-                        (currentYear < YearOfPurchase) 
+                           (currentYear < YearOfPurchase) 
                         || (YearOfPurchase < 1900) // minimum value allowed in entry mask as minimum for allowed values in data grid
+                        || (MonthOfPurchase > 12) //same limiting values as for the input field in the 
+                        || (MonthOfPurchase < 1)
                     )
                 )
             {
