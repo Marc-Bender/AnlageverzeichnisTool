@@ -9,7 +9,13 @@ namespace AnlageverzeichnisAppWPF
     {
         //partial void OnMonthOfPurchaseChanged(int oldValue, int newValue) => handleCalculateDerivedFieldsOnUpdate();
         //partial void OnYearOfPurchaseChanged(int oldValue, int newValue) => handleCalculateDerivedFieldsOnUpdate();
-        //partial void OnIsLeavingThisYearChanged(bool oldValue, bool newValue) => handleCalculateDerivedFieldsOnUpdate();
+        partial void OnIsHeadingChanged(bool oldValue, bool newValue)
+        {
+            if (newValue == true)
+            {
+                IsLeavingThisYear = false;
+            }
+        }
         public void handleCalculateDerivedFieldsOnUpdate()
         {
             if(IsCalculateDerivedFieldsNeeded == true)

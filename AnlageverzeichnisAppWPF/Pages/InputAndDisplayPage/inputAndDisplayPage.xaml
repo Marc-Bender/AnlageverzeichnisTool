@@ -638,6 +638,7 @@
                 Content="Nur Überschrift (F10)"
                 TabIndex="4"
                 IsChecked="{Binding IsHeading}"
+                Checked="isHeadingCheckBox_Checked"
             />
             <CheckBox
                 Name="isLeavingThisYearCheckBox"

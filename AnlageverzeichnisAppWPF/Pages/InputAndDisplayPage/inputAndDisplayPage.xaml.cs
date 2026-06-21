@@ -108,5 +108,10 @@ namespace AnlageverzeichnisAppWPF
                 }
             }
         }
+
+        private void isHeadingCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            deprecationInYearsCheckBox.IsChecked = false;
+        }
     }
 }

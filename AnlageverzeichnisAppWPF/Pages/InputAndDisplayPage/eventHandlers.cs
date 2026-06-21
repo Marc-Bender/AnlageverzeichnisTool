@@ -43,7 +43,11 @@ namespace AnlageverzeichnisAppWPF
                     case Key.OemMinus:
                     case Key.Subtract:
                         {
-                            vm.CurrentlyEditedLine.IsLeavingThisYear = !vm.CurrentlyEditedLine.IsLeavingThisYear;
+                            if(isLeavingThisYearCheckBox.IsEnabled == true)
+                            {
+                                // avoid changing this via hotkey if not also allowed via mouse click...
+                                vm.CurrentlyEditedLine.IsLeavingThisYear = !vm.CurrentlyEditedLine.IsLeavingThisYear;
+                            }
                             e.Handled = true;
                         }
                         break;
