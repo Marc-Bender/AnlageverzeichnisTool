@@ -123,6 +123,8 @@ namespace AnlageverzeichnisAppWPF
 
                     lines.Add(vm.CurrentlyEditedLine);
                 }
+                this.dataEntryLinesDataGrid.SelectedItem = vm.CurrentlyEditedLine;
+                this.dataEntryLinesDataGrid.ScrollIntoView(vm.CurrentlyEditedLine);
                 vm.CurrentlyEditedLine = new dataEntryLine(vm.Document.Header.CurrentlyWorkedOnYear);
                 deprecationInYearsCheckBox.IsChecked = false;
                 objectDescriptionTextBox.Focus();
