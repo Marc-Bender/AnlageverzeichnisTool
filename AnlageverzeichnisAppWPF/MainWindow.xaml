@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AnlageverzeichnisAppWPF"
         mc:Ignorable="d"
-        Title="Anlageverzeichnis" Height="450" Width="940"
+        Title="Anlageverzeichnis" Height="600" Width="940"
         >
     <Window.InputBindings>
         <KeyBinding Key="S"

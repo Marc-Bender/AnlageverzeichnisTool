@@ -7,7 +7,7 @@
       xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
       mc:Ignorable="d" 
       Focusable="True"
-      d:DesignHeight="400" d:DesignWidth="940"
+      d:DesignHeight="600" d:DesignWidth="940"
       Title="Eingabe und Anzeigemaske">
     
     <Page.Resources>
@@ -285,6 +285,14 @@
                     Margin="5,0,0,5"
                     Click="reloadButton_Click"
                 />
+                <Button
+                    x:Name="createPDFButton"
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Content="exp. in PDF (Strg + P)"
+                    Margin="5,0,0,5"
+                    Click="createPDFButton_Click"
+                />
                 <CheckBox
                     Grid.Row="1"
                     Grid.Column="0"
@@ -293,12 +301,20 @@
                     Content="Expertenmodus"    
                 />
                 <Button
-                    x:Name="createPDFButton"
-                    Grid.Row="0"
+                    x:Name="deleteRowsButton"
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Content="Zeilen löschen"
+                    Margin="5,0,0,0"
+                    Click="deleteRowsButton_Click"
+                />
+                <Button
+                    x:Name="recalculateRowsButton"
+                    Grid.Row="1"
                     Grid.Column="2"
-                    Content="exp. in PDF (Strg + P)"
-                    Margin="5,0,0,5"
-                    Click="createPDFButton_Click"
+                    Content="Zeilen neu berechnen"
+                    Margin="5,0,0,0"
+                    Click="recalculateRowsButton_Click"
                 />
 
 

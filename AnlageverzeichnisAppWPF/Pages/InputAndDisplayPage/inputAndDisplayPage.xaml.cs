@@ -113,5 +113,43 @@ namespace AnlageverzeichnisAppWPF
         {
             deprecationInYearsCheckBox.IsChecked = false;
         }
+
+        private void DataGridRow_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is DataGridRow row)
+            {
+                row.IsSelected = true;
+                row.Focus();
+            }
+        }
+
+        private void deleteRowsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(this.DataContext is inputAndDisplayPageViewModel vm)
+            {
+               var selected = dataEntryLinesDataGrid.SelectedItems.Cast<dataEntryLine>().ToList();
+               foreach (var item in selected)
+                {
+                    if(item is dataEntryLine line)
+                    {
+                        vm.Document.DataEntryLines.Remove(line);
+                    }
+                }
+            }
+        }
+
+        private void recalculateRowsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(this.DataContext is inputAndDisplayPageViewModel vm)
+            {
+                foreach (var item in dataEntryLinesDataGrid.SelectedItems)
+                {
+                    if(item is dataEntryLine line)
+                    {
+                        line.calculateDerivedFields(vm.Document.Header.CurrentlyWorkedOnYear);
+                    }
+                }
+            }
+        }
     }
 }
