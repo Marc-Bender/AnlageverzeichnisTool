@@ -574,6 +574,7 @@
                 PreviewKeyDown="monthOfPurchaseTextBox_PreviewKeyDown"
                 KeyDown="NumericTextBoxes_KeyDown"
                 TabIndex="1"
+                Visibility="{Binding IsAggregatingPosition, Converter={StaticResource InverseBoolVisibility}}"
                 IsEnabled ="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
                 Value="{Binding MonthOfPurchase, UpdateSourceTrigger=PropertyChanged}"
             />
@@ -612,40 +613,46 @@
                         UpdateSourceTrigger=PropertyChanged}"
                 
             />
-            <TextBox
-                Name="deprecationPercentageTextBox"
+            <Grid
+                Visibility="{Binding IsAggregatingPosition, Converter={StaticResource InverseBoolVisibility}}"
                 Grid.Row="1"
                 Grid.Column="4"
-                Margin="0,0,5,0"
-                PreviewKeyDown="deprecationPercentageTextBox_PreviewKeyDown"
-                KeyDown="NumericTextBoxes_KeyDown"
-                GotFocus="TextBox_GotFocus"
-                PreviewMouseLeftButtonDown="TextBox_PreviewMouseLeftButtonDown"
-                TabIndex="3"
-                HorizontalContentAlignment="Right"
-                Visibility="{Binding IsChecked, ElementName=deprecationInYearsCheckBox, Converter={StaticResource InverseBoolVisibility}}"
-                IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
-                Text="{Binding DepreciationPercentage_0P1Pct,
-                       Converter={StaticResource TenthPctToPercentageString},
-                       UpdateSourceTrigger=PropertyChanged}"
-            />
-            <xctk:IntegerUpDown
-                Name="deprecationYearsNumberBox"
-                Grid.Row="1"
-                Grid.Column="4"
-                Margin="0,0,5,0"
-                Minimum="1"
-                Maximum="100"
-                Increment="1"
-                PreviewKeyDown="deprecationYearsNumberBox_PreviewKeyDown"
-                KeyDown="NumericTextBoxes_KeyDown"
-                TabIndex="3"
-                Visibility="{Binding IsChecked, ElementName=deprecationInYearsCheckBox, Converter={StaticResource BoolVisibility}}"
-                IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
-                Value="{Binding DepreciationPercentage_0P1Pct,
-                        Converter={StaticResource YearsTo0P1Pct},
-                        UpdateSourceTrigger=PropertyChanged}"
-            />
+                >
+                <TextBox
+                    Name="deprecationPercentageTextBox"
+                    Grid.Row="1"
+                    Grid.Column="4"
+                    Margin="0,0,5,0"
+                    PreviewKeyDown="deprecationPercentageTextBox_PreviewKeyDown"
+                    KeyDown="NumericTextBoxes_KeyDown"
+                    GotFocus="TextBox_GotFocus"
+                    PreviewMouseLeftButtonDown="TextBox_PreviewMouseLeftButtonDown"
+                    TabIndex="3"
+                    HorizontalContentAlignment="Right"
+                    Visibility="{Binding IsChecked, ElementName=deprecationInYearsCheckBox, Converter={StaticResource InverseBoolVisibility}}"
+                    IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
+                    Text="{Binding DepreciationPercentage_0P1Pct,
+                           Converter={StaticResource TenthPctToPercentageString},
+                           UpdateSourceTrigger=PropertyChanged}"
+                />
+                <xctk:IntegerUpDown
+                    Name="deprecationYearsNumberBox"
+                    Grid.Row="1"
+                    Grid.Column="4"
+                    Margin="0,0,5,0"
+                    Minimum="1"
+                    Maximum="100"
+                    Increment="1"
+                    PreviewKeyDown="deprecationYearsNumberBox_PreviewKeyDown"
+                    KeyDown="NumericTextBoxes_KeyDown"
+                    TabIndex="3"
+                    Visibility="{Binding IsChecked, ElementName=deprecationInYearsCheckBox, Converter={StaticResource BoolVisibility}}"
+                    IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
+                    Value="{Binding DepreciationPercentage_0P1Pct,
+                            Converter={StaticResource YearsTo0P1Pct},
+                            UpdateSourceTrigger=PropertyChanged}"
+                />
+            </Grid>
 
             <CheckBox
                 Name="isHeadingCheckBox"
@@ -673,6 +680,17 @@
                 Grid.Column="5"
                 Content="Abschreibung in Jahren (F9)"
                 TabIndex="6"
+                IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
+            />
+            
+            <CheckBox
+                Name="isAggregationPositionCheckBox"
+                Grid.Row="4"
+                Grid.Column="5"
+                Content="ist Sammelposten? (F12)"
+                TabIndex="6"
+                Click="isAggregationPositionCheckBox_Click"
+                IsChecked="{Binding IsAggregatingPosition}"
                 IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
             />
         </Grid>

@@ -151,5 +151,18 @@ namespace AnlageverzeichnisAppWPF
                 }
             }
         }
+
+        private void isAggregationPositionCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is inputAndDisplayPageViewModel vm)
+            {
+                if (vm.CurrentlyEditedLine is dataEntryLine line)
+                {
+                    line.MonthOfPurchase = 1;
+                    line.DepreciationPercentage_0P1Pct = 200;
+                }
+            }
+
+        }
     }
 }

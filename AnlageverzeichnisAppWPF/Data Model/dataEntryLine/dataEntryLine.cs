@@ -60,6 +60,9 @@ namespace AnlageverzeichnisAppWPF
         
         [ObservableProperty]
         private bool isLeavingThisYear  = false;
+
+        [ObservableProperty]
+        private bool isAggregatingPosition = false;
         
         public dataEntryLine()
         {
