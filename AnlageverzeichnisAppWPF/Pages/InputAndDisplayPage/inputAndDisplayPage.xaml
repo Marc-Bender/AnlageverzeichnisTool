@@ -290,9 +290,10 @@
                     x:Name="createPDFButton"
                     Grid.Row="0"
                     Grid.Column="2"
-                    Content="exp. in PDF (Strg + P)"
+                    Content="Drucken/PDF (Strg+P)"
                     Margin="5,0,0,5"
                     Click="createPDFButton_Click"
+                    ToolTip="Gibt auf Standarddrucker aus -- stelle PDF drucker als Standarddrucker ein um in eine Datei zudrucken"
                 />
                 <CheckBox
                     Grid.Row="1"
