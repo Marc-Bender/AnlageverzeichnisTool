@@ -491,6 +491,7 @@
                 Margin="0,0,0,0"
                 HorizontalAlignment="Stretch"
                 TextAlignment="Left"
+                Visibility="{Binding IsAggregatingPosition, Converter={StaticResource InverseBoolVisibility}}"
                 >
                 Gegenstandsbeschreibung
             </TextBlock>
@@ -571,6 +572,7 @@
                 PreviewKeyDown="objectDescriptionTextBox_PreviewKeyDown"
                 TabIndex="0"
                 AcceptsReturn="True"
+                Visibility="{Binding IsAggregatingPosition, Converter={StaticResource InverseBoolVisibility}}"
                 Text="{Binding ObjectDescriptionText, UpdateSourceTrigger=PropertyChanged}"
             />
             <xctk:IntegerUpDown

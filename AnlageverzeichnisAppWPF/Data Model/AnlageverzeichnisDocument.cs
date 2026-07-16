@@ -129,10 +129,13 @@ namespace AnlageverzeichnisAppWPF
             this.Header.CurrentlyWorkedOnYear++;
             this.DataEntryLines = new ObservableCollection<dataEntryLine>(this.DataEntryLines.Where(
                                                                                                     x => (
-                                                                                                              (x.IsLeavingThisYear == false)
+                                                                                                              (
+                                                                                                                    (x.IsLeavingThisYear == false)
+                                                                                                                 && (x.IsAggregatingPosition == false)
+                                                                                                              )
                                                                                                             ||(
                                                                                                                     (x.IsAggregatingPosition == true)
-                                                                                                                 && (x.currentYear - x.YearOfPurchase <= 4) // maximum difference of 4 yrs b/c deprecation percentage is hardcoded at 20% for aggregate positions...
+                                                                                                                 && (this.Header.CurrentlyWorkedOnYear - x.YearOfPurchase <= 4) // maximum difference of 4 yrs b/c deprecation percentage is hardcoded at 20% for aggregate positions...
                                                                                                               )
                                                                                                          )
                                                                                                    ));
@@ -334,7 +337,7 @@ namespace AnlageverzeichnisAppWPF
                 var objectDescriptionText = line.ObjectDescriptionText;
                 if (line.IsAggregatingPosition == true)
                 {
-                    objectDescriptionText += $" (Sammelposten {line.YearOfPurchase})";
+                    objectDescriptionText = $"Sammelposten {line.YearOfPurchase}";
                 }
                 _addCellToRow(row, objectDescriptionText);
             }

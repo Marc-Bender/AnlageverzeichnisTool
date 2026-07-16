@@ -21,7 +21,10 @@ namespace AnlageverzeichnisAppWPF
 
             if (
                     (DepreciationPercentage_0P1Pct <= 0)
-                  ||(PriceAtPurchase_Cents < 200)
+                  ||(
+                        (PriceAtPurchase_Cents < 200)
+                     && (IsAggregatingPosition == false) // to prove that in certain years there where no aggregating positions zero lines must be allowed in these cases but otherwise a minimum price is meaningful
+                    )
                   ||(DepreciationPercentage_0P1Pct >= 1000)
                   ||(
                         // might happen in case of any edits in the datagrid!
@@ -57,6 +60,7 @@ namespace AnlageverzeichnisAppWPF
             {
                 MonthOfPurchase = 1; // by definition
                 DepreciationPercentage_0P1Pct = 200; // by definition
+                ObjectDescriptionText = "Sammelposten"; // by definition -- strictly this is not needed as the checkbox in the datagrid would show this and since the text upon export is hardcoded anyways but this should be more obvious in the datagrid
             }
 
 
@@ -152,11 +156,18 @@ namespace AnlageverzeichnisAppWPF
             // need to do this check in the very end to ensure that the current year value has been calculated before being used here
             if (
                     (IsLeavingThisYear == false)
-                 && (IsAggregatingPosition == false) // for aggregate positions the last 1EUR is not reserved eitherways so it can be treated as forced to leave... 
                )
             {
                 var deprecationAmountThisYearTheoretical = currentYear == YearOfPurchase ? initialYearDeprecationAmount() : subsequentYearDeprecationAmount();
-                CurrentYearDepreciationAmount_Cents = Math.Min(deprecationAmountThisYearTheoretical, Math.Max(PreviousYearObjectValue_Cents, CurrentYearObjectValue_Cents) - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur...
+                if(IsAggregatingPosition == false) 
+                {
+                    CurrentYearDepreciationAmount_Cents = Math.Min(deprecationAmountThisYearTheoretical, Math.Max(PreviousYearObjectValue_Cents, CurrentYearObjectValue_Cents) - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur...
+                }
+                else
+                {
+                    // for aggregate positions the last 1EUR is not reserved eitherways so it can be treated as forced to leave... 
+                    CurrentYearDepreciationAmount_Cents = Math.Min(deprecationAmountThisYearTheoretical, Math.Max(PreviousYearObjectValue_Cents, CurrentYearObjectValue_Cents));
+                }
             }
             else
             {
