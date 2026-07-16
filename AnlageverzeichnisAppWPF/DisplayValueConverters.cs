@@ -200,14 +200,22 @@ namespace AnlageverzeichnisAppWPF
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values.Length == 2)
+            if (values.Length == 3)
             {
                 if (
                         (values[0] is int purchaseMonth)
                      && (values[1] is int purchaseYear)
+                     && (values[2] is bool isAggregatingPosition)
                    )
                 {
-                    return string.Format("{0:00}/{1}", purchaseMonth, purchaseYear);
+                    if (isAggregatingPosition == false)
+                    {
+                        return string.Format("{0:00}/{1}", purchaseMonth, purchaseYear);
+                    }
+                    else
+                    {
+                        return $"   {purchaseYear}"; // to ensure consistency w/ the other dates where month/year is used add 3 spaces to front...
+                    }
                 }
             }
             return "";
@@ -222,6 +230,14 @@ namespace AnlageverzeichnisAppWPF
                 {
                     int month = int.Parse(parts[0]);
                     int year = int.Parse(parts[1]);
+
+                    return new object[] { month, year };
+                }
+                else if(parts.Length == 1)
+                {
+                    // may only be the case if the line was in aggregating positions ... 
+                    int month = 1;
+                    int year = int.Parse(parts[0]);
 
                     return new object[] { month, year };
                 }

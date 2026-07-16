@@ -127,7 +127,15 @@ namespace AnlageverzeichnisAppWPF
         public void migrateToNextYear() // will change the datastructure inplace
         {
             this.Header.CurrentlyWorkedOnYear++;
-            this.DataEntryLines = new ObservableCollection<dataEntryLine>(this.DataEntryLines.Where(x => x.IsLeavingThisYear == false));
+            this.DataEntryLines = new ObservableCollection<dataEntryLine>(this.DataEntryLines.Where(
+                                                                                                    x => (
+                                                                                                              (x.IsLeavingThisYear == false)
+                                                                                                            ||(
+                                                                                                                    (x.IsAggregatingPosition == true)
+                                                                                                                 && (x.currentYear - x.YearOfPurchase <= 4) // maximum difference of 4 yrs b/c deprecation percentage is hardcoded at 20% for aggregate positions...
+                                                                                                              )
+                                                                                                         )
+                                                                                                   ));
             this.applyCurrentYearToImportedDataEntries(); // need to apply the current year to the data lines after modifying to ensure subsequent calculation of derived fields (actual migration) will calculate the correct values
             foreach (var line in DataEntryLines)
             {
@@ -323,11 +331,16 @@ namespace AnlageverzeichnisAppWPF
             }
             else
             {
-                _addCellToRow(row, line.ObjectDescriptionText);
+                var objectDescriptionText = line.ObjectDescriptionText;
+                if (line.IsAggregatingPosition == true)
+                {
+                    objectDescriptionText += $" (Sammelposten {line.YearOfPurchase})";
+                }
+                _addCellToRow(row, objectDescriptionText);
             }
 
             var dateConverter = new dateOfPurchaseConverter();
-            var date = (string)dateConverter.Convert([line.MonthOfPurchase, line.YearOfPurchase], Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"));
+            var date = (string)dateConverter.Convert([line.MonthOfPurchase, line.YearOfPurchase, line.IsAggregatingPosition], Type.GetType("string"), new object(), new System.Globalization.CultureInfo("de-DE"));
             _addCellToRow(row, date, textAlignment: TextAlignment.Center);
             var centsConverter = new CentsToEuroStringConverter();
             _addCellToRow(row, _numericToFormatedString(line.PriceAtPurchase_Cents, centsConverter), textAlignment: TextAlignment.Right);

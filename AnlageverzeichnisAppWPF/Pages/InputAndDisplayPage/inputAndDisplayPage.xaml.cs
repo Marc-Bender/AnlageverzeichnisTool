@@ -152,7 +152,7 @@ namespace AnlageverzeichnisAppWPF
             }
         }
 
-        private void isAggregationPositionCheckBox_Click(object sender, RoutedEventArgs e)
+        private void isAggregationPositionCheckBox_Checked(object sender, RoutedEventArgs e)
         {
             if (this.DataContext is inputAndDisplayPageViewModel vm)
             {

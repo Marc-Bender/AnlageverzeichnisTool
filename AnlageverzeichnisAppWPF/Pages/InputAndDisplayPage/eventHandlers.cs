@@ -27,6 +27,14 @@ namespace AnlageverzeichnisAppWPF
                     vm.CurrentlyEditedLine.IsHeading = !vm.CurrentlyEditedLine.IsHeading;
                     e.Handled = true;
                 }
+                else if (
+                            (e.Key == Key.F12)
+                         || (e.SystemKey == Key.F12)
+                        )
+                {
+                    vm.CurrentlyEditedLine.IsAggregatingPosition = !vm.CurrentlyEditedLine.IsAggregatingPosition;
+                    e.Handled = true;
+                }
             }
         }
         private void NumericTextBoxes_KeyDown(object sender, KeyEventArgs e)
@@ -61,6 +69,12 @@ namespace AnlageverzeichnisAppWPF
                         {
                             e.Handled = true;
                             this.yearOfPurchaseNumberBox.Focus();
+                        }
+                        break;
+                    case Key.F12:
+                        {
+                            e.Handled = true;
+                            vm.CurrentlyEditedLine.IsAggregatingPosition = !vm.CurrentlyEditedLine.IsAggregatingPosition;
                         }
                         break;
                 }

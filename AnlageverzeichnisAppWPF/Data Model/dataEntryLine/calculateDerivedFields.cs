@@ -53,6 +53,13 @@ namespace AnlageverzeichnisAppWPF
                 EnterOrLeaveAmount_Cents = null;
             }
 
+            if (IsAggregatingPosition == true)
+            {
+                MonthOfPurchase = 1; // by definition
+                DepreciationPercentage_0P1Pct = 200; // by definition
+            }
+
+
             Int64 initialYearDeprecationAmount()
             {
                 Int64 CurrentYearDeprecationAmountCalculated = ((PriceAtPurchase_Cents * DepreciationPercentage_0P1Pct) / 1000) * (12 - MonthOfPurchase + 1) / 12;
@@ -98,7 +105,16 @@ namespace AnlageverzeichnisAppWPF
                 {
                     AccumulatedDepreciation_Cents += subsequentYearDeprecationAmount();
                 }
-                AccumulatedDepreciation_Cents = Math.Min(AccumulatedDepreciation_Cents, PriceAtPurchase_Cents - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur...
+                if (IsAggregatingPosition == false)
+                {
+                    // memorial values are only a thing for non-aggregated positions ...
+                    AccumulatedDepreciation_Cents = Math.Min(AccumulatedDepreciation_Cents, PriceAtPurchase_Cents - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur...
+                }
+                else
+                {
+                    // .. so in case of aggregating values the last 1EUR is not reserved 
+                    AccumulatedDepreciation_Cents = Math.Min(AccumulatedDepreciation_Cents, PriceAtPurchase_Cents); // still clamp the value to the upper logical bound to avoid over-deprecation...
+                }
             }
 
             var currentYearObjectValueTheoretical = PriceAtPurchase_Cents; // initializer -- to be overwritten in the if else below
@@ -134,7 +150,10 @@ namespace AnlageverzeichnisAppWPF
             }
 
             // need to do this check in the very end to ensure that the current year value has been calculated before being used here
-            if (IsLeavingThisYear == false)
+            if (
+                    (IsLeavingThisYear == false)
+                 && (IsAggregatingPosition == false) // for aggregate positions the last 1EUR is not reserved eitherways so it can be treated as forced to leave... 
+               )
             {
                 var deprecationAmountThisYearTheoretical = currentYear == YearOfPurchase ? initialYearDeprecationAmount() : subsequentYearDeprecationAmount();
                 CurrentYearDepreciationAmount_Cents = Math.Min(deprecationAmountThisYearTheoretical, Math.Max(PreviousYearObjectValue_Cents, CurrentYearObjectValue_Cents) - 100); // to enable setting to memorial value reserve the last 100ct ie 1eur...

@@ -40,7 +40,6 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="IsHitTestVisible" Value="True"/>
             <Setter Property="Focusable" Value="True"/>
-
         </Style>
 
         <DataTemplate x:Key="SelectedHeadingTextboxTemplate">
@@ -81,6 +80,7 @@
                     <MultiBinding Converter="{StaticResource DateOfPurchaseConverter}">
                         <Binding Path="MonthOfPurchase"/>
                         <Binding Path="YearOfPurchase"/>
+                        <Binding Path="IsAggregatingPosition"/>
                     </MultiBinding>
                 </TextBox.Text>
             </TextBox>
@@ -124,6 +124,7 @@
         <DataTemplate x:Key="deprecationPercentageTextBoxTemplate">
             <Grid
                 Visibility="{Binding IsLeavingThisYear, Converter={StaticResource InverseBoolVisibility}}"
+                IsEnabled="{Binding IsAggregatingPosition, Converter={StaticResource InverseBool}}"
             >
                 <TextBox
                     Text="{Binding DepreciationPercentage_0P1Pct, Converter={StaticResource TenthPctToPercentageString}}"
@@ -448,6 +449,12 @@
                             </Style>
                         </DataGridCheckBoxColumn.ElementStyle>
                     </DataGridCheckBoxColumn>
+                    <DataGridCheckBoxColumn
+                            Header="S"
+                            Width="0.25*"
+                            Binding="{Binding IsAggregatingPosition, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    />
+
                 </DataGrid.Columns>
             </DataGrid>
 
@@ -494,6 +501,7 @@
                 Margin="0,0,0,0"
                 HorizontalAlignment="Stretch"
                 TextAlignment="Center"
+                Visibility="{Binding IsAggregatingPosition, Converter={StaticResource InverseBoolVisibility}}"
                 >
                 Anschaffungs- <LineBreak/>
                 monat
@@ -518,28 +526,30 @@
                 Anschaffungs- <LineBreak/>
                 wert
             </TextBlock>
-            <TextBlock
+            <Grid
+                Visibility="{Binding IsAggregatingPosition, Converter={StaticResource InverseBoolVisibility}}"
                 Grid.Row="0"
                 Grid.Column="4"
-                VerticalAlignment="Stretch"
-                HorizontalAlignment="Stretch"
-                TextAlignment="Center"
-                Visibility="{Binding IsChecked, ElementName=deprecationInYearsCheckBox, Converter={StaticResource InverseBoolVisibility}}"
                 >
-                Abschreibungs- <LineBreak/>
-                prozentsatz
-            </TextBlock>
-            <TextBlock
-                Grid.Row="0"
-                Grid.Column="4"
-                VerticalAlignment="Stretch"
-                HorizontalAlignment="Stretch"
-                TextAlignment="Center"
-                Visibility="{Binding IsChecked, ElementName=deprecationInYearsCheckBox, Converter={StaticResource BoolVisibility}}"
-                >
-                Abschreibungs- <LineBreak/>
-                dauer [Jahre]
-            </TextBlock>
+                <TextBlock
+                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Stretch"
+                    TextAlignment="Center"
+                    Visibility="{Binding IsChecked, ElementName=deprecationInYearsCheckBox, Converter={StaticResource InverseBoolVisibility}}"
+                    >
+                    Abschreibungs- <LineBreak/>
+                    prozentsatz
+                </TextBlock>
+                <TextBlock
+                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Stretch"
+                    TextAlignment="Center"
+                    Visibility="{Binding IsChecked, ElementName=deprecationInYearsCheckBox, Converter={StaticResource BoolVisibility}}"
+                    >
+                    Abschreibungs- <LineBreak/>
+                    dauer [Jahre]
+                </TextBlock>
+            </Grid>
             <Button
                 Name="applyLineButton"
                 Grid.Row ="0"
@@ -689,8 +699,8 @@
                 Grid.Column="5"
                 Content="ist Sammelposten? (F12)"
                 TabIndex="6"
-                Click="isAggregationPositionCheckBox_Click"
                 IsChecked="{Binding IsAggregatingPosition}"
+                Checked="isAggregationPositionCheckBox_Checked"
                 IsEnabled="{Binding ElementName=isHeadingCheckBox, Path=IsChecked, Converter={StaticResource InverseBool}}"
             />
         </Grid>
