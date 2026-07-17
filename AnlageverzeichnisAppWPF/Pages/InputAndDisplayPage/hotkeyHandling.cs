@@ -93,11 +93,6 @@ namespace AnlageverzeichnisAppWPF
                     return;
                 }
 
-                if (vm.CurrentlyEditedLine.IsHeading == true)
-                {
-                    vm.CurrentlyEditedLine.IsCurrentHeading = true; // when a heading is newly added to the dataset then assume that it should be the heading under which all new data shall be generated going forward (until explicitly overridden)
-                }
-
                 try
                 {
                     var indexOfCurrentHeading = lines.IndexOf(lines.Where(x => x.IsCurrentHeading == true).ElementAt(0));
@@ -110,6 +105,15 @@ namespace AnlageverzeichnisAppWPF
                     foreach (var line in vm.Document.DataEntryLines)
                     {
                         line.IsCurrentHeading = false; // first clear the current heading state of all data entries in the document ...
+                    }
+
+                    if (vm.CurrentlyEditedLine.IsHeading == true)
+                    {
+                        vm.CurrentlyEditedLine.IsCurrentHeading = true; // when a heading is newly added to the dataset then assume that it should be the heading under which all new data shall be generated going forward (until explicitly overridden)
+                    }
+                    else
+                    {
+                        lines.ElementAt(indexOfCurrentHeading).IsCurrentHeading = true;
                     }
 
                     lines.Insert(indexOfHeadingAfterCurrentHeading, vm.CurrentlyEditedLine); // inserting at the location of the heading after the selected heading will effectively add the element at the end of the block started with the selected heading... 
