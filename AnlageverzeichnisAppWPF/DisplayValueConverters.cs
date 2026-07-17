@@ -246,5 +246,32 @@ namespace AnlageverzeichnisAppWPF
         }
     }
 
+    public class CanBeHeadingConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length == 2)
+            {
+                if (
+                        (values[0] is bool isAggregatingPosition)
+                     && (values[1] is bool isNonDeprecating)
+                   )
+                {
+                    return (
+                                (isAggregatingPosition == false)
+                             && (isNonDeprecating == false)
+                           );
+                }
+            }
+            return true;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => new object[] { };
+    }
+
+    public class CanHaveCustomDeprecationAmountConverter : CanBeHeadingConverter // alias as the logic is actually the same.. 
+    {
+    }
+
 
 }

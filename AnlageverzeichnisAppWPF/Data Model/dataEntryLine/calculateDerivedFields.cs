@@ -14,6 +14,26 @@ namespace AnlageverzeichnisAppWPF
             {
                 return;
             }
+            else if (IsNonDeprecating == true)
+            {
+                DepreciationPercentage_0P1Pct = 0;
+                CurrentYearDepreciationAmount_Cents = 0;
+                CurrentYearObjectValue_Cents = PriceAtPurchase_Cents;
+                PreviousYearObjectValue_Cents = currentYear == YearOfPurchase ? 0 : PriceAtPurchase_Cents;
+                if (IsLeavingThisYear == true)
+                {
+                    EnterOrLeaveAmount_Cents = -PriceAtPurchase_Cents;
+                }
+                else if (currentYear == YearOfPurchase)
+                {
+                    EnterOrLeaveAmount_Cents = PriceAtPurchase_Cents;
+                }
+                else
+                {
+                    EnterOrLeaveAmount_Cents = 0;
+                }
+                return;
+            }
             else
             {
                 // continue calculating...

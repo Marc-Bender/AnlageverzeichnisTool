@@ -64,6 +64,9 @@ namespace AnlageverzeichnisAppWPF
         [ObservableProperty]
         private bool isAggregatingPosition = false;
         
+        [ObservableProperty]
+        private bool isNonDeprecating = false;
+        
         public dataEntryLine()
         {
             // needed for easy json deserialize only! otherwise the constructor with parameters would be used and the deserializer fails!

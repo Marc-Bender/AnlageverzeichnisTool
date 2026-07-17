@@ -164,5 +164,10 @@ namespace AnlageverzeichnisAppWPF
             }
 
         }
+
+        private void isNonDeprecatingCheckbox_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
