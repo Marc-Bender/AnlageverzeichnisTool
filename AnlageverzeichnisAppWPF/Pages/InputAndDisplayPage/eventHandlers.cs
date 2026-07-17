@@ -35,6 +35,14 @@ namespace AnlageverzeichnisAppWPF
                     vm.CurrentlyEditedLine.IsAggregatingPosition = !vm.CurrentlyEditedLine.IsAggregatingPosition;
                     e.Handled = true;
                 }
+                else if (
+                            (e.Key == Key.F8)
+                         || (e.SystemKey == Key.F8)
+                        )
+                {
+                    vm.CurrentlyEditedLine.IsNonDeprecating = !vm.CurrentlyEditedLine.IsNonDeprecating;
+                    e.Handled = true;
+                }
             }
         }
         private void NumericTextBoxes_KeyDown(object sender, KeyEventArgs e)
@@ -77,6 +85,12 @@ namespace AnlageverzeichnisAppWPF
                             vm.CurrentlyEditedLine.IsAggregatingPosition = !vm.CurrentlyEditedLine.IsAggregatingPosition;
                         }
                         break;
+                    case Key.F8:
+                        {
+                            e.Handled = true;
+                            vm.CurrentlyEditedLine.IsNonDeprecating = !vm.CurrentlyEditedLine.IsNonDeprecating;
+                        }
+                        break;
                 }
             }
         }
@@ -86,46 +100,60 @@ namespace AnlageverzeichnisAppWPF
             {
                 e.Handled = true;
                 yearOfPurchaseNumberBox.Focus();
-                return;
             }
-
-            NumericTextBoxesCommonBehaviors_PreviewKeyDown(sender, e);
+            else
+            {
+                NumericTextBoxesCommonBehaviors_PreviewKeyDown(sender, e);
+            }
         }
         private void yearOfPurchaseTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (
-                    (e.Key == Key.Tab)
-                 && (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift) == false) // only on "forward" tab get to price field
+
+                    (
+                        (e.Key == Key.Tab)
+                      ||(e.Key == Key.Enter)
+                    )
+                 && (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) == false) // only on "forward" tab get to price field
                )
             {
                 e.Handled = true;
                 priceAtPurchaseTextBox.Focus();
-                return;
             }
             else if (
-                        (e.Key == Key.Tab)
-                     && (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift) == true) // on "backwards" tab go to month field instead
+                        (
+                            (e.Key == Key.Tab)
+                         || (e.Key == Key.Enter)
+                        )
+                     && (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) == true) // on "backwards" tab go to month field instead
                     )
             {
                 e.Handled = true;
                 monthOfPurchaseNumberBox.Focus();
-                return;
             }
-            NumericTextBoxesCommonBehaviors_PreviewKeyDown(sender, e);
+            else
+            {
+                NumericTextBoxesCommonBehaviors_PreviewKeyDown(sender, e);
+            }
         }
 
         private void priceAtPurchaseTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (
-                   (e.Key == Key.Tab)
-                && (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Shift) == true) // on "backwards" tab go to year field instead of month... 
+                   (
+                        (e.Key == Key.Tab)
+                     || (e.Key == Key.Enter)
+                   )
+                && (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) == true) // on "backwards" tab go to year field instead of month... 
                )
             {
                 e.Handled = true;
                 yearOfPurchaseNumberBox.Focus();
-                return;
             }
-            NumericTextBoxesCommonBehaviors_PreviewKeyDown(sender, e);
+            else
+            {
+                NumericTextBoxesCommonBehaviors_PreviewKeyDown(sender, e);
+            }
         }
 
         private void deprecationPercentageTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -138,11 +166,11 @@ namespace AnlageverzeichnisAppWPF
             {
                 e.Handled = true;
                 // Move focus to next control (same behavior as Tab)
-                TraversalRequest request = new TraversalRequest(FocusNavigationDirection.Next);
+                TraversalRequest request = new TraversalRequest(Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)?FocusNavigationDirection.Previous:FocusNavigationDirection.Next);
                 (Keyboard.FocusedElement as UIElement)?.MoveFocus(request);
             }
             else if (
-                          (e.Key == Key.F9)
+                           (e.Key == Key.F9)
                         || (e.SystemKey == Key.F9)
                     )
             {
