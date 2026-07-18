@@ -6,7 +6,7 @@ using System.Text;
 
 namespace AnlageverzeichnisAppWPF
 {
-    public partial class dataEntryLine : ObservableObject
+    public partial class UIDataLine : AbstractDataLine
     {
         public void calculateDerivedFields(int currentYear)
         {

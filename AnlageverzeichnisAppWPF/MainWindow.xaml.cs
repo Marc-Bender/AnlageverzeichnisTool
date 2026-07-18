@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -36,6 +38,7 @@ namespace AnlageverzeichnisAppWPF
             NavigationCommands.Refresh.InputGestures.Clear(); // to free up F5 and alike for my own usage
 
             InitializeComponent();
+
             var modeSelectorPage = new modeSelectorPage();
             modeSelectorPage.Tag = this.DataContext;
             mainFrame.Navigate(modeSelectorPage);

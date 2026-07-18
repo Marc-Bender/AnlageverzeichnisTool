@@ -5,10 +5,8 @@ using System.Text;
 
 namespace AnlageverzeichnisAppWPF
 {
-    public partial class dataEntryLine : ObservableObject
+    public partial class UIDataLine : AbstractDataLine
     {
-        //partial void OnMonthOfPurchaseChanged(int oldValue, int newValue) => handleCalculateDerivedFieldsOnUpdate();
-        //partial void OnYearOfPurchaseChanged(int oldValue, int newValue) => handleCalculateDerivedFieldsOnUpdate();
         partial void OnIsHeadingChanged(bool oldValue, bool newValue)
         {
             if (newValue == true)
