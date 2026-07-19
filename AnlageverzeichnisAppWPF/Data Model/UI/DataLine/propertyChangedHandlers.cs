@@ -13,6 +13,10 @@ namespace AnlageverzeichnisAppWPF
             {
                 IsLeavingThisYear = false;
             }
+            else
+            {
+                IsCurrentHeading = false;
+            }
         }
         public void handleCalculateDerivedFieldsOnUpdate()
         {

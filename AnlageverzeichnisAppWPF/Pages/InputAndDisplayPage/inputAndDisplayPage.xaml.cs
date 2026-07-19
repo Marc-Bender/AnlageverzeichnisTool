@@ -126,6 +126,9 @@ namespace AnlageverzeichnisAppWPF
         private void isHeadingCheckBox_Checked(object sender, RoutedEventArgs e)
         {
             deprecationInYearsCheckBox.IsChecked = false;
+            isNonDeprecatingCheckbox.IsChecked = false;
+            isAggregationPositionCheckBox.IsChecked = false;
+            isLeavingThisYearCheckBox.IsChecked = false;
         }
 
         private void DataGridRow_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -181,7 +184,7 @@ namespace AnlageverzeichnisAppWPF
 
         private void isNonDeprecatingCheckbox_Checked(object sender, RoutedEventArgs e)
         {
-
+            deprecationInYearsCheckBox.IsChecked = false;
         }
     }
 }
