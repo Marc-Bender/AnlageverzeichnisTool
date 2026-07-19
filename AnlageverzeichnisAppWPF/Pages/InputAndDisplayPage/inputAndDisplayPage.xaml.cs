@@ -104,7 +104,21 @@ namespace AnlageverzeichnisAppWPF
                      && (label.DataContext is UIDataLine thisLine)
                   )
                 {
-                    thisLine.IsCurrentHeading = true; // before setting the property for the line clicked -- this ensures that there is only ever one line with this being set in the document; which is needed because under that heading there shall be all the new items be added
+                    if (thisLine.IsHeading == true)
+                    {
+                        thisLine.IsCurrentHeading = true; // before setting the property for the line clicked -- this ensures that there is only ever one line with this being set in the document; which is needed because under that heading there shall be all the new items be added
+                    }
+                    else
+                    {
+                        UIDataLine newHeadingLine = new UIDataLine(thisLine.currentYear);
+                        newHeadingLine.IsHeading = true;
+                        newHeadingLine.IsCurrentHeading = true;
+                        newHeadingLine.ObjectDescriptionText = "Neue Überschrift";
+                        vm.Document.DataEntryLines.Insert(
+                                                            vm.Document.DataEntryLines.IndexOf(thisLine),
+                                                            newHeadingLine
+                                                         );
+                    }
                 }
             }
         }

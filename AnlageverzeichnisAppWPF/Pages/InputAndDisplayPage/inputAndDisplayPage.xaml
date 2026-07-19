@@ -45,24 +45,20 @@
         </Style>
 
         <DataTemplate x:Key="SelectedHeadingTextboxTemplate">
-            <Grid 
-                Visibility="{Binding IsHeading, Converter={StaticResource BoolVisibility}}"
-                >
-                <Label
-                        Content="*"
-                        FontWeight="UltraBold"
-                        VerticalAlignment="Stretch"
-                        HorizontalAlignment="Stretch"
-                        Visibility="{Binding IsCurrentHeading, Converter={StaticResource BoolVisibility}}"
-                        MouseLeftButtonDown="TextBox_MouseDown"
-                />
-                <Label
-                        Content=" "
-                        FontWeight="Normal"
-                        Visibility="{Binding IsCurrentHeading, Converter={StaticResource InverseBoolVisibility}}"
-                        MouseLeftButtonDown="TextBox_MouseDown"
-                />
-            </Grid>
+            <Label
+                    Content="*"
+                    FontWeight="UltraBold"
+                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Stretch"
+                    Visibility="{Binding IsCurrentHeading, Converter={StaticResource BoolVisibility}}"
+                    MouseLeftButtonDown="TextBox_MouseDown"
+            />
+            <Label
+                    Content=" "
+                    FontWeight="Normal"
+                    Visibility="{Binding IsCurrentHeading, Converter={StaticResource InverseBoolVisibility}}"
+                    MouseLeftButtonDown="TextBox_MouseDown"
+            />
         </DataTemplate>
         <DataTemplate x:Key="ObjectDescriptionTextTextBoxTemplate">
                 <TextBox
