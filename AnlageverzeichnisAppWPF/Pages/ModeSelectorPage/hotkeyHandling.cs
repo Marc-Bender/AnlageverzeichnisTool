@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -64,7 +65,7 @@ namespace AnlageverzeichnisAppWPF
             {
                 using (var infile = new StreamReader(openDialog.FileName))
                 {
-                    var document = JsonSerializer.Deserialize<AnlageverzeichnisDocument>(infile.ReadToEnd());
+                    var document = JsonSerializer.Deserialize<UIDocument> (infile.ReadToEnd());
                     if (document is not null)
                     {
                         document.migrateToNextYear();
@@ -78,7 +79,7 @@ namespace AnlageverzeichnisAppWPF
                         {
                             using (var outfile = new StreamWriter(saveFileDialog.FileName))
                             {
-                                outfile.Write(JsonSerializer.Serialize<AnlageverzeichnisDocument>(document));
+                                outfile.Write(JsonSerializer.Serialize<StoredDocument>(document.toStoredDocumentType()));
                                 var inputAndDisplayPage = new inputAndDisplayPage(document, saveFileDialog.FileName);
                                 inputAndDisplayPage.Tag = this.Tag;
                                 NavigationService.Navigate(inputAndDisplayPage);
@@ -105,7 +106,7 @@ namespace AnlageverzeichnisAppWPF
             {
                 using (var outfile = new StreamReader(dialog.FileName))
                 {
-                    var document = JsonSerializer.Deserialize<AnlageverzeichnisDocument>(outfile.ReadToEnd());
+                    var document = JsonSerializer.Deserialize<UIDocument>(outfile.ReadToEnd());
                     if (document is not null)
                     {
                         document.applyCurrentYearToImportedDataEntries(); // needs to be done to ensure correct calculation of derived fields if the contents are modified in the datagrid later.

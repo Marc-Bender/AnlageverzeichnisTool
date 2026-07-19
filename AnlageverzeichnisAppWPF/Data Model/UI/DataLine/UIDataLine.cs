@@ -69,5 +69,25 @@ namespace AnlageverzeichnisAppWPF
             YearOfPurchase = currentYear; // to allow the data entry mask using this later to always default to the current year for each entry line
         }
 
+        public StoredDataline toStoredLineType()
+        {
+            StoredDataline returnedLine = new StoredDataline();
+            returnedLine.ObjectDescriptionText = ObjectDescriptionText;
+            returnedLine.MonthOfPurchase = MonthOfPurchase;
+            returnedLine.YearOfPurchase = YearOfPurchase;
+            returnedLine.PriceAtPurchase_Cents = PriceAtPurchase_Cents;
+            returnedLine.EnterOrLeaveAmount_Cents = EnterOrLeaveAmount_Cents;
+            returnedLine.AccumulatedDepreciation_Cents = AccumulatedDepreciation_Cents;
+            returnedLine.DepreciationPercentage_0P1Pct = DepreciationPercentage_0P1Pct;
+            returnedLine.CurrentYearDepreciationAmount_Cents = CurrentYearDepreciationAmount_Cents;
+            returnedLine.CurrentYearObjectValue_Cents = CurrentYearObjectValue_Cents;
+            returnedLine.PreviousYearObjectValue_Cents = PreviousYearObjectValue_Cents;
+            returnedLine.IsHeading = IsHeading;
+            returnedLine.IsLeavingThisYear = IsLeavingThisYear;
+            returnedLine.IsAggregatingPosition = IsAggregatingPosition;
+            returnedLine.IsNonDeprecating = IsNonDeprecating;
+
+            return returnedLine;
+        }
     }
 }

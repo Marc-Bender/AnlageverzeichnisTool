@@ -13,7 +13,7 @@ using System.Windows.Shapes;
 
 namespace AnlageverzeichnisAppWPF
 {
-    public partial class UIDocument : AbstractAnlageVerzeichnisDocument<UIDocumentHeader, ObservableCollection<UIDataLine>, UIDataLine> 
+    public partial class UIDocument : AbstractDocument<UIDocumentHeader, ObservableCollection<UIDataLine>, UIDataLine> 
     {
         [ObservableProperty]
         private UIDocumentHeader header;
@@ -65,6 +65,18 @@ namespace AnlageverzeichnisAppWPF
             {
                 line.currentYear = this.Header.CurrentlyWorkedOnYear;
             }
+        }
+
+        public StoredDocument toStoredDocumentType()
+        {
+            StoredDocument returnedDocument = new StoredDocument();
+            returnedDocument.DataEntryLines = new Collection<StoredDataline>();
+            foreach (var line in DataEntryLines)
+            {
+                returnedDocument.DataEntryLines.Add(line.toStoredLineType());
+            }
+            returnedDocument.Header = this.Header.toStoredHeaderType();
+            return returnedDocument;
         }
     }
 }

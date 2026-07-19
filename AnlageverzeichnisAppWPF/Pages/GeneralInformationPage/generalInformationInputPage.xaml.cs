@@ -25,7 +25,7 @@ namespace AnlageverzeichnisAppWPF
     {
         public generalInformationInputPage()
         {
-            DataContext = new AnlageverzeichnisDocument.DocumentHeader();
+            DataContext = new UIDocumentHeader();
             InitializeComponent();
             this.Loaded += (_, __) => { companyNameTextBox.Focus();};
         }

@@ -33,7 +33,7 @@ namespace AnlageverzeichnisAppWPF
             this.Unloaded += (_, __) => unregisterHotkeys();
             InitializeComponent();
         }
-        public inputAndDisplayPage(AnlageverzeichnisDocument document, string fileName)
+        public inputAndDisplayPage(UIDocument document, string fileName)
         {
             DataContext = new inputAndDisplayPageViewModel(document);
             this.filename = fileName; // so that we have a way of memorizing where the file is stored that had been created in the general information input page
@@ -47,7 +47,7 @@ namespace AnlageverzeichnisAppWPF
             // need to handle recalculation on :
             // mm/jjjj, eur hist, % deprecation, isLeavingCheckbox
             if(
-                  (e.Row.Item is dataEntryLine line)
+                  (e.Row.Item is UIDataLine line)
                 &&(
                         (e.Column == purchaseDateDataGridColumn)
                       ||(e.Column == historicPriceDataGridColumn)
@@ -69,7 +69,7 @@ namespace AnlageverzeichnisAppWPF
             {
                 foreach (var lineobj in e.RemovedItems)
                 {
-                    if(lineobj is dataEntryLine line)
+                    if(lineobj is UIDataLine line)
                     {
                         if (line.IsCalculateDerivedFieldsNeeded == true)
                         {
@@ -101,7 +101,7 @@ namespace AnlageverzeichnisAppWPF
 
                 if(
                         (sender is Label label)
-                     && (label.DataContext is dataEntryLine thisLine)
+                     && (label.DataContext is UIDataLine thisLine)
                   )
                 {
                     thisLine.IsCurrentHeading = true; // before setting the property for the line clicked -- this ensures that there is only ever one line with this being set in the document; which is needed because under that heading there shall be all the new items be added
@@ -127,10 +127,10 @@ namespace AnlageverzeichnisAppWPF
         {
             if(this.DataContext is inputAndDisplayPageViewModel vm)
             {
-               var selected = dataEntryLinesDataGrid.SelectedItems.Cast<dataEntryLine>().ToList();
+               var selected = dataEntryLinesDataGrid.SelectedItems.Cast<UIDataLine>().ToList();
                foreach (var item in selected)
                 {
-                    if(item is dataEntryLine line)
+                    if(item is UIDataLine line)
                     {
                         vm.Document.DataEntryLines.Remove(line);
                     }
@@ -144,7 +144,7 @@ namespace AnlageverzeichnisAppWPF
             {
                 foreach (var item in dataEntryLinesDataGrid.SelectedItems)
                 {
-                    if(item is dataEntryLine line)
+                    if(item is UIDataLine line)
                     {
                         line.calculateDerivedFields(vm.Document.Header.CurrentlyWorkedOnYear);
                     }
@@ -156,7 +156,7 @@ namespace AnlageverzeichnisAppWPF
         {
             if (this.DataContext is inputAndDisplayPageViewModel vm)
             {
-                if (vm.CurrentlyEditedLine is dataEntryLine line)
+                if (vm.CurrentlyEditedLine is UIDataLine line)
                 {
                     line.MonthOfPurchase = 1;
                     line.DepreciationPercentage_0P1Pct = 200;

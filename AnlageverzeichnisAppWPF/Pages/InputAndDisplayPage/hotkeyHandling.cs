@@ -52,7 +52,7 @@ namespace AnlageverzeichnisAppWPF
             {
                 if (this.DataContext is inputAndDisplayPageViewModel vm)
                 {
-                    outfile.Write(JsonSerializer.Serialize<AnlageverzeichnisDocument>((AnlageverzeichnisDocument)(vm.Document)));
+                    outfile.Write(JsonSerializer.Serialize<StoredDocument>(vm.Document.toStoredDocumentType()));
                 }
             }
 
@@ -65,8 +65,8 @@ namespace AnlageverzeichnisAppWPF
             {
                 if (this.DataContext is inputAndDisplayPageViewModel vm)
                 {
-                    vm.Document = JsonSerializer.Deserialize<AnlageverzeichnisDocument>(infile.ReadToEnd());
-                    if (vm.Document is AnlageverzeichnisDocument document)
+                    vm.Document = JsonSerializer.Deserialize<UIDocument> (infile.ReadToEnd());
+                    if (vm.Document is UIDocument document)
                     {
                         document.applyCurrentYearToImportedDataEntries(); // needs to be done to ensure correct calculation of derived fields if the contents are modified in the datagrid later.
                     }
@@ -80,7 +80,7 @@ namespace AnlageverzeichnisAppWPF
         {
             if (
                     (this.DataContext is inputAndDisplayPageViewModel vm)
-                 && (vm.Document.DataEntryLines is ObservableCollection<dataEntryLine> lines)
+                 && (vm.Document.DataEntryLines is ObservableCollection<UIDataLine> lines)
                )
             {
                 try
@@ -129,7 +129,7 @@ namespace AnlageverzeichnisAppWPF
                 }
                 this.dataEntryLinesDataGrid.SelectedItem = vm.CurrentlyEditedLine;
                 this.dataEntryLinesDataGrid.ScrollIntoView(vm.CurrentlyEditedLine);
-                vm.CurrentlyEditedLine = new dataEntryLine(vm.Document.Header.CurrentlyWorkedOnYear);
+                vm.CurrentlyEditedLine = new UIDataLine(vm.Document.Header.CurrentlyWorkedOnYear);
                 deprecationInYearsCheckBox.IsChecked = false;
                 objectDescriptionTextBox.Focus();
             }
@@ -141,7 +141,7 @@ namespace AnlageverzeichnisAppWPF
             if(
                     (this.DataContext is inputAndDisplayPageViewModel vm)
                  && (vm.IsExpertModeEnabled == true)
-                 && (this.dataEntryLinesDataGrid.ItemsSource is ObservableCollection<dataEntryLine> lines)
+                 && (this.dataEntryLinesDataGrid.ItemsSource is ObservableCollection<UIDataLine> lines)
               )
             {
                 try
@@ -158,7 +158,7 @@ namespace AnlageverzeichnisAppWPF
                         line.IsCurrentHeading = false; // first clear the current heading state of all data entries in the document ...
                     }
 
-                    lines.Insert(indexOfHeadingAfterCurrentHeading, new dataEntryLine()); // inserting at the location of the heading after the selected heading will effectively add the element at the end of the block started with the selected heading... 
+                    lines.Insert(indexOfHeadingAfterCurrentHeading, new UIDataLine()); // inserting at the location of the heading after the selected heading will effectively add the element at the end of the block started with the selected heading... 
                 }
                 catch 
                 {
@@ -167,7 +167,7 @@ namespace AnlageverzeichnisAppWPF
                         line.IsCurrentHeading = false; // first clear the current heading state of all data entries in the document ...
                     }
 
-                    lines.Add(new dataEntryLine()); 
+                    lines.Add(new UIDataLine()); 
                 }
             }
         }
@@ -176,7 +176,7 @@ namespace AnlageverzeichnisAppWPF
         {
             if (
                     (this.DataContext is inputAndDisplayPageViewModel vm)
-                  &&(vm.Document is AnlageverzeichnisDocument doc)
+                  &&(vm.Document is UIDocument doc)
                )
             {
                 var invalidLines = doc.DataEntryLines.Where(x => x.IsInvalid == true).ToList();
@@ -197,7 +197,7 @@ namespace AnlageverzeichnisAppWPF
                 progressThread.SetApartmentState(ApartmentState.STA);
                 progressThread.IsBackground = true;
                 progressThread.Start();
-                var paginator = new CustomPaginator(doc);
+                var paginator = new CustomPaginator(new PrintableDocument(doc.toStoredDocumentType()));
                 var dlg = new PrintDialog();
                 if (progressWindow is not null)
                 {

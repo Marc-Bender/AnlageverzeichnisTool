@@ -9,21 +9,21 @@ namespace AnlageverzeichnisAppWPF
     public partial class inputAndDisplayPageViewModel : ObservableObject
     {
         [ObservableProperty]
-        private AnlageverzeichnisDocument document = new();
+        private UIDocument document = new();
         [ObservableProperty]
-        private dataEntryLine currentlyEditedLine;
+        private UIDataLine currentlyEditedLine;
         [ObservableProperty]
         private bool isExpertModeEnabled;
 
         public inputAndDisplayPageViewModel()
         {
-            this.CurrentlyEditedLine = new dataEntryLine(Document.Header.CurrentlyWorkedOnYear);
+            this.CurrentlyEditedLine = new UIDataLine(Document.Header.CurrentlyWorkedOnYear);
         }
 
-        public inputAndDisplayPageViewModel(AnlageverzeichnisDocument document)
+        public inputAndDisplayPageViewModel(UIDocument document)
         {
             this.Document = document;
-            this.CurrentlyEditedLine = new dataEntryLine(Document.Header.CurrentlyWorkedOnYear);
+            this.CurrentlyEditedLine = new UIDataLine(Document.Header.CurrentlyWorkedOnYear);
         }
     }
 }

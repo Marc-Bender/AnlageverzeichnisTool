@@ -13,7 +13,7 @@ using System.Windows.Shapes;
 
 namespace AnlageverzeichnisAppWPF
 {
-    public partial class PrintableDocument : AbstractAnlageVerzeichnisDocument<AbstractDocumentHeader, Collection<AbstractDataLine>, AbstractDataLine>
+    public partial class PrintableDocument : StoredDocument
     {
         private void _addCellToRow(TableRow row, string text, int columnSpan = 1, TextAlignment textAlignment = TextAlignment.Left, Thickness? borderThickness = null, TextDecorationCollection? textDecorations = null, bool isItalics = false, bool isBold = false)
         {
@@ -251,8 +251,8 @@ namespace AnlageverzeichnisAppWPF
 
         public List<FlowDocument> generatePerTableLineFlowDocuments()
         {
-            List<FlowDocument> flowDocuments = new List<FlowDocument>();
-            for(int i=0;i<this.DataEntryLines.Count;i++)
+            List<FlowDocument> flowDocuments = new List<FlowDocument>(this.DataEntryLines.Count);
+            for(var i=0; i<this.DataEntryLines.Count;i++)
             {
                 flowDocuments.Add(generateTableLineFlowDocument(i));
             }
@@ -750,5 +750,10 @@ namespace AnlageverzeichnisAppWPF
             return new[] {flowDocPage0, flowDocPage1};
         }
 
+        public PrintableDocument(StoredDocument document)
+        {
+            this.DataEntryLines = document.DataEntryLines;
+            this.Header = document.Header;
+        }
     }
 }

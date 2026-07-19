@@ -8,7 +8,7 @@ namespace AnlageverzeichnisAppWPF
     public partial class UIDocumentHeader : AbstractDocumentHeader
     {
         [ObservableProperty]
-        private string companyName = "Mustermann Fabrikations GmbH";;
+        private string companyName = "Mustermann Fabrikations GmbH";
         [ObservableProperty]
         private string companyCityAndZipCode = "12345 Bad Musterhausen";
         [ObservableProperty]
@@ -27,6 +27,15 @@ namespace AnlageverzeichnisAppWPF
             this.CompanyName = "Mustermann Fabrikations GmbH";
             this.CompanyCityAndZipCode = "12345 Bad Musterhausen";
             this.CurrentlyWorkedOnYear = 2020;
+        }
+
+        public StoredHeader toStoredHeaderType()
+        {
+            StoredHeader returnedHeader = new StoredHeader();
+            returnedHeader.CompanyName = this.CompanyName;
+            returnedHeader.CompanyCityAndZipCode = this.CompanyCityAndZipCode;
+            returnedHeader.CurrentlyWorkedOnYear = this.CurrentlyWorkedOnYear;
+            return returnedHeader;
         }
     }
 

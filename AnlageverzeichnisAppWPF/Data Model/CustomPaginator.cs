@@ -27,7 +27,7 @@ namespace AnlageverzeichnisAppWPF
         private readonly Typeface _headerTypeface = new Typeface("Courier New");
         private readonly Thickness _pageMargins = new Thickness(A3PaperAbstraction.pageMargins_mm / A3PaperAbstraction.mm_per_inch * A3PaperAbstraction.DPI);
 
-        private AnlageverzeichnisDocument? document;
+        private PrintableDocument? document;
         private List<FlowDocument> dataLinesFlowDocuments;
 
         // calculate the header and totals flowdoc once and then reuse across pages
@@ -83,7 +83,7 @@ namespace AnlageverzeichnisAppWPF
 
             return viewer.ExtentHeight;
         }
-        public CustomPaginator(AnlageverzeichnisDocument document)
+        public CustomPaginator(PrintableDocument document)
         {
             this.document = document;
             dataLinesFlowDocuments = document.generatePerTableLineFlowDocuments();

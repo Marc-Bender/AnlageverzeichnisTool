@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -13,11 +13,6 @@ namespace AnlageverzeichnisAppWPF
 {
     public partial class generalInformationInputPage : Page
     {
-        private void currentlyWorkedOnYearTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            e.Handled = !int.TryParse(e.Text, out _);
-        }
-
         private void createButton_Click(object sender, RoutedEventArgs e)
         {
             var saveDialog = new SaveFileDialog();
@@ -30,10 +25,10 @@ namespace AnlageverzeichnisAppWPF
                   && (saveDialog.FileName != "")
                )
             {
-                var document = new AnlageverzeichnisDocument((AnlageverzeichnisDocument.DocumentHeader)(this.DataContext));
+                var document = new UIDocument((UIDocumentHeader)(this.DataContext));
                 using (var outfile = new StreamWriter(saveDialog.FileName))
                 {
-                    outfile.Write(JsonSerializer.Serialize<AnlageverzeichnisDocument>(document));
+                    outfile.Write(JsonSerializer.Serialize<StoredDocument>(document.toStoredDocumentType()));
                 }
                 var inputAndDisplayPage = new inputAndDisplayPage(document, saveDialog.FileName);
                 inputAndDisplayPage.Tag = this.Tag;
