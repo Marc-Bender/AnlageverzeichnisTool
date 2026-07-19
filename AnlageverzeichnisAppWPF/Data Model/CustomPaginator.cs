@@ -180,16 +180,17 @@ namespace AnlageverzeichnisAppWPF
                                 && (this.document is not null)
                                 && (
                                     // insert current line only if not a heading or if it is a heading and atleast one data line fits after it... this is to ensure that a page end sum is always meaningfully calculatable
-                                    (nextLinePage is null)
+                                       (nextLinePage is null)
                                     || (this.document.DataEntryLines.ElementAt(currentLineIndex).IsHeading == false)
                                     || (
-                                        (nextLinePage is not null)
+                                           (nextLinePage is not null)
                                         && (this.document.DataEntryLines.ElementAt(currentLineIndex).IsHeading == true)
                                         && (cumulativeHeight + thisLinePageSize + nextLinePageSize < cumulativeHeightMax)
                                     )
                                 )
                             )
                         {
+                            var allHeadings = this.document.DataEntryLines.Where(x => x.IsHeading == true);
                             if (this.document.DataEntryLines.ElementAt(currentLineIndex).IsHeading == true)
                             {
                                 try
@@ -202,7 +203,6 @@ namespace AnlageverzeichnisAppWPF
                                                                                                             sectionStartDataLineIndexNumber: this.document.DataEntryLines.IndexOf(headingsUntilNow.Last()),
                                                                                                             sectionEndDataLineIndexNumber: currentLineIndex + 1 
                                                                                                         );
-                                   
                                     // paginate the new section end sum document
                                     _basePaginator = ((IDocumentPaginatorSource)sectionEndSumDoc).DocumentPaginator;
                                     sectionEndSumDoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm) - _pageMargins.Left - _pageMargins.Right;
@@ -251,6 +251,48 @@ namespace AnlageverzeichnisAppWPF
                                         )
                                 );
                             cumulativeHeight += thisLinePageSize;
+                            
+                            if(
+                                    (nextLinePage is null)
+                                 && (allHeadings.Count() > 1) // if more than one heading is in the document and we reached the end of the document then add a section end sum at the document right before the totals... 
+                              )
+                            {
+                                var dummyLine = new StoredDataline();
+                                this.document.DataEntryLines.Add(dummyLine); // add dummy line so that the generatesectionsum function below does not access out of bounds
+                                // add the section sum after the current line as the current line is the last line... (adding before as for all other headings does not make sense)
+                                var sectionEndSumDoc = this.document.generateSectionSumFlowDocument(
+                                                                                                        sectionStartDataLineIndexNumber: this.document.DataEntryLines.IndexOf(allHeadings.Last()),
+                                                                                                        sectionEndDataLineIndexNumber: currentLineIndex + 1
+                                                                                                   );
+                                // and after that the dummy line needs to be removed again to ensure that there is no junk data in the datastructure
+                                this.document.DataEntryLines.Remove(dummyLine);
+                                // paginate the new section end sum document
+                                _basePaginator = ((IDocumentPaginatorSource)sectionEndSumDoc).DocumentPaginator;
+                                sectionEndSumDoc.PageWidth = A3PaperAbstraction.mm_to_diu(A3PaperAbstraction.widthLandscape_mm) - _pageMargins.Left - _pageMargins.Right;
+                                var sectionSumPage = _basePaginator.GetPage(0);
+                                var sectionSumPageSize = MeasureFlowDocumentHeight(sectionEndSumDoc);
+
+                                // draw the section end sum
+
+                                dc.DrawRectangle(
+                                    new VisualBrush(sectionSumPage.Visual)
+                                    {
+                                        Stretch = Stretch.None,
+                                        AlignmentX = AlignmentX.Left,
+                                        AlignmentY = AlignmentY.Top
+                                    },
+                                    null,
+                                    new Rect(
+                                                _pageMargins.Left,
+                                                _pageMargins.Top + cumulativeHeight,
+                                                this._pageSize.Width - _pageMargins.Left - _pageMargins.Right,
+                                                sectionSumPageSize
+                                            )
+                                    );
+                                cumulativeHeight += sectionSumPageSize;
+
+                            }
+
                             currentLineIndex++;
                         }
                         else
